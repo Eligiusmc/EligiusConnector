@@ -1,0 +1,53 @@
+# Chat Bridge Configuration
+# https://eligiusmc.github.io/EligiusConnector/config/chat
+
+# Minecraft to Discord Format (supports PlaceholderAPI)
+MinecraftToDiscordFormat: "[MC] %player_displayname%: {message}"
+
+# Discord to Minecraft Format (supports PlaceholderAPI)
+DiscordToMinecraftFormat: "[DC] %username%: {message}"
+
+# Chat Filters
+Filters:
+  Spam:
+    Enabled: true
+    MaxMessagesPerMinute: 10
+    Punishment:
+      Enabled: true
+      Levels:
+        1: "mute:60"
+        2: "mute:300"
+        3: "tempban:3600"
+        4: "banip"
+
+  Profanity:
+    Enabled: true
+    Words: ["word1", "word2"]
+    Punishment:
+      Enabled: true
+      Levels:
+        1: "warn"
+        2: "mute:300"
+        3: "tempban:7200"
+
+  Links:
+    Enabled: true
+    Domains: ["youtube.com", "twitch.tv"]
+    Punishment:
+      Enabled: true
+      Levels:
+        1: "delete"
+        2: "warn"
+        3: "mute:300"
+
+  Caps:
+    Enabled: true
+    MaxPercentage: 70
+    Punishment:
+      Enabled: true
+      Levels:
+        1: "delete"
+        2: "warn"
+
+# Filter Message (supports PlaceholderAPI)
+FilterMessage: "Tu mensaje ha sido filtrado. Razón: {filter}"

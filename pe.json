@@ -1,0 +1,15 @@
+{
+  "name": "EligiusConnector",
+  "version": "1.0.0",
+  "description": "The ultimate Discord-Minecraft bridge plugin",
+  "author": "makrozai",
+  "website": "https://eligiusmc.github.io/EligiusConnector/",
+  "source": "https://github.com/Eligiusmc/EligiusConnector",
+  "license": "MIT",
+  "api-version": "1.21",
+  "folia-compatible": true,
+  "dependencies": {
+    "optional": ["PlaceholderAPI", "Vault", "LuckPerms", "ProtocolLib"]
+  },
+  "softdepend": ["PlaceholderAPI", "Vault", "LuckPerms"]
+}

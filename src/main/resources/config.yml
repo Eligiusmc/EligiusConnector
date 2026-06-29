@@ -1,0 +1,95 @@
+#  _____ _           _              _____                _
+ |  ___(_)_ __   __| | _____  __  |  ___|__  _ __ ___ | | __ _ _   _
+ | |_  | | '_ \ / _` |/ _ \ \/ /  | |_ / _ \| '__/ _ \| |/ _` | | | |
+ |  _| | | | | | (_| |  __/>  <   |  _| (_) | | | (_) | | (_| | |_| |
+ |_|   |_|_| |_|\__,_|\___/_/\_\  |_|  \___/|_|  \___/|_|\__,_|\__, |
+                                                                  |___/
+
+# EligiusConnector Configuration
+# https://eligiusmc.github.io/EligiusConnector/
+
+# Bot Token (never hardcode - use environment variable)
+BotToken: "${DISCORD_BOT_TOKEN}"
+
+# Discord Server ID
+ServerId: "your-server-id"
+
+# Debug mode
+Debug: false
+
+# Language (EN, ES)
+ForcedLanguage: "EN"
+
+# Timezone
+Timezone: "default"
+
+# Timestamp format
+TimestampFormat: "dd/MM/yyyy HH:mm:ss"
+
+# Avatar URL (supports PlaceholderAPI)
+AvatarUrl: "https://minotar.net/avatar/%player_name%/128"
+
+# Bot Status (supports PlaceholderAPI)
+DiscordGameStatus:
+  - "Jugando con %playerlist_online% jugadores"
+  - "Viendo %connector_linked_count% cuentas vinculadas"
+DiscordOnlineStatus: "ONLINE"
+StatusUpdateRateInMinutes: 5
+
+# Discord Channels
+Channels:
+  global: "your-global-channel-id"
+  admin: "your-admin-channel-id"
+
+# Console Channel
+DiscordConsoleChannelId: "your-console-channel-id"
+DiscordConsoleChannelLogRefreshRateInSeconds: 2
+DiscordConsoleChannelUseCodeBlocks: true
+DiscordConsoleChannelLevels: ["info", "warn", "error"]
+
+# Console Command Configuration
+ConsoleCommand:
+  Blacklist:
+    - "stop"
+    - "restart"
+    - "reload"
+    - "op"
+    - "deop"
+  Whitelist: []
+
+# PlaceholderAPI Configuration
+PlaceholderAPI:
+  Enabled: true
+  CachePlaceholders: true
+  CacheTimeInSeconds: 30
+
+# Security Configuration
+Security:
+  AuthorizedServers:
+    - "your-server-id"
+  RateLimits:
+    Commands: 5
+    Queries: 10
+    Console: 3
+
+# Database Configuration
+Database:
+  Type: "sqlite"  # sqlite, mysql, redis
+  MySQL:
+    Host: "localhost"
+    Port: 3306
+    Database: "eligiusconnector"
+    Username: "root"
+    Password: ""
+    MaxPoolSize: 10
+  Redis:
+    Host: "localhost"
+    Port: 6379
+    Password: ""
+    Database: 0
+
+# Audit Configuration
+Audit:
+  Enabled: true
+  Level: "info"
+  RetentionDays: 30

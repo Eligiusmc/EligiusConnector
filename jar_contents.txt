@@ -1,0 +1,38 @@
+EligiusConnector JAR Contents
+=============================
+
+This file lists the contents of the EligiusConnector JAR file.
+
+Core Classes:
+- com/makrozai/eligiusconnector/EligiusConnector.class
+- com/makrozai/eligiusconnector/config/ConfigManager.class
+- com/makrozai/eligiusconnector/database/DatabaseManager.class
+- com/makrozai/eligiusconnector/discord/DiscordManager.class
+- com/makrozai/eligiusconnector/discord/DiscordListener.class
+- com/makrozai/eligiusconnector/discord/MinecraftChatEvent.class
+- com/makrozai/eligiusconnector/listeners/PlayerListener.class
+- com/makrozai/eligiusconnector/commands/VerifyCommand.class
+- com/makrozai/eligiusconnector/commands/UnlinkCommand.class
+- com/makrozai/eligiusconnector/commands/ConnectorCommand.class
+- com/makrozai/eligiusconnector/placeholders/PlaceholderAPIManager.class
+
+Resources:
+- plugin.yml
+- config.yml
+- chat.yml
+- synchronization.yml
+- notifications.yml
+- events.yml
+
+Libraries (relocated):
+- com/makrozai/eligiusconnector/libs/bstats/
+- com/makrozai/eligiusconnector/libs/jedis/
+- com/makrozai/eligiusconnector/libs/commons/pool2/
+- com/makrozai/eligiusconnector/libs/hikari/
+- com/makrozai/eligiusconnector/libs/kyori/
+
+Build Information:
+- Plugin Version: 1.0.0
+- Minecraft Support: 1.21 - 26.1.2+
+- Java Version: 21 LTS
+- Architecture: Hexagonal (Ports & Adapters)

@@ -1,0 +1,17 @@
+{
+  "plugin": ["@dietrichgebert/ponytail"],
+  "skills": [
+    "caveman",
+    "find-skills",
+    "github-actions-docs",
+    "security-review",
+    "seo-audit",
+    "tdd",
+    "minecraft-plugin-development",
+    "minecraft-bukkit-pro",
+    "130-java-testing-strategies",
+    "documentation-writer",
+    "code-reviewer"
+  ],
+  "defaultMode": "full"
+}

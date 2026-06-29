@@ -1,0 +1,48 @@
+# Custom Events Configuration
+# https://eligiusmc.github.io/EligiusConnector/config/events
+
+Events:
+  boss:
+    Enabled: true
+    Trigger:
+      Timer: "0 */3 * * *"
+      Command: "/event start boss"
+    ChannelId: "your-event-channel-id"
+    Duration: 30
+
+    OnStart:
+      Messages:
+        - ":skull: **¡BOSS APARECIO!**\n:clock1: Duración: {duration} minutos\n:busts_in_silhouette: Jugadores online: %playerlist_online%"
+      Commands:
+        - "say ¡El boss ha aparecido!"
+
+    During:
+      Interval: 300
+      Messages:
+        - ":clock1: Tiempo restante: {time_remaining}\n:busts_in_silhouette: Jugadores: %playerlist_online%"
+
+    OnEnd:
+      Messages:
+        - ":tada: **¡Boss derrotado!**\n:busts_in_silhouette: Participaron: %playerlist_online%"
+      Commands:
+        - "say ¡El boss ha sido derrotado!"
+        - "give @a diamond 1"
+
+  clan_war:
+    Enabled: true
+    Trigger:
+      Command: "/event start clan_war"
+    ChannelId: "your-clan-channel-id"
+    Duration: 60
+
+    OnStart:
+      Messages:
+        - ":crossed_swords: **¡GUERRA DE CLANS!**\n:clock1: Duración: {duration} minutos\n:trophy: Clanes: %clans_clan_list%"
+      Commands:
+        - "pvp on"
+
+    OnEnd:
+      Messages:
+        - ":trophy: **¡GUERRA FINALIZADA!**\n:medal: Ganador: %clans_clan_top_1%"
+      Commands:
+        - "pvp off"

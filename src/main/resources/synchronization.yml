@@ -1,0 +1,29 @@
+# Synchronization Configuration
+# https://eligiusmc.github.io/EligiusConnector/config/synchronization
+
+# Role Synchronization (LuckPerms)
+GroupRoleSynchronization:
+  Enabled: true
+  MinecraftIsAuthoritative: true
+  OneWay: false
+  PrimaryGroupOnly: false
+  OnLink: true
+  CycleTime: 5
+  CycleCompletely: false
+
+  GroupsAndRolesToSync:
+    "your-discord-role-id": "admin"      # LuckPerms group
+    "your-discord-role-id": "mod"
+    "your-discord-role-id": "vip"
+    "your-discord-role-id": "default"
+
+# Nickname Synchronization (supports PlaceholderAPI)
+NicknameSynchronization:
+  Enabled: true
+  CycleTime: 5
+  Format: "[%connector_clan_tag_%player_name%%] %player_displayname%"
+
+# Ban Synchronization
+BanSynchronization:
+  DiscordToMinecraft: true
+  MinecraftToDiscord: true
