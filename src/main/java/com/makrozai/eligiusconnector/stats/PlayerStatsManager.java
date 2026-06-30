@@ -36,8 +36,27 @@ public class PlayerStatsManager {
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
+            // Add missing columns for existing tables
+            addColumnIfMissing(stmt, "connector_player_stats", "last_join", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+            addColumnIfMissing(stmt, "connector_player_stats", "kills_player", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "deaths_player", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "kills_mob", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "deaths_mob", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "blocks_placed", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "blocks_broken", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "items_crafted", "INT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "distance_walked", "BIGINT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "jumps", "INT DEFAULT 0");
         } catch (SQLException e) {
             plugin.getLogger().warning("Failed to create player_stats table: " + e.getMessage());
+        }
+    }
+
+    private void addColumnIfMissing(Statement stmt, String table, String column, String type) {
+        try {
+            stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+        } catch (SQLException ignored) {
+            // Column already exists
         }
     }
 
