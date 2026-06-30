@@ -1,0 +1,46 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Profile Commands        ║
+# ╚══════════════════════════════════════════════════╝
+
+profile:
+  title: "👤 Perfil de {player}"
+  color: 5814783
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  show_uuid: true
+  show_discord_link: true
+  show_kd: true
+  show_playtime: true
+  show_health_bar: true
+  show_food_bar: true
+  show_xp_bar: true
+  show_gamemode: true
+  show_ping: true
+  footer: "Datos en tiempo real"
+  timestamp: true
+
+inventory:
+  title: "🎒 Inventario de {player}"
+  color: 16753920
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  categories:
+    weapons: "⚔️ Armas"
+    armor: "🛡️ Armadura"
+    tools: "⛏️ Herramientas"
+    blocks: "🧱 Bloques"
+    food: "🍎 Comida"
+    potions: "🧪 Pociones"
+    misc: "📦 Otros"
+  empty_category_hidden: true
+  max_items_per_category: 10
+  footer: "Espacios: {used}/{total}"
+
+whereami:
+  title: "📍 Ubicacion de {player}"
+  color: 3066993
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  show_direction: true
+  direction_format: "full"
+  show_biome: true
+  show_block_face: true
+  show_tp_command: true
+  use_code_block: true

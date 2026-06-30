@@ -1,0 +1,91 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Русский               ║
+# ╚══════════════════════════════════════════════════╝
+
+keys:
+  general:
+    prefix: "&7[&6EC&7] "
+    enabled: "Включено"
+    disabled: "Выключено"
+    reload: "Конфигурация перезагружена"
+    error: "Ошибка"
+    no_permission: "У вас нет прав"
+    not_online: "Вы не в сети"
+    player_not_found: "Игрок не найден: {player}"
+    database_error: "Ошибка базы данных"
+
+  command:
+    verify:
+      description: "Подтвердить аккаунт Minecraft"
+      usage: "/verify <код>"
+      success: "&aАккаунт успешно подтвержден"
+      invalid: "&cНеверный код"
+      expired: "&cКод истёк"
+      already: "&aВаш аккаунт уже подтвержден"
+      code_message: "Ваш код: &e{code}"
+      not_linked: "&cВам нужно привязать аккаунт. Используйте /verify"
+
+    unlink:
+      description: "Отвязать аккаунт"
+      success: "&aАккаунт отвязан"
+      not_linked: "&cВаш аккаунт не привязан"
+      no_permission: "&cНет прав для отвязки других"
+
+    connector:
+      description: "Административные команды"
+      reload_success: "&aКонфигурация перезагружена"
+      status_title: "&6Статус плагина"
+      status_discord: "Discord: {status}"
+      status_database: "База данных: {type}"
+      status_linked: "Привязанные аккаунты: {count}"
+
+    events:
+      description: "Управление событиями"
+      list_title: "&6Доступные события"
+      no_events: "Нет настроенных событий"
+      started: "&aСобытие {name} начато"
+      stopped: "&cСобытие {name} остановлено"
+      not_found: "&cСобытие не найдено: {name}"
+
+    birthday:
+      description: "Управление днём рождения"
+      set_success: "&aДень рождения: {date}"
+      clear_success: "&aДень рождения удалён"
+      invalid_format: "&cФормат: dd/MM/yyyy"
+      not_linked: "&cСначала привяжите аккаунт. Используйте /verify"
+
+    chat:
+      description: "Переключить мост чата"
+      enabled: "&aМост чата включён"
+      disabled: "&cМост чата выключен"
+
+  event:
+    boss:
+      start_title: "⚔️ Босс появился"
+      start_desc: "**{boss}** появился!"
+      end_title: "🎯 Босс побеждён"
+      end_desc: "**{boss}** побеждён **{player}**!"
+      health: "❤️ Здоровье"
+      first_killer: "Вы победили {boss}! Получите {reward}"
+      participant: "Вы участвовали в поражении {boss}"
+
+    pvp:
+      tournament_started: "⚔️ PvP турнир начат"
+      round_start: "Раунд {round}"
+      match_start: "{player1} vs {player2}"
+      winner: "🏆 {player} выиграл турнир!"
+      runner_up: "🥈 Второй: {player}"
+      eliminated: "❌ {player} выбыл"
+      grace_period: "Милость: {seconds}s"
+      winner_reward: "Вы чемпион!"
+      runner_up_reward: "Второе место"
+      participation_reward: "Спасибо за участие"
+
+    treasure:
+      hunt_started: "🗺️ Охота за сокровищами"
+      hint: "Подсказка: {message}"
+      found: "💎 {player} нашёл сокровище!"
+      finder_reward: "Сокровище найдено!"
+      top_searcher_reward: "Хорошая работа по поиску"
+      proximity_warm: "Близко!"
+      proximity_hot: "Очень близко!"

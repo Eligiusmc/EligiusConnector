@@ -1,53 +1,66 @@
-# Chat Bridge Configuration
-# https://eligiusmc.github.io/EligiusConnector/config/chat
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Chat Bridge            ║
+# ╚══════════════════════════════════════════════════╝
 
-# Minecraft to Discord Format (supports PlaceholderAPI)
-MinecraftToDiscordFormat: "[MC] %player_displayname%: {message}"
+channel: "1521272219223851028"
 
-# Discord to Minecraft Format (supports PlaceholderAPI)
-DiscordToMinecraftFormat: "[DC] %username%: {message}"
+mc_to_discord: true
+discord_to_mc: true
 
-# Chat Filters
-Filters:
-  Spam:
-    Enabled: true
-    MaxMessagesPerMinute: 10
-    Punishment:
-      Enabled: true
-      Levels:
+format:
+  mc_to_discord: "{player}: {message}"
+  discord_to_mc: "[DC] {player}: {message}"
+
+webhooks:
+  enabled: true
+  name: "Minecraft"
+  avatar: "https://minotar.net/avatar/{player}/128"
+
+filters:
+  spam:
+    enabled: true
+    max_messages: 5
+    time_window_seconds: 10
+    punishment:
+      enabled: true
+      levels:
         1: "mute:60"
         2: "mute:300"
         3: "tempban:3600"
         4: "banip"
 
-  Profanity:
-    Enabled: true
-    Words: ["word1", "word2"]
-    Punishment:
-      Enabled: true
-      Levels:
+  profanity:
+    enabled: true
+    words: []
+    replacement: "*"
+    punishment:
+      enabled: true
+      levels:
         1: "warn"
         2: "mute:300"
         3: "tempban:7200"
 
-  Links:
-    Enabled: true
-    Domains: ["youtube.com", "twitch.tv"]
-    Punishment:
-      Enabled: true
-      Levels:
+  links:
+    enabled: true
+    mode: "whitelist"
+    domains:
+      - "youtube.com"
+      - "twitch.tv"
+      - "clips.twitch.tv"
+      - "github.com"
+    punishment:
+      enabled: true
+      levels:
         1: "delete"
         2: "warn"
         3: "mute:300"
 
-  Caps:
-    Enabled: true
-    MaxPercentage: 70
-    Punishment:
-      Enabled: true
-      Levels:
+  caps:
+    enabled: true
+    max_percentage: 70
+    min_length: 10
+    punishment:
+      enabled: true
+      levels:
         1: "delete"
         2: "warn"
-
-# Filter Message (supports PlaceholderAPI)
-FilterMessage: "Tu mensaje ha sido filtrado. Razón: {filter}"

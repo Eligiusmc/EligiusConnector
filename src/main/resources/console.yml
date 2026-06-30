@@ -1,0 +1,28 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Console Relay           ║
+# ╚══════════════════════════════════════════════════╝
+
+channel: "1521272226442383440"
+log_level: "info"
+refresh_rate_seconds: 2
+
+blacklist:
+  - "say"
+  - "gamemode"
+  - "op"
+  - "deop"
+
+reverse:
+  enabled: true
+  prefix: "!"
+  permission_required: "connector.console"
+  blacklist:
+    - "stop"
+    - "restart"
+    - "ban"
+    - "op"
+    - "deop"
+
+messages:
+  permission_denied: "❌ No tienes permisos para ejecutar comandos"
+  command_blacklisted: "❌ Comando bloqueado: {command}"

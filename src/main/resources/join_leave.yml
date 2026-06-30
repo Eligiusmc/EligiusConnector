@@ -1,0 +1,76 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Player Events          ║
+# ╚══════════════════════════════════════════════════╝
+
+join:
+  enabled: true
+  channel: "1521276575889358960"
+  embed:
+    title: "👋 Jugador Entro"
+    description: "**{player}** se unio al servidor"
+    color: 5763719
+    thumbnail: "https://minotar.net/avatar/{player}/128"
+    author: "Bienvenido"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    footer: "Jugadores en linea"
+    timestamp: true
+    fields:
+      - name: "📊 En Linea"
+        value: "**{online}** / **{max}**"
+        inline: true
+      - name: "🆕 Primera Vez"
+        value: "{first_join}"
+        inline: true
+
+leave:
+  enabled: true
+  channel: "1521276575889358960"
+  embed:
+    title: "👋 Jugador Salio"
+    description: "**{player}** se fue del servidor"
+    color: 15548997
+    thumbnail: "https://minotar.net/avatar/{player}/128"
+    author: "Hasta Luego"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    footer: "Jugadores en linea"
+    timestamp: true
+    fields:
+      - name: "📊 En Linea"
+        value: "**{online}** / **{max}**"
+        inline: true
+
+death:
+  enabled: true
+  channel: "1521276578708066578"
+  embed:
+    title: "💀 Muerte"
+    description: "**{player}** murio"
+    color: 15548997
+    thumbnail: "https://minotar.net/avatar/{player}/128"
+    author: "Fin del Camino"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    footer: "F en el chat"
+    timestamp: true
+    fields:
+      - name: "❤️ Vida"
+        value: "{health}"
+        inline: true
+      - name: "🍖 Hambre"
+        value: "{food}"
+        inline: true
+      - name: "🌍 Mundo"
+        value: "{world}"
+        inline: true
+
+advancement:
+  enabled: true
+  channel: "1521276581522444350"
+  embed:
+    title: "🏆 Logro Completado"
+    description: "**{player}** desbloqueo **{advancement}**"
+    color: 16766720
+    thumbnail: "https://minotar.net/avatar/{player}/128"
+    author: "Progreso"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    footer: "Sigue asi!"
+    timestamp: true

@@ -29,7 +29,7 @@ public class PlayerListener implements Listener {
         String message = event.getMessage();
 
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (!plugin.getConfigAdapter().isChatBridgeEnabled()) return;
+            if (!plugin.getConfigAdapter().isChatEnabled()) return;
 
             String avatarUrl = plugin.getConfigAdapter().getWebhookAvatar()
                     .replace("{player}", player.getName())
@@ -62,9 +62,9 @@ public class PlayerListener implements Listener {
 
             // Update online counter
             if (plugin.getConfigAdapter().isOnlineCounterEnabled()) {
-                String format = plugin.getConfigAdapter().getOnlineFormat();
+                String format = plugin.getConfigAdapter().getOnlineCounterFormat();
                 plugin.getDiscordManager().updateChannelName(
-                        plugin.getConfigAdapter().getOnlineChannelId(),
+                        plugin.getConfigAdapter().getOnlineCounterChannel(),
                         format.replace("{count}", String.valueOf(online))
                 );
             }
@@ -98,9 +98,9 @@ public class PlayerListener implements Listener {
 
             // Update online counter
             if (plugin.getConfigAdapter().isOnlineCounterEnabled()) {
-                String format = plugin.getConfigAdapter().getOnlineFormat();
+                String format = plugin.getConfigAdapter().getOnlineCounterFormat();
                 plugin.getDiscordManager().updateChannelName(
-                        plugin.getConfigAdapter().getOnlineChannelId(),
+                        plugin.getConfigAdapter().getOnlineCounterChannel(),
                         format.replace("{count}", String.valueOf(online))
                 );
             }

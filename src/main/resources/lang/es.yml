@@ -1,65 +1,91 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Spanish Language        ║
+# ║        EligiusConnector - Español               ║
 # ╚══════════════════════════════════════════════════╝
 
-general:
-  prefix: "[EC]"
-  enabled: "Habilitado"
-  disabled: "Deshabilitado"
-  reload: "Configuracion recargada"
-  error: "Error"
+keys:
+  general:
+    prefix: "&7[&6EC&7] "
+    enabled: "Habilitado"
+    disabled: "Deshabilitado"
+    reload: "Configuracion recargada"
+    error: "Error"
+    no_permission: "No tienes permisos"
+    not_online: "No estas en linea"
+    player_not_found: "Jugador no encontrado: {player}"
+    database_error: "Error de base de datos"
 
-commands:
-  verify:
-    description: "Verificar tu cuenta de Minecraft"
-    usage: "/verify <codigo>"
-    success: "✅ Cuenta verificada correctamente"
-    invalid: "❌ Codigo invalido"
-    expired: "❌ Codigo expirado"
-    already: "✅ Tu cuenta ya esta verificada"
+  command:
+    verify:
+      description: "Verificar tu cuenta de Minecraft"
+      usage: "/verify <codigo>"
+      success: "&aCuenta verificada correctamente"
+      invalid: "&cCodigo invalido"
+      expired: "&cCodigo expirado"
+      already: "&aTu cuenta ya esta verificada"
+      code_message: "Tu codigo: &e{code}"
+      not_linked: "&cNecesitas vincular tu cuenta. Usa /verify"
 
-  unlink:
-    description: "Desvincular tu cuenta"
-    usage: "/unlink [jugador]"
-    success: "✅ Cuenta desvinculada"
-    not_linked: "❌ Tu cuenta no esta vinculada"
-    no_permission: "❌ No tienes permisos para desvincular otros"
+    unlink:
+      description: "Desvincular tu cuenta"
+      success: "&aCuenta desvinculada"
+      not_linked: "&cTu cuenta no esta vinculada"
+      no_permission: "&cNo permisos para desvincular otros"
 
-  connector:
-    description: "Comandos administrativos"
-    usage: "/connector <reload|status>"
-    reload_success: "✅ Configuracion recargada"
-    status_title: "📊 Estado del Plugin"
-    status_discord: "Discord: {status}"
-    status_database: "Base de datos: {type}"
-    status_linked: "Cuentas vinculadas: {count}"
+    connector:
+      description: "Comandos administrativos"
+      reload_success: "&aConfiguracion recargada"
+      status_title: "&6Estado del Plugin"
+      status_discord: "Discord: {status}"
+      status_database: "Base de datos: {type}"
+      status_linked: "Cuentas vinculadas: {count}"
 
-  events:
-    description: "Gestionar eventos"
-    usage: "/events <list|start|stop|reload>"
-    list_title: "📋 Eventos Disponibles"
-    no_events: "No hay eventos configurados"
-    started: "✅ Evento {name} iniciado"
-    stopped: "🛑 Evento {name} finalizado"
-    not_found: "❌ Evento no encontrado: {name}"
+    events:
+      description: "Gestionar eventos"
+      list_title: "&6Eventos Disponibles"
+      no_events: "No hay eventos configurados"
+      started: "&aEvento {name} iniciado"
+      stopped: "&cEvento {name} finalizado"
+      not_found: "&cEvento no encontrado: {name}"
 
-  birthday:
-    description: "Gestionar cumpleanos"
-    usage: "/birthday <set|clear>"
-    set_success: "✅ Cumpleanos configurado: {date}"
-    clear_success: "✅ Cumpleanos eliminado"
-    invalid_format: "❌ Formato invalido. Usa dd/MM/yyyy"
+    birthday:
+      description: "Gestionar cumpleanos"
+      set_success: "&aCumpleanos: {date}"
+      clear_success: "&aCumpleanos eliminado"
+      invalid_format: "&cFormato: dd/MM/yyyy"
+      not_linked: "&cVincula tu cuenta primero. Usa /verify"
 
-  chat:
-    description: "Toggle chat bridge"
-    usage: "/chat"
-    enabled: "✅ Chat bridge habilitado"
-    disabled: "❌ Chat bridge deshabilitado"
+    chat:
+      description: "Toggle chat bridge"
+      enabled: "&aChat bridge habilitado"
+      disabled: "&cChat bridge deshabilitado"
 
-permissions:
-  verify: "connector.verify"
-  unlink_self: "connector.unlink.self"
-  unlink_other: "connector.unlink.other"
-  admin: "connector.admin"
-  events: "connector.events"
-  birthday: "connector.birthday"
+  event:
+    boss:
+      start_title: "⚔️ Boss Spawned"
+      start_desc: "**{boss}** ha aparecido!"
+      end_title: "🎯 Boss Derrotado"
+      end_desc: "**{boss}** derrotado por **{player}**!"
+      health: "❤️ Vida"
+      first_killer: "Derrotaste al {boss}! Recibe {reward}"
+      participant: "Participaste en la derrota del {boss}"
+
+    pvp:
+      tournament_started: "⚔️ Torneo PvP Iniciado"
+      round_start: "Ronda {round}"
+      match_start: "{player1} vs {player2}"
+      winner: "🏆 {player} gano el torneo!"
+      runner_up: "🥈 Segundo: {player}"
+      eliminated: "❌ {player} eliminado"
+      grace_period: "Gracia: {seconds}s"
+      winner_reward: "Eres el campeon!"
+      runner_up_reward: "Segundo lugar"
+      participation_reward: "Gracias por participar"
+
+    treasure:
+      hunt_started: "🗺️ Busqueda del Tesoro"
+      hint: "Pista: {message}"
+      found: "💎 ¡{player} encontro el tesoro!"
+      finder_reward: "¡Tesoro encontrado!"
+      top_searcher_reward: "Buen trabajo buscando"
+      proximity_warm: "¡Cerca!"
+      proximity_hot: "¡Muy cerca!"

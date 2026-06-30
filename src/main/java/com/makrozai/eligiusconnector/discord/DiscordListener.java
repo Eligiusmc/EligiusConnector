@@ -46,13 +46,7 @@ public class DiscordListener extends ListenerAdapter {
             if (minecraftName != null) prefix = minecraftName;
         }
 
-        boolean useEmbeds = plugin.getConfigAdapter().isChatBridgeUseEmbed();
-        String formattedMessage;
-        if (useEmbeds) {
-            formattedMessage = prefix + ": " + message;
-        } else {
-            formattedMessage = "[DC] " + prefix + ": " + message;
-        }
+        String formattedMessage = "[DC] " + prefix + ": " + message;
 
         final String finalMessage = formattedMessage;
         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -75,8 +69,7 @@ public class DiscordListener extends ListenerAdapter {
         }
 
         String command = message.split(" ")[0].toLowerCase();
-        // Check blacklist from config
-        java.util.List<String> blacklist = plugin.getConfigAdapter().getConfig().getStringList("modules.console.blacklist");
+        java.util.List<String> blacklist = plugin.getConfigAdapter().getConsoleBlacklist();
         if (blacklist.contains(command)) {
             plugin.getDiscordManager().sendPermissionDenied(
                     plugin.getConfigAdapter().getConsoleChannelId(),

@@ -1,0 +1,35 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Verification           ║
+# ╚══════════════════════════════════════════════════╝
+
+channel: "1521272231068700702"
+
+code:
+  length: 6
+  expiry_minutes: 5
+  character_set: "numeric"
+
+messages:
+  code_message: "Tu codigo de verificacion es: **{code}**\nIngresa `/verify {code}` en el servidor"
+  success_mc: "✅ Cuenta vinculada correctamente!"
+  success_discord: "✅ Tu cuenta ha sido vinculada correctamente"
+  already_linked: "✅ Tu cuenta ya esta vinculada"
+  invalid_code: "❌ Codigo invalido o expirado"
+
+welcome_embed:
+  enabled: true
+  title: "🔐 Verifica tu Cuenta"
+  description: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
+  color: 5814783
+  thumbnail: "https://minotar.net/avatar/server/128"
+  author: "EligiusMC"
+  author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "Sigue los pasos"
+  timestamp: true
+  fields:
+    - name: "📋 Como verificar"
+      value: "1. Entra al servidor de Minecraft\n2. Escribe `/verify` en el chat\n3. Haz clic en **Verificar** abajo\n4. Ingresa el codigo"
+      inline: false
+    - name: "✨ Beneficios"
+      value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario\n• Establecer tu cumpleanos"
+      inline: false

@@ -1,0 +1,33 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Status                 ║
+# ╚══════════════════════════════════════════════════╝
+
+channel: "1521276573033173204"
+update_interval_seconds: 30
+
+online:
+  title: "🟢 Servidor En Linea"
+  description: "El servidor esta **listo** para jugar"
+  color: 5763719
+  thumbnail: "https://minotar.net/avatar/server/128"
+  author: "EligiusMC Status"
+  author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "Ultima actualizacion"
+  timestamp: true
+  fields:
+    - name: "👥 Jugadores"
+      value: "**{online}** / **{max}**"
+      inline: true
+    - name: "🌍 Mundo"
+      value: "Survival"
+      inline: true
+
+offline:
+  title: "🔴 Servidor Apagado"
+  description: "El servidor se ha **apagado** temporalmente"
+  color: 15548997
+  author: "EligiusMC Status"
+  author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "Volveremos pronto"
+  timestamp: true
+  fields: []

@@ -1,13 +1,15 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Server Notifications   ║
+# ║        EligiusConnector - Dynamic Counters       ║
 # ╚══════════════════════════════════════════════════╝
 
-server_start:
+online:
   enabled: true
-  channel: "1521272219223851028"
-  message: ":white_check_mark: Servidor iniciado.\n:busts_in_silhouette: Jugadores online: {online}"
+  channel: "1521280346585305268"
+  format: "🟢 online: {count}"
+  update_interval_seconds: 30
 
-server_stop:
+all_members:
   enabled: true
-  channel: "1521272219223851028"
-  message: ":x: Servidor apagándose..."
+  channel: "1521280350343532654"
+  format: "👥 all-members: {count}"
+  update_interval_seconds: 300

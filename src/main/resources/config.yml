@@ -1,21 +1,41 @@
 # ╔══════════════════════════════════════════════════╗
 # ║        EligiusConnector - Configuration          ║
-# ║        Config Version: 2                         ║
+# ║        Config Version: 3                         ║
 # ╚══════════════════════════════════════════════════╝
 
-config_version: 2
+config_version: 3
 
 # ==========================================
 #  BOT CONFIGURATION
 # ==========================================
 bot:
-  token: "${DISCORD_TOKEN}"
+  token: "${DISCORD_BOT_TOKEN}"
   server_id: "508152650978820096"
   status: "ONLINE"
   game_status:
     - "🎮 EligiusMC"
     - "🟢 {online} jugadores"
   update_interval_minutes: 1
+
+# ==========================================
+#  MODULES (Enable/Disable)
+# ==========================================
+modules:
+  chat: true
+  status: true
+  join_leave: true
+  deaths: true
+  advancements: true
+  verify: true
+  birthday: true
+  console: true
+  notifications: true
+  synchronization: true
+  counters: true
+  profile: true
+  events: true
+  placeholder_api: true
+  permissions: true
 
 # ==========================================
 #  DATABASE
@@ -42,72 +62,14 @@ database:
 language: "es"
 
 # ==========================================
-#  MODULES (Enable/Disable)
-# ==========================================
-modules:
-  chat_bridge:
-    enabled: true
-    mc_to_discord: true
-    discord_to_mc: true
-    use_webhooks: true
-    webhook_name: "Minecraft"
-    filter:
-      enabled: true
-      blocked_words: []
-      anti_spam:
-        enabled: true
-        max_messages: 5
-        time_window_seconds: 10
-
-  status:
-    enabled: true
-
-  join_leave:
-    enabled: true
-
-  deaths:
-    enabled: true
-
-  advancements:
-    enabled: true
-
-  boss_events:
-    enabled: true
-
-  console:
-    enabled: true
-    show_all_logs: true
-    refresh_rate_seconds: 2
-
-  verify:
-    enabled: true
-    code_expiry_minutes: 5
-
-  birthday:
-    enabled: true
-    date_format: "dd/MM/yyyy"
-    rewards:
-      commands:
-        - "give {player} minecraft:cake 1"
-        - "give {player} minecraft:firework_rocket 16"
-      message: "¡Feliz cumpleanos {player}! Recibe tus regalos."
-      role: ""
-
-  events:
-    enabled: true
-    folder: "events"
-
-  placeholder_api:
-    enabled: true
-
-  permissions:
-    enabled: true
-    use_luckperms: true
-
-# ==========================================
 #  AUDIT
 # ==========================================
 audit:
   enabled: true
   level: "info"
   retention_days: 30
+
+# ==========================================
+#  DEBUG
+# ==========================================
+debug: false

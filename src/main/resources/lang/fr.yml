@@ -1,0 +1,91 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Français              ║
+# ╚══════════════════════════════════════════════════╝
+
+keys:
+  general:
+    prefix: "&7[&6EC&7] "
+    enabled: "Activé"
+    disabled: "Désactivé"
+    reload: "Configuration rechargée"
+    error: "Erreur"
+    no_permission: "Vous n'avez pas la permission"
+    not_online: "Vous n'êtes pas en ligne"
+    player_not_found: "Joueur non trouvé: {player}"
+    database_error: "Erreur de base de données"
+
+  command:
+    verify:
+      description: "Vérifier votre compte Minecraft"
+      usage: "/verify <code>"
+      success: "&aCompte vérifié avec succès"
+      invalid: "&cCode invalide"
+      expired: "&cCode expiré"
+      already: "&aVotre compte est déjà vérifié"
+      code_message: "Votre code: &e{code}"
+      not_linked: "&cVous devez lier votre compte. Utilisez /verify"
+
+    unlink:
+      description: "Délier votre compte"
+      success: "&aCompte délié"
+      not_linked: "&cVotre compte n'est pas lié"
+      no_permission: "&cPas de permission pour délier d'autres"
+
+    connector:
+      description: "Commandes administrateur"
+      reload_success: "&aConfiguration rechargée"
+      status_title: "&6État du Plugin"
+      status_discord: "Discord: {status}"
+      status_database: "Base de données: {type}"
+      status_linked: "Comptes liés: {count}"
+
+    events:
+      description: "Gérer les événements"
+      list_title: "&6Événements Disponibles"
+      no_events: "Aucun événement configuré"
+      started: "&aÉvénement {name} démarré"
+      stopped: "&cÉvénement {name} arrêté"
+      not_found: "&cÉvénement non trouvé: {name}"
+
+    birthday:
+      description: "Gérer les anniversaires"
+      set_success: "&aAnniversaire: {date}"
+      clear_success: "&aAnniversaire effacé"
+      invalid_format: "&cFormat: dd/MM/yyyy"
+      not_linked: "&cLiez votre compte d'abord. Utilisez /verify"
+
+    chat:
+      description: "Basculer le chat bridge"
+      enabled: "&aChat bridge activé"
+      disabled: "&cChat bridge désactivé"
+
+  event:
+    boss:
+      start_title: "⚔️ Boss Apparu"
+      start_desc: "**{boss}** est apparu!"
+      end_title: "🎯 Boss Vaincu"
+      end_desc: "**{boss}** vaincu par **{player}**!"
+      health: "❤️ Santé"
+      first_killer: "Vous avez vaincu le {boss}! Recevez {reward}"
+      participant: "Vous avez participé à la défaite du {boss}"
+
+    pvp:
+      tournament_started: "⚔️ Tournoi PvP Démarré"
+      round_start: "Manche {round}"
+      match_start: "{player1} vs {player2}"
+      winner: "🏆 {player} a gagné le tournoi!"
+      runner_up: "🥈 Deuxième: {player}"
+      eliminated: "❌ {player} éliminé"
+      grace_period: "Grâce: {seconds}s"
+      winner_reward: "Vous êtes le champion!"
+      runner_up_reward: "Deuxième place"
+      participation_reward: "Merci d'avoir participé"
+
+    treasure:
+      hunt_started: "🗺️ Chasse au Trésor"
+      hint: "Indice: {message}"
+      found: "💎 {player} a trouvé le trésor!"
+      finder_reward: "Trésor trouvé!"
+      top_searcher_reward: "Bon travail de recherche"
+      proximity_warm: "Proche!"
+      proximity_hot: "Très proche!"

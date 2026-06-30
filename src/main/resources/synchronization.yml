@@ -1,29 +1,20 @@
-# Synchronization Configuration
-# https://eligiusmc.github.io/EligiusConnector/config/synchronization
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Synchronization        ║
+# ╚══════════════════════════════════════════════════╝
 
-# Role Synchronization (LuckPerms)
-GroupRoleSynchronization:
-  Enabled: true
-  MinecraftIsAuthoritative: true
-  OneWay: false
-  PrimaryGroupOnly: false
-  OnLink: true
-  CycleTime: 5
-  CycleCompletely: false
+roles:
+  enabled: false
+  mc_is_authoritative: true
+  one_way: false
+  on_link: true
+  cycle_time_seconds: 5
+  group_mapping: {}
 
-  GroupsAndRolesToSync:
-    "your-discord-role-id": "admin"      # LuckPerms group
-    "your-discord-role-id": "mod"
-    "your-discord-role-id": "vip"
-    "your-discord-role-id": "default"
+nickname:
+  enabled: false
+  cycle_time_seconds: 5
+  format: "[%connector_clan_tag_%player_name%%] %player_displayname%"
 
-# Nickname Synchronization (supports PlaceholderAPI)
-NicknameSynchronization:
-  Enabled: true
-  CycleTime: 5
-  Format: "[%connector_clan_tag_%player_name%%] %player_displayname%"
-
-# Ban Synchronization
-BanSynchronization:
-  DiscordToMinecraft: true
-  MinecraftToDiscord: true
+bans:
+  discord_to_mc: false
+  mc_to_discord: false

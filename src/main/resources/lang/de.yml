@@ -1,0 +1,91 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Deutsch               ║
+# ╚══════════════════════════════════════════════════╝
+
+keys:
+  general:
+    prefix: "&7[&6EC&7] "
+    enabled: "Aktiviert"
+    disabled: "Deaktiviert"
+    reload: "Konfiguration neu geladen"
+    error: "Fehler"
+    no_permission: "Keine Berechtigung"
+    not_online: "Nicht online"
+    player_not_found: "Spieler nicht gefunden: {player}"
+    database_error: "Datenbankfehler"
+
+  command:
+    verify:
+      description: "Minecraft-Konto verifizieren"
+      usage: "/verify <code>"
+      success: "&aKonto erfolgreich verifiziert"
+      invalid: "&cUngültiger Code"
+      expired: "&cCode abgelaufen"
+      already: "&aIhr Konto ist bereits verifiziert"
+      code_message: "Ihr Code: &e{code}"
+      not_linked: "&cSie müssen Ihr Konto verknüpfen. Verwenden Sie /verify"
+
+    unlink:
+      description: "Konto lösen"
+      success: "&aKonto gelöst"
+      not_linked: "&cIhr Konto ist nicht verknüpft"
+      no_permission: "&cKeine Berechtigung zum Lösen anderer"
+
+    connector:
+      description: "Admin-Befehle"
+      reload_success: "&aKonfiguration neu geladen"
+      status_title: "&6Plugin-Status"
+      status_discord: "Discord: {status}"
+      status_database: "Datenbank: {type}"
+      status_linked: "Verknüpfte Konten: {count}"
+
+    events:
+      description: "Events verwalten"
+      list_title: "&6Verfügbare Events"
+      no_events: "Keine Events konfiguriert"
+      started: "&aEvent {name} gestartet"
+      stopped: "&cEvent {name} gestoppt"
+      not_found: "&cEvent nicht gefunden: {name}"
+
+    birthday:
+      description: "Geburtstag verwalten"
+      set_success: "&aGeburtstag: {date}"
+      clear_success: "&aGeburtstag gelöscht"
+      invalid_format: "&cFormat: dd/MM/yyyy"
+      not_linked: "&cVerknüpfen Sie zuerst Ihr Konto. Verwenden Sie /verify"
+
+    chat:
+      description: "Chat-Bridge umschalten"
+      enabled: "&aChat-Bridge aktiviert"
+      disabled: "&cChat-Bridge deaktiviert"
+
+  event:
+    boss:
+      start_title: "⚔️ Boss erschienen"
+      start_desc: "**{boss}** ist erschienen!"
+      end_title: "🎯 Boss besiegt"
+      end_desc: "**{boss}** besiegt von **{player}**!"
+      health: "❤️ Gesundheit"
+      first_killer: "Sie haben den {boss} besiegt! Erhalten Sie {reward}"
+      participant: "Sie haben an der Niederlage des {boss} teilgenommen"
+
+    pvp:
+      tournament_started: "⚔️ PvP-Turnier gestartet"
+      round_start: "Runde {round}"
+      match_start: "{player1} vs {player2}"
+      winner: "🏆 {player} hat das Turnier gewonnen!"
+      runner_up: "🥈 Zweiter: {player}"
+      eliminated: "❌ {player} eliminiert"
+      grace_period: "Schonfrist: {seconds}s"
+      winner_reward: "Sie sind der Champion!"
+      runner_up_reward: "Zweiter Platz"
+      participation_reward: "Danke für die Teilnahme"
+
+    treasure:
+      hunt_started: "🗺️ Schatzsuche"
+      hint: "Hinweis: {message}"
+      found: "💎 {player} hat den Schatz gefunden!"
+      finder_reward: "Schatz gefunden!"
+      top_searcher_reward: "Gute Sucharbeit"
+      proximity_warm: "Nah!"
+      proximity_hot: "Sehr nah!"

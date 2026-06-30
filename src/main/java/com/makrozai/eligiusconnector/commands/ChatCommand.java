@@ -17,7 +17,7 @@ public class ChatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!plugin.getConfigAdapter().isChatBridgeEnabled()) {
+        if (!plugin.getConfigAdapter().isChatEnabled()) {
             sender.sendMessage(ChatColor.RED + "Chat bridge module is disabled.");
             return true;
         }

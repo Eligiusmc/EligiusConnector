@@ -49,7 +49,7 @@ public class DiscordManager {
                     .setStatus(OnlineStatus.ONLINE);
 
             List<String> statuses = plugin.getConfigAdapter().getGameStatus();
-            if (!statuses.isEmpty()) {
+            if (statuses != null && !statuses.isEmpty()) {
                 builder.setActivity(Activity.playing(statuses.get(0)));
             }
 
@@ -101,18 +101,6 @@ public class DiscordManager {
         return jda.getTextChannelById(channelId);
     }
 
-    // Channel getters
-    public TextChannel getGlobalChannel() { return getChannel(plugin.getConfigAdapter().getGlobalChannelId()); }
-    public TextChannel getConsoleChannel() { return getChannel(plugin.getConfigAdapter().getConsoleChannelId()); }
-    public TextChannel getVerifyChannel() { return getChannel(plugin.getConfigAdapter().getVerifyChannelId()); }
-    public TextChannel getStatusChannel() { return getChannel(plugin.getConfigAdapter().getStatusChannelId()); }
-    public TextChannel getJoinsChannel() { return getChannel(plugin.getConfigAdapter().getJoinsChannelId()); }
-    public TextChannel getDeathsChannel() { return getChannel(plugin.getConfigAdapter().getDeathsChannelId()); }
-    public TextChannel getMissionsChannel() { return getChannel(plugin.getConfigAdapter().getMissionsChannelId()); }
-    public TextChannel getBossEventsChannel() { return getChannel(plugin.getConfigAdapter().getBossEventsChannelId()); }
-    public TextChannel getOnlineChannel() { return getChannel(plugin.getConfigAdapter().getOnlineChannelId()); }
-    public TextChannel getAllMembersChannel() { return getChannel(plugin.getConfigAdapter().getAllMembersChannelId()); }
-
     // Send text messages
     public void sendMessage(String channelId, String message) {
         TextChannel channel = getChannel(channelId);
@@ -127,10 +115,10 @@ public class DiscordManager {
     // Send embed messages
     public void sendEmbed(String channelId, Map<String, Object> embedConfig, Map<String, String> replacements) {
         TextChannel channel = getChannel(channelId);
-        if (channel == null || embedConfig == null) return;
+        if (channel == null || embedConfig == null || embedConfig.isEmpty()) return;
 
         try {
-            MessageEmbed embed = buildEmbed(embedConfig, replacements);
+            MessageEmbed embed = buildEmbed(embedConfig, replacements != null ? replacements : new java.util.HashMap<>());
             if (embed != null) {
                 channel.sendMessageEmbeds(embed).queue(
                         success -> {},
@@ -279,18 +267,8 @@ public class DiscordManager {
         sendEmbed(channelId, embedConfig, new java.util.HashMap<>());
     }
 
-    public void sendBossSpawnEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getBossEventsChannelId(), plugin.getConfigAdapter().getBossSpawnEmbed(), replacements);
-    }
-
-    public void sendBossDeathEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getBossEventsChannelId(), plugin.getConfigAdapter().getBossDeathEmbed(), replacements);
-    }
-
     public void sendChatMessage(String playerName, String message, String avatarUrl) {
-        // This would be implemented with webhook support
-        // For now, send to global channel
-        TextChannel channel = getGlobalChannel();
+        TextChannel channel = getChannel(plugin.getConfigAdapter().getGlobalChannelId());
         if (channel != null) {
             channel.sendMessage("**" + playerName + "**: " + message).queue();
         }
