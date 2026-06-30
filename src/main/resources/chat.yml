@@ -31,7 +31,22 @@ filters:
 
   profanity:
     enabled: true
-    words: []
+    words:
+      - "fuck"
+      - "shit"
+      - "damn"
+      - "ass"
+      - "asshole"
+      - "bitch"
+      - "bastard"
+      - "dick"
+      - "crap"
+      - "piss"
+      - "stupid"
+      - "idiot"
+      - "moron"
+      - "suck"
+      - "sucks"
     replacement: "*"
     punishment:
       enabled: true
@@ -45,9 +60,17 @@ filters:
     mode: "whitelist"
     domains:
       - "youtube.com"
+      - "youtu.be"
       - "twitch.tv"
       - "clips.twitch.tv"
       - "github.com"
+      - "discord.com"
+      - "discord.gg"
+      - "minecraft.net"
+      - "mojang.com"
+      - "papermc.io"
+      - "spigotmc.org"
+      - "bukkit.org"
     punishment:
       enabled: true
       levels:

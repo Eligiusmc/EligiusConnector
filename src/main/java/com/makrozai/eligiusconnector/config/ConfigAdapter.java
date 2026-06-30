@@ -309,11 +309,45 @@ public class ConfigAdapter {
     public String getAllMembersCounterFormat() { return countersConfig.getString("all_members.format", "👥 all-members: {count}"); }
     public int getAllMembersCounterInterval() { return countersConfig.getInt("all_members.update_interval_seconds", 300); }
 
+    // Server status counter
+    public boolean isServerStatusCounterEnabled() { return countersConfig.getBoolean("server_status.enabled", true); }
+    public String getServerStatusChannel() { return countersConfig.getString("server_status.channel", ""); }
+    public String getServerStatusFormatOnline() { return countersConfig.getString("server_status.format_online", "🟢 Online - {count} jugadores"); }
+    public String getServerStatusFormatOffline() { return countersConfig.getString("server_status.format_offline", "🔴 Offline"); }
+    public int getServerStatusInterval() { return countersConfig.getInt("server_status.update_interval_seconds", 30); }
+
     // Aliases for callers using old names
     public String getOnlineChannelId() { return getOnlineCounterChannel(); }
     public String getOnlineFormat() { return getOnlineCounterFormat(); }
     public String getAllMembersChannelId() { return getAllMembersCounterChannel(); }
     public String getAllMembersFormat() { return getAllMembersCounterFormat(); }
+
+    // ==========================================
+    //  SYNCHRONIZATION CONFIG GETTERS
+    // ==========================================
+
+    public boolean isRoleSyncEnabled() { return synchronizationConfig.getBoolean("roles.enabled", false); }
+    public boolean isRoleOnLinkEnabled() { return synchronizationConfig.getBoolean("roles.on_link", true); }
+    public String getVerifiedRoleId() { return synchronizationConfig.getString("roles.group_mapping.verified", ""); }
+    public void setVerifiedRoleId(String roleId) {
+        synchronizationConfig.set("roles.group_mapping.verified", roleId);
+        try {
+            File file = new File(plugin.getDataFolder(), "synchronization.yml");
+            synchronizationConfig.save(file);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save verified role ID: " + e.getMessage());
+        }
+    }
+    public Map<String, String> getRoleGroupMapping() {
+        Map<String, String> mapping = new HashMap<>();
+        var section = synchronizationConfig.getConfigurationSection("roles.group_mapping");
+        if (section != null) {
+            for (String key : section.getKeys(false)) {
+                mapping.put(key, String.valueOf(section.get(key)));
+            }
+        }
+        return mapping;
+    }
 
     // ==========================================
     //  PROFILE CONFIG GETTERS

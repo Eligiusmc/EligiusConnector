@@ -3,12 +3,13 @@
 # ╚══════════════════════════════════════════════════╝
 
 roles:
-  enabled: false
+  enabled: true
   mc_is_authoritative: true
   one_way: false
   on_link: true
   cycle_time_seconds: 5
-  group_mapping: {}
+  group_mapping:
+    verified: "1521342858945101894"
 
 nickname:
   enabled: false

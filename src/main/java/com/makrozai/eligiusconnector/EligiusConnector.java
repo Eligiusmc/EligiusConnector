@@ -12,7 +12,10 @@ import com.makrozai.eligiusconnector.listeners.StatsListener;
 import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
 import com.makrozai.eligiusconnector.tasks.AllMembersCounterTask;
 import com.makrozai.eligiusconnector.tasks.OnlineCounterTask;
+import com.makrozai.eligiusconnector.tasks.ServerStatusCounterTask;
 import com.makrozai.eligiusconnector.util.StartupLogger;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Role;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -32,6 +35,7 @@ public final class EligiusConnector extends JavaPlugin {
     private PlayerStatsManager statsManager;
     private OnlineCounterTask onlineCounterTask;
     private AllMembersCounterTask allMembersCounterTask;
+    private ServerStatusCounterTask serverStatusCounterTask;
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
     private final Map<Long, Long> verifyExpiry = new ConcurrentHashMap<>();
@@ -65,6 +69,11 @@ public final class EligiusConnector extends JavaPlugin {
 
         webhookManager = new WebhookManager(this);
 
+        // Create verified role if needed
+        if (configAdapter.isRoleSyncEnabled()) {
+            createVerifiedRoleIfNeeded();
+        }
+
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
@@ -85,6 +94,10 @@ public final class EligiusConnector extends JavaPlugin {
         if (configAdapter.isModuleEnabled("all_members_counter")) {
             allMembersCounterTask = new AllMembersCounterTask(this);
             allMembersCounterTask.start();
+        }
+        if (configAdapter.isServerStatusCounterEnabled()) {
+            serverStatusCounterTask = new ServerStatusCounterTask(this);
+            serverStatusCounterTask.start();
         }
 
         // Start console log reader
@@ -112,6 +125,7 @@ public final class EligiusConnector extends JavaPlugin {
         sendServerStatus(false);
         if (onlineCounterTask != null) onlineCounterTask.stop();
         if (allMembersCounterTask != null) allMembersCounterTask.stop();
+        if (serverStatusCounterTask != null) serverStatusCounterTask.stop();
         if (consoleLogReader != null) consoleLogReader.stop();
         if (discordManager != null) discordManager.shutdown();
         if (databaseManager != null) databaseManager.close();
@@ -120,6 +134,12 @@ public final class EligiusConnector extends JavaPlugin {
 
     private void sendServerStatus(boolean online) {
         if (discordManager == null || !discordManager.isConnected()) return;
+
+        // Update server status channel name
+        if (serverStatusCounterTask != null) {
+            serverStatusCounterTask.updateStatus(online);
+        }
+
         if (!configAdapter.isStatusEnabled()) return;
 
         if (online) {
@@ -130,6 +150,44 @@ public final class EligiusConnector extends JavaPlugin {
         } else {
             discordManager.sendStatusOffEmbed();
         }
+    }
+
+    private void createVerifiedRoleIfNeeded() {
+        String roleId = configAdapter.getVerifiedRoleId();
+        if (roleId == null || roleId.isEmpty()) {
+            // Create role and save ID
+            Guild guild = discordManager.getGuild();
+            if (guild == null) return;
+
+            guild.createRole()
+                    .setName("Verificado")
+                    .setColor(0x2ECC71)
+                    .setMentionable(false)
+                    .queue(role -> {
+                        getLogger().info("Created 'Verificado' role: " + role.getId());
+                        // Save role ID to config
+                        configAdapter.setVerifiedRoleId(role.getId());
+                    }, error -> getLogger().warning("Failed to create verified role: " + error.getMessage()));
+        }
+    }
+
+    public void assignVerifiedRole(long discordId) {
+        if (!configAdapter.isRoleSyncEnabled() || !configAdapter.isRoleOnLinkEnabled()) return;
+        String roleId = configAdapter.getVerifiedRoleId();
+        if (roleId == null || roleId.isEmpty()) return;
+
+        Guild guild = discordManager.getGuild();
+        if (guild == null) return;
+
+        guild.retrieveMemberById(discordId).queue(member -> {
+            Role role = guild.getRoleById(roleId);
+            if (role != null && !member.getRoles().contains(role)) {
+                guild.addRoleToMember(member, role).queue(
+                        success -> getLogger().info("Assigned 'Verificado' role to " + member.getUser().getName()),
+                        error -> getLogger().warning("Failed to assign role: " + error.getMessage())
+                );
+            }
+        }, error -> getLogger().warning("Failed to retrieve member for role assignment: " + error.getMessage()));
     }
 
     public String generateVerifyCode(long discordId) {

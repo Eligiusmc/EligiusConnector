@@ -13,6 +13,8 @@ keys:
     not_online: "You are not online"
     player_not_found: "Player not found: {player}"
     database_error: "Database error"
+    server_online: "Server Online"
+    server_offline: "Server Offline"
 
   command:
     verify:
@@ -24,12 +26,20 @@ keys:
       already: "&aYour account is already verified"
       code_message: "Your code: &e{code}"
       not_linked: "&cYou need to link your account. Use /verify"
+      success_discord: "&aYour account has been linked successfully"
+      invalid_code: "&cInvalid code or expired"
+      already_linked: "&aYour account is already linked"
 
     unlink:
       description: "Unlink your account"
       success: "&aAccount unlinked"
       not_linked: "&cYour account is not linked"
       no_permission: "&cNo permission to unlink others"
+      unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
+      unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
+      failed: "&cFailed to unlink account"
+      target_not_found: "&cPlayer not found: {player}"
+      target_not_linked: "&c{player}'s account is not linked"
 
     connector:
       description: "Admin commands"
@@ -42,7 +52,7 @@ keys:
     events:
       description: "Manage events"
       list_title: "&6Available Events"
-      no_events: "No events configured"
+      no_events: "No active events"
       started: "&aEvent {name} started"
       stopped: "&cEvent {name} stopped"
       not_found: "&cEvent not found: {name}"
@@ -53,11 +63,136 @@ keys:
       clear_success: "&aBirthday cleared"
       invalid_format: "&cFormat: dd/MM/yyyy"
       not_linked: "&cLink your account first. Use /verify"
+      success: "&aBirthday set: {date}"
+      already_set: "&aYour birthday is already set: {date}"
+      today: "🎂 Today is **{player}**'s birthday! Happy birthday!"
+      reward_message: "Receive your birthday gifts!"
 
     chat:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge enabled"
       disabled: "&cChat bridge disabled"
+      blocked: "&cYour message has been blocked. ({reason})"
+
+  discord:
+    status:
+      online_title: "🟢 Server Online"
+      online_desc: "The server is **ready** to play"
+      offline_title: "🔴 Server Offline"
+      offline_desc: "The server has been **shut down** temporarily"
+      author: "EligiusMC Status"
+      footer: "Last updated"
+      offline_footer: "We'll be back soon"
+
+    join:
+      title: "👋 Player Joined"
+      desc: "**{player}** joined the server"
+      author: "Welcome"
+      footer: "Players online"
+      first_time: "Yes"
+
+    leave:
+      title: "👋 Player Left"
+      desc: "**{player}** left the server"
+      author: "Goodbye"
+      footer: "Players online"
+
+    death:
+      title: "💀 Death"
+      desc: "**{player}** died"
+      author: "End of the Road"
+      footer: "F in the chat"
+
+    advancement:
+      title: "🏆 Advancement Completed"
+      desc: "**{player}** unlocked **{advancement}**"
+      author: "Progress"
+      footer: "Keep going!"
+
+    verify:
+      title: "🔐 Verify Your Account"
+      desc: "Link your Minecraft account to unlock all features"
+      author: "EligiusMC"
+      footer: "Follow the steps"
+      code_title: "🔐 Verification Code"
+      code_steps: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat"
+      permission_denied: "❌ You don't have permission to execute console commands"
+      command_blacklisted: "❌ Command blacklisted: {command}"
+
+    birthday:
+      setup_title: "🎂 Set Birthday"
+      setup_desc: "Enter your birthday in format **dd/MM/yyyy**\nExample: `25/12/1990`"
+      setup_footer: "This message will be deleted"
+      discord_title: "🎂 Birthday!"
+      discord_desc: "Today is **{player}**'s birthday!"
+      already_set: "✅ You already have a birthday set: **{date}**\nUse `/birthday` to change it."
+      set_instruction: "📅 Use `/birthday set dd/MM/yyyy` to set your birthday."
+
+    profile:
+      title: "👤 Profile of {player}"
+      footer: "Real-time data"
+      info_label: "📋 Information"
+      linked_label: "🔗 Link Status"
+      linked_status: "**Status:** ✅ Linked\n**Discord:** {discord}"
+      unlinked_status: "**Status:** ❌ Not linked"
+      combat_label: "☠️ Combat"
+      playtime_label: "⏱️ Playtime"
+      health_label: "❤️ Health"
+      food_label: "🍖 Food"
+      xp_label: "⭐ Experience"
+      level_label: "🎯 Level"
+      world_label: "🌍 World"
+      direction_label: "🧭 Direction"
+      coords_label: "📍 Coordinates"
+      gamemode_label: "🎮 Gamemode"
+      ping_label: "📡 Ping"
+      offline_desc: "Player not found or no data available"
+
+    inventory:
+      title: "🎒 Inventory of {player}"
+      footer: "Slots: {used}/{total}"
+      empty: "*Empty*"
+      more: "... +{count} more"
+      weapons: "⚔️ Weapons"
+      armor: "🛡️ Armor"
+      tools: "⛏️ Tools"
+      blocks: "🧱 Blocks"
+      food: "🍎 Food"
+      potions: "🧪 Potions"
+      misc: "📦 Misc"
+
+    whereami:
+      title: "📍 Location of {player}"
+      info: "Your Location"
+      world: "World"
+      x: "X"
+      y: "Y"
+      z: "Z"
+      direction: "Direction"
+      biome: "Biome"
+      block: "Block"
+      tp_footer: "/tp @s {x} {y} {z}"
+      not_linked: "❌ Your account is not linked"
+      not_online: "❌ You are not online"
+
+    console:
+      no_permission: "You don't have permission to execute console commands."
+      command_blacklisted: "This command is blacklisted: `{command}`"
+
+    notifications:
+      server_start: ":white_check_mark: Server started.\n:busts_in_silhouette: Players online: {online}"
+      server_stop: ":x: Server shutting down..."
+
+  chat:
+    format:
+      mc_to_discord: "{player}: {message}"
+      discord_to_mc: "[DC] {player}: {message}"
+
+  filter:
+    spam: "spam"
+    profanity: "profanity"
+    links: "disallowed links"
+    caps: "too many caps"
 
   event:
     boss:
@@ -89,3 +224,9 @@ keys:
       top_searcher_reward: "Good job searching"
       proximity_warm: "Close!"
       proximity_hot: "Very close!"
+      world_hint: "The treasure is somewhere in the world..."
+      east: "The treasure is to the EAST!"
+      west: "The treasure is to the WEST!"
+      south: "The treasure is to the SOUTH!"
+      north: "The treasure is to the NORTH!"
+      hint_broadcast: "[TREASURE] {direction} ({hints_given}/{max_hints} hints)"

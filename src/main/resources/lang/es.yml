@@ -13,6 +13,8 @@ keys:
     not_online: "No estas en linea"
     player_not_found: "Jugador no encontrado: {player}"
     database_error: "Error de base de datos"
+    server_online: "Servidor En Linea"
+    server_offline: "Servidor Apagado"
 
   command:
     verify:
@@ -24,12 +26,20 @@ keys:
       already: "&aTu cuenta ya esta verificada"
       code_message: "Tu codigo: &e{code}"
       not_linked: "&cNecesitas vincular tu cuenta. Usa /verify"
+      success_discord: "&aTu cuenta ha sido vinculada correctamente"
+      invalid_code: "&cCodigo invalido o expirado"
+      already_linked: "&aTu cuenta ya esta vinculada"
 
     unlink:
       description: "Desvincular tu cuenta"
       success: "&aCuenta desvinculada"
       not_linked: "&cTu cuenta no esta vinculada"
       no_permission: "&cNo permisos para desvincular otros"
+      unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
+      unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
+      failed: "&cError al desvincular cuenta"
+      target_not_found: "&cJugador no encontrado: {player}"
+      target_not_linked: "&cLa cuenta de {player} no esta vinculada"
 
     connector:
       description: "Comandos administrativos"
@@ -42,7 +52,7 @@ keys:
     events:
       description: "Gestionar eventos"
       list_title: "&6Eventos Disponibles"
-      no_events: "No hay eventos configurados"
+      no_events: "No hay eventos activos"
       started: "&aEvento {name} iniciado"
       stopped: "&cEvento {name} finalizado"
       not_found: "&cEvento no encontrado: {name}"
@@ -53,11 +63,136 @@ keys:
       clear_success: "&aCumpleanos eliminado"
       invalid_format: "&cFormato: dd/MM/yyyy"
       not_linked: "&cVincula tu cuenta primero. Usa /verify"
+      success: "&aCumpleanos configurado: {date}"
+      already_set: "&aTu cumpleanos ya esta configurado: {date}"
+      today: "🎂 ¡Hoy es el cumpleanos de **{player}**! ¡Feliz cumpleanos!"
+      reward_message: "¡Recibe tus regalos de cumpleanos!"
 
     chat:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge habilitado"
       disabled: "&cChat bridge deshabilitado"
+      blocked: "&cTu mensaje ha sido bloqueado. ({reason})"
+
+  discord:
+    status:
+      online_title: "🟢 Servidor En Linea"
+      online_desc: "El servidor esta **listo** para jugar"
+      offline_title: "🔴 Servidor Apagado"
+      offline_desc: "El servidor se ha **apagado** temporalmente"
+      author: "EligiusMC Status"
+      footer: "Ultima actualizacion"
+      offline_footer: "Volveremos pronto"
+
+    join:
+      title: "👋 Jugador Entro"
+      desc: "**{player}** se unio al servidor"
+      author: "Bienvenido"
+      footer: "Jugadores en linea"
+      first_time: "Si"
+
+    leave:
+      title: "👋 Jugador Salio"
+      desc: "**{player}** se fue del servidor"
+      author: "Hasta Luego"
+      footer: "Jugadores en linea"
+
+    death:
+      title: "💀 Muerte"
+      desc: "**{player}** murio"
+      author: "Fin del Camino"
+      footer: "F en el chat"
+
+    advancement:
+      title: "🏆 Logro Completado"
+      desc: "**{player}** desbloqueo **{advancement}**"
+      author: "Progreso"
+      footer: "Sigue asi!"
+
+    verify:
+      title: "🔐 Verifica tu Cuenta"
+      desc: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
+      author: "EligiusMC"
+      footer: "Sigue los pasos"
+      code_title: "🔐 Codigo de Verificacion"
+      code_steps: "1. Entra al servidor de Minecraft\n2. Escribe `/verify {code}` en el chat"
+      permission_denied: "❌ No tienes permisos para ejecutar comandos"
+      command_blacklisted: "❌ Comando bloqueado: {command}"
+
+    birthday:
+      setup_title: "🎂 Configurar Cumpleanos"
+      setup_desc: "Ingresa tu cumpleaños en formato **dd/MM/yyyy**\nEjemplo: `25/12/1990`"
+      setup_footer: "Este mensaje se eliminara"
+      discord_title: "🎂 ¡Cumpleaños!"
+      discord_desc: "¡Hoy es el cumpleanos de **{player}**!"
+      already_set: "✅ Ya tienes un cumpleaños establecido: **{date}**\nUsa `/birthday` para cambiarlo."
+      set_instruction: "📅 Usa el comando `/birthday set dd/MM/yyyy` para establecer tu cumpleaños."
+
+    profile:
+      title: "👤 Perfil de {player}"
+      footer: "Datos en tiempo real"
+      info_label: "📋 Informacion"
+      linked_label: "🔗 Vinculacion"
+      linked_status: "**Estado:** ✅ Vinculado\n**Discord:** {discord}"
+      unlinked_status: "**Estado:** ❌ No vinculado"
+      combat_label: "☠️ Combate"
+      playtime_label: "⏱️ Playtime"
+      health_label: "❤️ Vida"
+      food_label: "🍖 Hambre"
+      xp_label: "⭐ Experiencia"
+      level_label: "🎯 Nivel"
+      world_label: "🌍 Mundo"
+      direction_label: "🧭 Direccion"
+      coords_label: "📍 Coordenadas"
+      gamemode_label: "🎮 Gamemode"
+      ping_label: "📡 Ping"
+      offline_desc: "Jugador no encontrado o sin datos disponibles"
+
+    inventory:
+      title: "🎒 Inventario de {player}"
+      footer: "Espacios: {used}/{total}"
+      empty: "*Vacio*"
+      more: "... +{count} mas"
+      weapons: "⚔️ Armas"
+      armor: "🛡️ Armadura"
+      tools: "⛏️ Herramientas"
+      blocks: "🧱 Bloques"
+      food: "🍎 Comida"
+      potions: "🧪 Pociones"
+      misc: "📦 Otros"
+
+    whereami:
+      title: "📍 Ubicacion de {player}"
+      info: "Tu Ubicacion"
+      world: "Mundo"
+      x: "X"
+      y: "Y"
+      z: "Z"
+      direction: "Direccion"
+      biome: "Bioma"
+      block: "Bloque"
+      tp_footer: "/tp @s {x} {y} {z}"
+      not_linked: "❌ Tu cuenta no esta vinculada"
+      not_online: "❌ No estas en linea"
+
+    console:
+      no_permission: "You don't have permission to execute console commands."
+      command_blacklisted: "This command is blacklisted: `{command}`"
+
+    notifications:
+      server_start: ":white_check_mark: Servidor iniciado.\n:busts_in_silhouette: Jugadores online: {online}"
+      server_stop: ":x: Servidor apagandose..."
+
+  chat:
+    format:
+      mc_to_discord: "{player}: {message}"
+      discord_to_mc: "[DC] {player}: {message}"
+
+  filter:
+    spam: "spam"
+    profanity: "profanity"
+    links: "enlaces no permitidos"
+    caps: "demasiadas mayusculas"
 
   event:
     boss:
@@ -89,3 +224,9 @@ keys:
       top_searcher_reward: "Buen trabajo buscando"
       proximity_warm: "¡Cerca!"
       proximity_hot: "¡Muy cerca!"
+      world_hint: "El tesoro esta en algun lugar del mundo..."
+      east: "¡El tesoro esta al ESTE!"
+      west: "¡El tesoro esta al OESTE!"
+      south: "¡El tesoro esta al SUR!"
+      north: "¡El tesoro esta al NORTE!"
+      hint_broadcast: "[TESORO] {direction} ({hints_given}/{max_hints} pistas)"
