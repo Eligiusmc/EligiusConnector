@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class NicknameSyncTask {
 
@@ -27,16 +28,21 @@ public class NicknameSyncTask {
     }
 
     public void syncAll() {
+        plugin.getLogger().info("[NickSync] syncAll() called, connected=" + plugin.getDiscordManager().isConnected());
         if (!plugin.getDiscordManager().isConnected()) return;
 
         Guild guild = plugin.getDiscordManager().getGuild();
         if (guild == null) return;
 
         String format = plugin.getConfigAdapter().getNicknameFormat();
+        plugin.getLogger().info("[NickSync] Online players: " + Bukkit.getOnlinePlayers().size());
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
-            if (discordId == null) continue;
+            if (discordId == null) {
+                plugin.getLogger().info("[NickSync] No Discord ID for " + player.getName());
+                continue;
+            }
 
             String nickname = resolveNickname(player, format);
             if (nickname == null || nickname.isEmpty()) continue;
@@ -46,15 +52,22 @@ public class NicknameSyncTask {
                 nickname = nickname.substring(0, 32);
             }
 
+            plugin.getLogger().info("[NickSync] Syncing " + player.getName() + " -> \"" + nickname + "\" (Discord: " + discordId + ")");
+
             final String finalNickname = nickname;
             guild.retrieveMemberById(discordId).queue(member -> {
-                if (!member.getNickname().equals(finalNickname)) {
+                String currentNick = member.getNickname();
+                if (currentNick == null) currentNick = member.getEffectiveName();
+                plugin.getLogger().info("[NickSync] Current nick for " + member.getUser().getName() + ": \"" + currentNick + "\"");
+                if (!Objects.equals(currentNick, finalNickname)) {
                     guild.modifyNickname(member, finalNickname).queue(
-                            success -> {},
-                            error -> plugin.getLogger().warning("Failed to update nickname for " + member.getUser().getName() + ": " + error.getMessage())
+                            success -> plugin.getLogger().info("[NickSync] Updated " + member.getUser().getName() + " -> \"" + finalNickname + "\""),
+                            error -> plugin.getLogger().warning("[NickSync] Failed to update " + member.getUser().getName() + ": " + error.getMessage())
                     );
+                } else {
+                    plugin.getLogger().info("[NickSync] Nickname already correct for " + member.getUser().getName());
                 }
-            }, error -> {});
+            }, error -> plugin.getLogger().warning("[NickSync] Failed to retrieve member " + discordId + ": " + error.getMessage()));
         }
     }
 
@@ -78,7 +91,9 @@ public class NicknameSyncTask {
 
         final String finalNickname = nickname;
         guild.retrieveMemberById(discordId).queue(member -> {
-            if (!member.getNickname().equals(finalNickname)) {
+            String currentNick = member.getNickname();
+            if (currentNick == null) currentNick = member.getEffectiveName();
+            if (!Objects.equals(currentNick, finalNickname)) {
                 guild.modifyNickname(member, finalNickname).queue(
                         success -> {},
                         error -> plugin.getLogger().warning("Failed to update nickname: " + error.getMessage())

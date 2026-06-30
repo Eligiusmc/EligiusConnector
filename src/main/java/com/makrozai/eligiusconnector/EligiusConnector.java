@@ -104,6 +104,7 @@ public final class EligiusConnector extends JavaPlugin {
         if (configAdapter.isSynchronizationEnabled() && configAdapter.isNicknameSyncEnabled()) {
             nicknameSyncTask = new NicknameSyncTask(this);
             nicknameSyncTask.start();
+            getLogger().info("Nickname sync task started (interval: " + configAdapter.getNicknameCycleSeconds() + "s)");
         }
 
         // Start console log reader
