@@ -157,27 +157,27 @@ public class PlayerStatsManager {
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, uuid.toString());
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return new PlayerStats(
-                        UUID.fromString(rs.getString("uuid")),
-                        rs.getString("player_name"),
-                        rs.getTimestamp("first_join"),
-                        rs.getTimestamp("last_join"),
-                        rs.getLong("total_playtime"),
-                        rs.getInt("kills"),
-                        rs.getInt("deaths"),
-                        rs.getInt("kills_player"),
-                        rs.getInt("deaths_player"),
-                        rs.getInt("kills_mob"),
-                        rs.getInt("deaths_mob"),
-                        rs.getInt("blocks_placed"),
-                        rs.getInt("blocks_broken"),
-                        rs.getInt("items_crafted"),
-                        rs.getLong("distance_walked"),
-                        rs.getInt("jumps")
-                );
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return new PlayerStats(
+                            UUID.fromString(rs.getString("uuid")),
+                            rs.getString("player_name"),
+                            rs.getTimestamp("first_join"),
+                            rs.getTimestamp("last_join"),
+                            rs.getLong("total_playtime"),
+                            rs.getInt("kills"),
+                            rs.getInt("deaths"),
+                            rs.getInt("kills_player"),
+                            rs.getInt("deaths_player"),
+                            rs.getInt("kills_mob"),
+                            rs.getInt("deaths_mob"),
+                            rs.getInt("blocks_placed"),
+                            rs.getInt("blocks_broken"),
+                            rs.getInt("items_crafted"),
+                            rs.getLong("distance_walked"),
+                            rs.getInt("jumps")
+                    );
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().warning("Failed to get stats: " + e.getMessage());

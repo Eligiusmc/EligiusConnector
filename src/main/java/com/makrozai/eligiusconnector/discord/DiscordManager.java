@@ -18,7 +18,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 public class DiscordManager {
 
@@ -316,5 +315,13 @@ public class DiscordManager {
             text = text.replace("{" + entry.getKey() + "}", entry.getValue());
         }
         return text;
+    }
+
+    // Modify member nickname via JDA (owner must be skipped beforehand)
+    public void modifyNickname(Guild guild, net.dv8tion.jda.api.entities.Member member, String nickname) {
+        guild.modifyNickname(member, nickname).queue(
+                success -> plugin.getLogger().info("[NickSync] " + member.getUser().getName() + " -> \"" + nickname + "\""),
+                error -> plugin.getLogger().warning("[NickSync] Failed for " + member.getUser().getName() + ": " + error.getMessage())
+        );
     }
 }

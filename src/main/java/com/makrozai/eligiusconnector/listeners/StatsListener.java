@@ -47,16 +47,11 @@ public class StatsListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
-        if (event.getEntity().getKiller() != null) {
-            Player killer = event.getEntity().getKiller();
-            String entityType = event.getEntityType().name();
+        if (event.getEntity().getKiller() == null) return;
+        if (event.getEntity() instanceof Player) return; // Handled by onPlayerDeath
 
-            if (event.getEntity() instanceof Player) {
-                plugin.getStatsManager().addKill(killer.getUniqueId(), "player");
-            } else {
-                plugin.getStatsManager().addKill(killer.getUniqueId(), "mob");
-            }
-        }
+        Player killer = event.getEntity().getKiller();
+        plugin.getStatsManager().addKill(killer.getUniqueId(), "mob");
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
