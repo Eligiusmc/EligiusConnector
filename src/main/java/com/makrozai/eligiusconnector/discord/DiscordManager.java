@@ -128,19 +128,53 @@ public class DiscordManager {
 
     // Clear all bot messages in a channel
     public void clearChannel(String channelId) {
-        if (!isConnected()) return;
+        clearChannel(channelId, null);
+    }
+
+    public void clearChannel(String channelId, Runnable onComplete) {
+        if (!isConnected()) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
         TextChannel channel = getChannel(channelId);
-        if (channel == null) return;
+        if (channel == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
 
         channel.getHistory().retrievePast(100).queue(messages -> {
-            if (!isConnected()) return;
-            messages.stream()
+            if (!isConnected()) {
+                if (onComplete != null) onComplete.run();
+                return;
+            }
+            List<net.dv8tion.jda.api.entities.Message> botMessages = messages.stream()
                     .filter(msg -> msg.getAuthor().equals(jda.getSelfUser()))
-                    .forEach(msg -> msg.delete().queue(
-                            success -> {},
-                            error -> {}
-                    ));
-        }, error -> {});
+                    .toList();
+
+            if (botMessages.isEmpty()) {
+                if (onComplete != null) onComplete.run();
+                return;
+            }
+
+            // Delete all bot messages, then run callback
+            java.util.concurrent.atomic.AtomicInteger remaining = new java.util.concurrent.atomic.AtomicInteger(botMessages.size());
+            for (net.dv8tion.jda.api.entities.Message msg : botMessages) {
+                msg.delete().queue(
+                        success -> {
+                            if (remaining.decrementAndGet() == 0 && onComplete != null) {
+                                onComplete.run();
+                            }
+                        },
+                        error -> {
+                            if (remaining.decrementAndGet() == 0 && onComplete != null) {
+                                onComplete.run();
+                            }
+                        }
+                );
+            }
+        }, error -> {
+            if (onComplete != null) onComplete.run();
+        });
     }
 
     // Send embed messages
@@ -268,14 +302,12 @@ public class DiscordManager {
     // Convenience methods
     public void sendStatusEmbed(Map<String, String> replacements) {
         String channelId = plugin.getConfigAdapter().getStatusChannelId();
-        clearChannel(channelId);
-        sendEmbed(channelId, plugin.getConfigAdapter().getStatusOnEmbed(), replacements);
+        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOnEmbed(), replacements));
     }
 
     public void sendStatusOffEmbed() {
         String channelId = plugin.getConfigAdapter().getStatusChannelId();
-        clearChannel(channelId);
-        sendEmbed(channelId, plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>());
+        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>()));
     }
 
     public void sendJoinEmbed(Map<String, String> replacements) {
@@ -303,9 +335,16 @@ public class DiscordManager {
     }
 
     public void sendChatMessage(String playerName, String message, String avatarUrl) {
-        TextChannel channel = getChannel(plugin.getConfigAdapter().getGlobalChannelId());
-        if (channel != null) {
-            channel.sendMessage("**" + playerName + "**: " + message).queue();
+        String channelId = plugin.getConfigAdapter().getGlobalChannelId();
+        if (channelId == null || channelId.isEmpty()) return;
+
+        if (plugin.getConfigAdapter().isWebhookEnabled() && plugin.getWebhookManager() != null) {
+            plugin.getWebhookManager().sendWebhookMessage(channelId, message, playerName, avatarUrl);
+        } else {
+            TextChannel channel = getChannel(channelId);
+            if (channel != null) {
+                channel.sendMessage("**" + playerName + "**: " + message).queue();
+            }
         }
     }
 

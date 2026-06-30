@@ -16,6 +16,25 @@ messages:
   already_linked: "✅ Tu cuenta ya esta vinculada"
   invalid_code: "❌ Codigo invalido o expirado"
 
+# Sonidos que se reproducen en Minecraft al verificar
+sounds:
+  enabled: true
+  success:
+    sound: "entity.player.levelup"
+    volume: 1.0
+    pitch: 1.0
+  error:
+    sound: "entity.villager.no"
+    volume: 1.0
+    pitch: 1.0
+
+# Comandos que se ejecutan despues de verificar exitosamente
+# Usa {player} para el nombre del jugador, {uuid} para su UUID
+post_verify_commands:
+  - "give {player} minecraft:diamond 1"
+  - "say ¡{player} se ha verificado!"
+  - "lp user {player} parent set default"
+
 welcome_embed:
   enabled: true
   title: "🔐 Verifica tu Cuenta"

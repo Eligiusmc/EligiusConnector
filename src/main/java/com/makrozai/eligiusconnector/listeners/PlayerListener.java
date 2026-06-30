@@ -31,12 +31,29 @@ public class PlayerListener implements Listener {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             if (!plugin.getConfigAdapter().isChatEnabled()) return;
 
-            String avatarUrl = plugin.getConfigAdapter().getWebhookAvatar()
-                    .replace("{player}", player.getName())
-                    .replace("{player_name}", player.getName());
+            String avatarUrl = getAvatarUrl(player);
 
             plugin.getDiscordManager().sendChatMessage(player.getName(), message, avatarUrl);
         });
+    }
+
+    private String getAvatarUrl(Player player) {
+        Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
+        if (discordId != null && plugin.getDiscordManager().isConnected()) {
+            net.dv8tion.jda.api.entities.Guild guild = plugin.getDiscordManager().getGuild();
+            if (guild != null) {
+                net.dv8tion.jda.api.entities.Member member = guild.getMemberById(discordId);
+                if (member != null) {
+                    String discordAvatar = member.getUser().getAvatarUrl();
+                    if (discordAvatar != null && !discordAvatar.isEmpty()) {
+                        return discordAvatar;
+                    }
+                }
+            }
+        }
+        return plugin.getConfigAdapter().getWebhookAvatar()
+                .replace("{player}", player.getName())
+                .replace("{player_name}", player.getName());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

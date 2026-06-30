@@ -249,6 +249,18 @@ public class ConfigAdapter {
     public String getVerifyInvalidCode() { return verifyConfig.getString("messages.invalid_code", ""); }
     public Map<String, Object> getVerifyWelcomeEmbed() { return getEmbedFromConfig(verifyConfig, "welcome_embed"); }
 
+    // Verify sounds
+    public boolean isVerifySoundsEnabled() { return verifyConfig.getBoolean("sounds.enabled", true); }
+    public String getVerifySuccessSound() { return verifyConfig.getString("sounds.success.sound", "entity.player.levelup"); }
+    public float getVerifySuccessVolume() { return (float) verifyConfig.getDouble("sounds.success.volume", 1.0); }
+    public float getVerifySuccessPitch() { return (float) verifyConfig.getDouble("sounds.success.pitch", 1.0); }
+    public String getVerifyErrorSound() { return verifyConfig.getString("sounds.error.sound", "entity.villager.no"); }
+    public float getVerifyErrorVolume() { return (float) verifyConfig.getDouble("sounds.error.volume", 1.0); }
+    public float getVerifyErrorPitch() { return (float) verifyConfig.getDouble("sounds.error.pitch", 1.0); }
+
+    // Post-verify commands
+    public java.util.List<String> getPostVerifyCommands() { return verifyConfig.getStringList("post_verify_commands"); }
+
     public int getCodeExpiryMinutes() { return getVerifyCodeExpiryMinutes(); }
 
     // ==========================================
