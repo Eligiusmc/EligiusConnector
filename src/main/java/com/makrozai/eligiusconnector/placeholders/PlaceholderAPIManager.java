@@ -51,15 +51,7 @@ public class PlaceholderAPIManager extends PlaceholderExpansion {
             return "";
         }
 
-        // Check cache
         String cacheKey = player.getUniqueId() + ":" + identifier;
-        if (plugin.getConfigManager().isCachePlaceholders()) {
-            clearCacheIfNeeded();
-            String cached = placeholderCache.get(cacheKey);
-            if (cached != null) {
-                return cached;
-            }
-        }
 
         String result = "";
 
@@ -110,21 +102,7 @@ public class PlaceholderAPIManager extends PlaceholderExpansion {
             result = String.valueOf(plugin.getDatabaseManager().getLinkedCount());
         }
 
-        // Cache result
-        if (plugin.getConfigManager().isCachePlaceholders()) {
-            placeholderCache.put(cacheKey, result);
-        }
-
         return result;
-    }
-
-    private void clearCacheIfNeeded() {
-        long now = System.currentTimeMillis();
-        long cacheTime = plugin.getConfigManager().getCacheTimeInSeconds() * 1000L;
-        if (now - lastCacheClear > cacheTime) {
-            placeholderCache.clear();
-            lastCacheClear = now;
-        }
     }
 
     private Player getTargetPlayer(String targetName) {

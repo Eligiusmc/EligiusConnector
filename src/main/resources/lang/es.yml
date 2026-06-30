@@ -1,0 +1,65 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Spanish Language        ║
+# ╚══════════════════════════════════════════════════╝
+
+general:
+  prefix: "[EC]"
+  enabled: "Habilitado"
+  disabled: "Deshabilitado"
+  reload: "Configuracion recargada"
+  error: "Error"
+
+commands:
+  verify:
+    description: "Verificar tu cuenta de Minecraft"
+    usage: "/verify <codigo>"
+    success: "✅ Cuenta verificada correctamente"
+    invalid: "❌ Codigo invalido"
+    expired: "❌ Codigo expirado"
+    already: "✅ Tu cuenta ya esta verificada"
+
+  unlink:
+    description: "Desvincular tu cuenta"
+    usage: "/unlink [jugador]"
+    success: "✅ Cuenta desvinculada"
+    not_linked: "❌ Tu cuenta no esta vinculada"
+    no_permission: "❌ No tienes permisos para desvincular otros"
+
+  connector:
+    description: "Comandos administrativos"
+    usage: "/connector <reload|status>"
+    reload_success: "✅ Configuracion recargada"
+    status_title: "📊 Estado del Plugin"
+    status_discord: "Discord: {status}"
+    status_database: "Base de datos: {type}"
+    status_linked: "Cuentas vinculadas: {count}"
+
+  events:
+    description: "Gestionar eventos"
+    usage: "/events <list|start|stop|reload>"
+    list_title: "📋 Eventos Disponibles"
+    no_events: "No hay eventos configurados"
+    started: "✅ Evento {name} iniciado"
+    stopped: "🛑 Evento {name} finalizado"
+    not_found: "❌ Evento no encontrado: {name}"
+
+  birthday:
+    description: "Gestionar cumpleanos"
+    usage: "/birthday <set|clear>"
+    set_success: "✅ Cumpleanos configurado: {date}"
+    clear_success: "✅ Cumpleanos eliminado"
+    invalid_format: "❌ Formato invalido. Usa dd/MM/yyyy"
+
+  chat:
+    description: "Toggle chat bridge"
+    usage: "/chat"
+    enabled: "✅ Chat bridge habilitado"
+    disabled: "❌ Chat bridge deshabilitado"
+
+permissions:
+  verify: "connector.verify"
+  unlink_self: "connector.unlink.self"
+  unlink_other: "connector.unlink.other"
+  admin: "connector.admin"
+  events: "connector.events"
+  birthday: "connector.birthday"

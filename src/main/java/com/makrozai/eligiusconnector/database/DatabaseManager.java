@@ -24,7 +24,7 @@ public class DatabaseManager {
     }
 
     public void initialize() {
-        databaseType = plugin.getConfigManager().getDatabaseType().toLowerCase();
+        databaseType = plugin.getConfigAdapter().getDatabaseType().toLowerCase();
 
         switch (databaseType) {
             case "mysql":
@@ -54,12 +54,12 @@ public class DatabaseManager {
     private void initializeMySQL() {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:mysql://" +
-                plugin.getConfigManager().getMySQLHost() + ":" +
-                plugin.getConfigManager().getMySQLPort() + "/" +
-                plugin.getConfigManager().getMySQLDatabase());
-        config.setUsername(plugin.getConfigManager().getMySQLUsername());
-        config.setPassword(plugin.getConfigManager().getMySQLPassword());
-        config.setMaximumPoolSize(plugin.getConfigManager().getMySQLMaxPoolSize());
+                plugin.getConfigAdapter().getMySQLHost() + ":" +
+                plugin.getConfigAdapter().getMySQLPort() + "/" +
+                plugin.getConfigAdapter().getMySQLDatabase());
+        config.setUsername(plugin.getConfigAdapter().getMySQLUsername());
+        config.setPassword(plugin.getConfigAdapter().getMySQLPassword());
+        config.setMaximumPoolSize(plugin.getConfigAdapter().getMySQLMaxPoolSize());
         config.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource = new HikariDataSource(config);
     }
@@ -77,11 +77,12 @@ public class DatabaseManager {
                 "minecraft_uuid VARCHAR(36) UNIQUE," +
                 "minecraft_name VARCHAR(16)," +
                 "linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "linked_by VARCHAR(16)" +
+                "linked_by VARCHAR(16)," +
+                "birthday VARCHAR(10)" +
                 ")";
 
         String auditTable = "CREATE TABLE IF NOT EXISTS connector_audit_log (" +
-                "id BIGINT PRIMARY KEY AUTO_INCREMENT," +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "level VARCHAR(10)," +
                 "action VARCHAR(50)," +
@@ -92,11 +93,35 @@ public class DatabaseManager {
                 ")";
 
         String filterTable = "CREATE TABLE IF NOT EXISTS connector_filter_warnings (" +
-                "id BIGINT PRIMARY KEY AUTO_INCREMENT," +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "uuid VARCHAR(36)," +
                 "filter_type VARCHAR(50)," +
                 "level INT," +
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+
+        String statsTable = "CREATE TABLE IF NOT EXISTS connector_player_stats (" +
+                "uuid VARCHAR(36) PRIMARY KEY," +
+                "player_name VARCHAR(16)," +
+                "kills INT DEFAULT 0," +
+                "deaths INT DEFAULT 0," +
+                "playtime BIGINT DEFAULT 0," +
+                "blocks_broken INT DEFAULT 0," +
+                "blocks_placed INT DEFAULT 0," +
+                "items_crafted INT DEFAULT 0," +
+                "last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "first_joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
+                ")";
+
+        String eventsLogTable = "CREATE TABLE IF NOT EXISTS connector_events_log (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "event_id VARCHAR(50)," +
+                "event_name VARCHAR(100)," +
+                "started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "ended_at TIMESTAMP," +
+                "started_by VARCHAR(16)," +
+                "winner VARCHAR(16)," +
+                "status VARCHAR(20)" +
                 ")";
 
         try (Connection conn = getConnection();
@@ -104,6 +129,8 @@ public class DatabaseManager {
             stmt.executeUpdate(accountTable);
             stmt.executeUpdate(auditTable);
             stmt.executeUpdate(filterTable);
+            stmt.executeUpdate(statsTable);
+            stmt.executeUpdate(eventsLogTable);
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to create tables", e);
         }
@@ -174,9 +201,10 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, minecraftUuid.toString());
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getLong("discord_id");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("discord_id");
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to get Discord ID", e);
@@ -189,9 +217,10 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, discordId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return UUID.fromString(rs.getString("minecraft_uuid"));
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return UUID.fromString(rs.getString("minecraft_uuid"));
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to get Minecraft UUID", e);
@@ -204,9 +233,10 @@ public class DatabaseManager {
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, discordId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("minecraft_name");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("minecraft_name");
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to get Minecraft name", e);
@@ -273,9 +303,10 @@ public class DatabaseManager {
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, uuid.toString());
             stmt.setString(2, filterType);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to get filter warning count", e);
@@ -292,6 +323,49 @@ public class DatabaseManager {
             stmt.executeUpdate();
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to clear filter warnings", e);
+        }
+    }
+
+    public boolean hasPlayedBefore(UUID uuid) {
+        String sql = "SELECT 1 FROM connector_accounts WHERE minecraft_uuid = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, uuid.toString());
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    public String getBirthday(long discordId) {
+        String sql = "SELECT birthday FROM connector_accounts WHERE discord_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, discordId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("birthday");
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to get birthday", e);
+        }
+        return null;
+    }
+
+    public boolean setBirthday(long discordId, String birthday) {
+        String sql = "UPDATE connector_accounts SET birthday = ? WHERE discord_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, birthday);
+            stmt.setLong(2, discordId);
+            stmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to set birthday", e);
+            return false;
         }
     }
 }

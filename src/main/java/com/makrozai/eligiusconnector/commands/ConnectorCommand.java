@@ -59,7 +59,7 @@ public class ConnectorCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        plugin.getConfigManager().reloadConfigs();
+        plugin.getConfigAdapter().reloadAll();
         sender.sendMessage(ChatColor.GREEN + "Configuration reloaded!");
         return true;
     }
@@ -133,7 +133,7 @@ public class ConnectorCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ChatColor.YELLOW + "Discord: " + ChatColor.WHITE + (plugin.getDiscordManager().isConnected() ? "Connected" : "Disconnected"));
         sender.sendMessage(ChatColor.YELLOW + "Database: " + ChatColor.WHITE + plugin.getDatabaseManager().getType());
         sender.sendMessage(ChatColor.YELLOW + "Linked Accounts: " + ChatColor.WHITE + plugin.getDatabaseManager().getLinkedCount());
-        sender.sendMessage(ChatColor.YELLOW + "PlaceholderAPI: " + ChatColor.WHITE + (plugin.getPlaceholderAPIManager() != null ? "Enabled" : "Disabled"));
+        sender.sendMessage(ChatColor.YELLOW + "PlaceholderAPI: " + ChatColor.WHITE + "Enabled");
         return true;
     }
 

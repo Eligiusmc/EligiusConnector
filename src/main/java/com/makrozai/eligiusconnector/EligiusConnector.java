@@ -1,137 +1,182 @@
 package com.makrozai.eligiusconnector;
 
-import com.makrozai.eligiusconnector.config.ConfigManager;
+import com.makrozai.eligiusconnector.config.ConfigAdapter;
+import com.makrozai.eligiusconnector.config.LanguageManager;
 import com.makrozai.eligiusconnector.database.DatabaseManager;
+import com.makrozai.eligiusconnector.discord.ConsoleLogReader;
 import com.makrozai.eligiusconnector.discord.DiscordManager;
+import com.makrozai.eligiusconnector.discord.WebhookManager;
+import com.makrozai.eligiusconnector.events.EventManager;
 import com.makrozai.eligiusconnector.listeners.PlayerListener;
-import com.makrozai.eligiusconnector.placeholders.PlaceholderAPIManager;
+import com.makrozai.eligiusconnector.listeners.StatsListener;
+import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
+import com.makrozai.eligiusconnector.tasks.AllMembersCounterTask;
+import com.makrozai.eligiusconnector.tasks.OnlineCounterTask;
+import com.makrozai.eligiusconnector.util.StartupLogger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class EligiusConnector extends JavaPlugin {
 
     private static EligiusConnector instance;
-    private ConfigManager configManager;
+    private ConfigAdapter configAdapter;
+    private LanguageManager languageManager;
     private DatabaseManager databaseManager;
     private DiscordManager discordManager;
-    private PlaceholderAPIManager placeholderAPIManager;
+    private WebhookManager webhookManager;
+    private ConsoleLogReader consoleLogReader;
+    private EventManager eventManager;
+    private PlayerStatsManager statsManager;
+    private OnlineCounterTask onlineCounterTask;
+    private AllMembersCounterTask allMembersCounterTask;
+
+    private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
+    private final Map<Long, Long> verifyExpiry = new ConcurrentHashMap<>();
+    private final Map<Long, Long> birthdaySetupUsers = new ConcurrentHashMap<>();
+
+    private long startTime;
 
     @Override
     public void onEnable() {
         instance = this;
+        startTime = System.currentTimeMillis();
 
-        // Print ASCII art logo
-        printLogo();
+        // Load configurations
+        configAdapter = new ConfigAdapter(this);
+        configAdapter.loadAll();
 
-        // Check version
-        if (!checkVersion()) {
-            getLogger().severe("Incompatible server version! Requires 1.21+");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+        languageManager = new LanguageManager(this);
+        languageManager.load();
 
-        // Initialize managers
-        getLogger().info("Initializing EligiusConnector...");
-
-        configManager = new ConfigManager(this);
-        configManager.loadConfigs();
-
+        // Initialize database
         databaseManager = new DatabaseManager(this);
         databaseManager.initialize();
 
+        // Initialize stats
+        statsManager = new PlayerStatsManager(this);
+        statsManager.createTable();
+
+        // Initialize Discord
         discordManager = new DiscordManager(this);
         discordManager.initialize();
 
+        webhookManager = new WebhookManager(this);
+
         // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-
-        // PlaceholderAPI
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            placeholderAPIManager = new PlaceholderAPIManager(this);
-            placeholderAPIManager.register();
-            getLogger().info("PlaceholderAPI integration enabled!");
-        }
+        getServer().getPluginManager().registerEvents(new StatsListener(this), this);
 
         // Register commands
-        getCommand("verify").setExecutor(new com.makrozai.eligiusconnector.commands.VerifyCommand(this));
-        getCommand("unlink").setExecutor(new com.makrozai.eligiusconnector.commands.UnlinkCommand(this));
-        getCommand("connector").setExecutor(new com.makrozai.eligiusconnector.commands.ConnectorCommand(this));
+        safeSetExecutor("verify", new com.makrozai.eligiusconnector.commands.VerifyCommand(this));
+        safeSetExecutor("unlink", new com.makrozai.eligiusconnector.commands.UnlinkCommand(this));
+        safeSetExecutor("connector", new com.makrozai.eligiusconnector.commands.ConnectorCommand(this));
+        safeSetExecutor("events", new com.makrozai.eligiusconnector.commands.EventsCommand(this));
+        safeSetExecutor("birthday", new com.makrozai.eligiusconnector.commands.BirthdayCommand(this));
+        safeSetExecutor("chat", new com.makrozai.eligiusconnector.commands.ChatCommand(this));
+
+        // Start tasks
+        if (configAdapter.isOnlineCounterEnabled()) {
+            onlineCounterTask = new OnlineCounterTask(this);
+            onlineCounterTask.start();
+        }
+        if (configAdapter.isModuleEnabled("all_members_counter")) {
+            allMembersCounterTask = new AllMembersCounterTask(this);
+            allMembersCounterTask.start();
+        }
+
+        // Start console log reader
+        if (configAdapter.isConsoleEnabled()) {
+            consoleLogReader = new ConsoleLogReader(this);
+            consoleLogReader.start();
+        }
+
+        // Load events
+        if (configAdapter.isEventsEnabled()) {
+            eventManager = new EventManager(this);
+            eventManager.loadEvents();
+        }
+
+        // Send server start status
+        sendServerStatus(true);
 
         // Print success
-        getLogger().info(ChatColor.GREEN + "=========================================");
-        getLogger().info(ChatColor.GREEN + "  EligiusConnector v" + getDescription().getVersion() + " enabled!");
-        getLogger().info(ChatColor.GREEN + "  Discord: " + (discordManager.isConnected() ? "Connected" : "Disconnected"));
-        getLogger().info(ChatColor.GREEN + "  Database: " + databaseManager.getType());
-        getLogger().info(ChatColor.GREEN + "=========================================");
-
-        // Check for updates
-        checkForUpdates();
+        long elapsed = System.currentTimeMillis() - startTime;
+        StartupLogger.printSuccess(elapsed);
     }
 
     @Override
     public void onDisable() {
-        getLogger().info("Disabling EligiusConnector...");
-
-        if (discordManager != null) {
-            discordManager.shutdown();
-        }
-
-        if (databaseManager != null) {
-            databaseManager.close();
-        }
-
+        sendServerStatus(false);
+        if (onlineCounterTask != null) onlineCounterTask.stop();
+        if (allMembersCounterTask != null) allMembersCounterTask.stop();
+        if (consoleLogReader != null) consoleLogReader.stop();
+        if (discordManager != null) discordManager.shutdown();
+        if (databaseManager != null) databaseManager.close();
         getLogger().info("EligiusConnector disabled!");
     }
 
-    private void printLogo() {
-        getLogger().info("");
-        getLogger().info("  _____ _           _              _____                _ ");
-        getLogger().info(" |  ___(_)_ __   __| | _____  __  |  ___|__  _ __ ___ | | __ _ _   _");
-        getLogger().info(" | |_  | | '_ \\ / _` |/ _ \\ \\/ /  | |_ / _ \\| '__/ _ \\| |/ _` | | | |");
-        getLogger().info(" |  _| | | | | | (_| |  __/>  <   |  _| (_) | | | (_) | | (_| | |_| |");
-        getLogger().info(" |_|   |_|_| |_|\\__,_|\\___/_/\\_\\  |_|  \\___/|_|  \\___/|_|\\__,_|\\__, |");
-        getLogger().info("                                                                 |___/");
-        getLogger().info("");
+    private void sendServerStatus(boolean online) {
+        if (discordManager == null || !discordManager.isConnected()) return;
+        if (!configAdapter.isStatusEnabled()) return;
+
+        if (online) {
+            Map<String, String> replacements = new java.util.HashMap<>();
+            replacements.put("online", String.valueOf(Bukkit.getOnlinePlayers().size()));
+            replacements.put("max", String.valueOf(Bukkit.getMaxPlayers()));
+            discordManager.sendStatusEmbed(replacements);
+        } else {
+            discordManager.sendStatusOffEmbed();
+        }
     }
 
-    private boolean checkVersion() {
-        String version = Bukkit.getVersion();
-        // Check for 1.21+
-        return version.contains("1.21") || version.contains("26.1");
+    public String generateVerifyCode(long discordId) {
+        String code = String.valueOf((int) (Math.random() * 900000) + 100000);
+        verifyCodes.put(discordId, code);
+        verifyExpiry.put(discordId, System.currentTimeMillis() + (configAdapter.getCodeExpiryMinutes() * 60000L));
+        return code;
     }
 
-    private void checkForUpdates() {
-        // Async update check
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-            try {
-                // Simple version check (could be expanded to check GitHub API)
-                getLogger().info("Checking for updates...");
-                getLogger().info("Current version: " + getDescription().getVersion());
-                getLogger().info("Latest version: Check https://github.com/Eligiusmc/EligiusConnector/releases");
-            } catch (Exception e) {
-                getLogger().warning("Failed to check for updates: " + e.getMessage());
-            }
-        });
+    public String getVerifyCode(long discordId) {
+        Long expiry = verifyExpiry.get(discordId);
+        if (expiry != null && System.currentTimeMillis() > expiry) {
+            verifyCodes.remove(discordId);
+            verifyExpiry.remove(discordId);
+            return null;
+        }
+        return verifyCodes.get(discordId);
     }
 
-    public static EligiusConnector getInstance() {
-        return instance;
+    public boolean verifyPlayer(long discordId, String code) {
+        String storedCode = getVerifyCode(discordId);
+        if (storedCode != null && storedCode.equals(code)) {
+            verifyCodes.remove(discordId);
+            verifyExpiry.remove(discordId);
+            return true;
+        }
+        return false;
     }
 
-    public ConfigManager getConfigManager() {
-        return configManager;
-    }
+    // Getters
+    public static EligiusConnector getInstance() { return instance; }
+    public ConfigAdapter getConfigAdapter() { return configAdapter; }
+    public LanguageManager getLanguageManager() { return languageManager; }
+    public DatabaseManager getDatabaseManager() { return databaseManager; }
+    public DiscordManager getDiscordManager() { return discordManager; }
+    public WebhookManager getWebhookManager() { return webhookManager; }
+    public EventManager getEventManager() { return eventManager; }
+    public PlayerStatsManager getStatsManager() { return statsManager; }
+    public Map<Long, String> getVerifyCodes() { return verifyCodes; }
+    public Map<Long, Long> getBirthdaySetupUsers() { return birthdaySetupUsers; }
 
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
-
-    public DiscordManager getDiscordManager() {
-        return discordManager;
-    }
-
-    public PlaceholderAPIManager getPlaceholderAPIManager() {
-        return placeholderAPIManager;
+    private void safeSetExecutor(String name, org.bukkit.command.CommandExecutor executor) {
+        var cmd = getCommand(name);
+        if (cmd != null) {
+            cmd.setExecutor(executor);
+        } else {
+            getLogger().warning("Command not found in plugin.yml: " + name);
+        }
     }
 }

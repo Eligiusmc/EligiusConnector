@@ -1,0 +1,54 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        Event: Ender Dragon                       ║
+# ║        Tipo: mob_spawn                           ║
+# ╚══════════════════════════════════════════════════╝
+
+id: "boss_enderdragon"
+name: "Ender Dragon"
+description: "Aparece el Dragon del End"
+enabled: true
+type: "mob_spawn"
+channel: "1521276584299069491"
+
+spawn:
+  mob: "ender_dragon"
+  custom_name: "🐉 Ancient Dragon"
+  health: 300
+  max_health: 300
+  location:
+    world: "world_the_end"
+    x: 0
+    y: 64
+    z: 0
+  attributes:
+    - name: "generic.max_health"
+      base: 300
+
+start_commands:
+  - "say ¡El Dragon del End ha surgido!"
+
+end_conditions:
+  - type: "mob_killed"
+    entity: "ender_dragon"
+
+end_commands:
+  - "say ¡El Dragon del End ha sido derrotado!"
+
+rewards:
+  first_killer:
+    commands:
+      - "give {player} minecraft:elytra 1"
+    message: "¡Has derrotado al Dragon! Recibe una Elytra"
+  all_participants:
+    commands:
+      - "give {player} minecraft:experience_bottle 64"
+
+discord:
+  start:
+    title: "🐉 Dragon Spawned"
+    description: "**Ender Dragon** ha aparecido en el End!"
+    color: 9807270
+  end:
+    title: "🎯 Dragon Derrotado"
+    description: "**Ender Dragon** fue derrotado!"
+    color: 65280

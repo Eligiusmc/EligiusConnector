@@ -1,95 +1,113 @@
-#  _____ _           _              _____                _
- |  ___(_)_ __   __| | _____  __  |  ___|__  _ __ ___ | | __ _ _   _
- | |_  | | '_ \ / _` |/ _ \ \/ /  | |_ / _ \| '__/ _ \| |/ _` | | | |
- |  _| | | | | | (_| |  __/>  <   |  _| (_) | | | (_) | | (_| | |_| |
- |_|   |_|_| |_|\__,_|\___/_/\_\  |_|  \___/|_|  \___/|_|\__,_|\__, |
-                                                                  |___/
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Configuration          ║
+# ║        Config Version: 2                         ║
+# ╚══════════════════════════════════════════════════╝
 
-# EligiusConnector Configuration
-# https://eligiusmc.github.io/EligiusConnector/
+config_version: 2
 
-# Bot Token (never hardcode - use environment variable)
-BotToken: "${DISCORD_BOT_TOKEN}"
+# ==========================================
+#  BOT CONFIGURATION
+# ==========================================
+bot:
+  token: "${DISCORD_TOKEN}"
+  server_id: "508152650978820096"
+  status: "ONLINE"
+  game_status:
+    - "🎮 EligiusMC"
+    - "🟢 {online} jugadores"
+  update_interval_minutes: 1
 
-# Discord Server ID
-ServerId: "your-server-id"
+# ==========================================
+#  DATABASE
+# ==========================================
+database:
+  type: "sqlite"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "eligiusconnector"
+    username: "root"
+    password: ""
+    max_pool_size: 10
+  redis:
+    enabled: false
+    host: "localhost"
+    port: 6379
+    password: ""
+    database: 0
 
-# Debug mode
-Debug: false
+# ==========================================
+#  LANGUAGE
+# ==========================================
+language: "es"
 
-# Language (EN, ES)
-ForcedLanguage: "EN"
+# ==========================================
+#  MODULES (Enable/Disable)
+# ==========================================
+modules:
+  chat_bridge:
+    enabled: true
+    mc_to_discord: true
+    discord_to_mc: true
+    use_webhooks: true
+    webhook_name: "Minecraft"
+    filter:
+      enabled: true
+      blocked_words: []
+      anti_spam:
+        enabled: true
+        max_messages: 5
+        time_window_seconds: 10
 
-# Timezone
-Timezone: "default"
+  status:
+    enabled: true
 
-# Timestamp format
-TimestampFormat: "dd/MM/yyyy HH:mm:ss"
+  join_leave:
+    enabled: true
 
-# Avatar URL (supports PlaceholderAPI)
-AvatarUrl: "https://minotar.net/avatar/%player_name%/128"
+  deaths:
+    enabled: true
 
-# Bot Status (supports PlaceholderAPI)
-DiscordGameStatus:
-  - "Jugando con %playerlist_online% jugadores"
-  - "Viendo %connector_linked_count% cuentas vinculadas"
-DiscordOnlineStatus: "ONLINE"
-StatusUpdateRateInMinutes: 5
+  advancements:
+    enabled: true
 
-# Discord Channels
-Channels:
-  global: "your-global-channel-id"
-  admin: "your-admin-channel-id"
+  boss_events:
+    enabled: true
 
-# Console Channel
-DiscordConsoleChannelId: "your-console-channel-id"
-DiscordConsoleChannelLogRefreshRateInSeconds: 2
-DiscordConsoleChannelUseCodeBlocks: true
-DiscordConsoleChannelLevels: ["info", "warn", "error"]
+  console:
+    enabled: true
+    show_all_logs: true
+    refresh_rate_seconds: 2
 
-# Console Command Configuration
-ConsoleCommand:
-  Blacklist:
-    - "stop"
-    - "restart"
-    - "reload"
-    - "op"
-    - "deop"
-  Whitelist: []
+  verify:
+    enabled: true
+    code_expiry_minutes: 5
 
-# PlaceholderAPI Configuration
-PlaceholderAPI:
-  Enabled: true
-  CachePlaceholders: true
-  CacheTimeInSeconds: 30
+  birthday:
+    enabled: true
+    date_format: "dd/MM/yyyy"
+    rewards:
+      commands:
+        - "give {player} minecraft:cake 1"
+        - "give {player} minecraft:firework_rocket 16"
+      message: "¡Feliz cumpleanos {player}! Recibe tus regalos."
+      role: ""
 
-# Security Configuration
-Security:
-  AuthorizedServers:
-    - "your-server-id"
-  RateLimits:
-    Commands: 5
-    Queries: 10
-    Console: 3
+  events:
+    enabled: true
+    folder: "events"
 
-# Database Configuration
-Database:
-  Type: "sqlite"  # sqlite, mysql, redis
-  MySQL:
-    Host: "localhost"
-    Port: 3306
-    Database: "eligiusconnector"
-    Username: "root"
-    Password: ""
-    MaxPoolSize: 10
-  Redis:
-    Host: "localhost"
-    Port: 6379
-    Password: ""
-    Database: 0
+  placeholder_api:
+    enabled: true
 
-# Audit Configuration
-Audit:
-  Enabled: true
-  Level: "info"
-  RetentionDays: 30
+  permissions:
+    enabled: true
+    use_luckperms: true
+
+# ==========================================
+#  AUDIT
+# ==========================================
+audit:
+  enabled: true
+  level: "info"
+  retention_days: 30

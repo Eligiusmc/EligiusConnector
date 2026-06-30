@@ -58,7 +58,7 @@ public class UnlinkCommand implements CommandExecutor {
                 );
 
                 // Send to Discord
-                plugin.getDiscordManager().sendGlobalMessage(":x: **" + targetName + "**'s account has been unlinked by **" + player.getName() + "**.");
+                plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getGlobalChannelId(), ":x: **" + targetName + "**'s account has been unlinked by **" + player.getName() + "**.");
             } else {
                 player.sendMessage(ChatColor.RED + "Failed to unlink " + targetName + "'s account.");
             }
@@ -88,7 +88,7 @@ public class UnlinkCommand implements CommandExecutor {
                 );
 
                 // Send to Discord
-                plugin.getDiscordManager().sendGlobalMessage(":x: **" + player.getName() + "** has unlinked their Minecraft account.");
+                plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getGlobalChannelId(), ":x: **" + player.getName() + "** has unlinked their Minecraft account.");
             } else {
                 player.sendMessage(ChatColor.RED + "Failed to unlink account.");
             }

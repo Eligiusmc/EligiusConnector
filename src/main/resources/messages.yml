@@ -1,0 +1,242 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Messages               ║
+# ║        Todos los textos y embeds                 ║
+# ╚══════════════════════════════════════════════════╝
+
+# ==========================================
+#  STATUS EMBEDS
+# ==========================================
+status:
+  online:
+    title: "🟢 Servidor En Linea"
+    description: "El servidor esta **listo** para jugar"
+    color: 5763719
+    thumbnail: "https://minotar.net/avatar/server/128"
+    author: "EligiusMC Status"
+    author_icon: "https://minotar.net/avatar/EligiusMC/128"
+    footer: "Ultima actualizacion"
+    timestamp: true
+    fields:
+      - name: "👥 Jugadores"
+        value: "**{online}** / **{max}**"
+        inline: true
+      - name: "🌍 Mundo"
+        value: "Survival"
+        inline: true
+
+  offline:
+    title: "🔴 Servidor Apagado"
+    description: "El servidor se ha **apagado** temporalmente"
+    color: 15548997
+    author: "EligiusMC Status"
+    author_icon: "https://minotar.net/avatar/EligiusMC/128"
+    footer: "Volveremos pronto"
+    timestamp: true
+
+# ==========================================
+#  JOIN/LEAVE EMBEDS
+# ==========================================
+join:
+  title: "👋 Jugador Entro"
+  description: "**{player}** se unio al servidor"
+  color: 5763719
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  author: "Bienvenido"
+  author_icon: "https://minotar.net/avatar/{player}/128"
+  footer: "Jugadores en linea"
+  timestamp: true
+  fields:
+    - name: "📊 En Linea"
+      value: "**{online}** / **{max}**"
+      inline: true
+    - name: "🆕 Primera Vez"
+      value: "{first_join}"
+      inline: true
+
+leave:
+  title: "👋 Jugador Salio"
+  description: "**{player}** se fue del servidor"
+  color: 15548997
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  author: "Hasta Luego"
+  author_icon: "https://minotar.net/avatar/{player}/128"
+  footer: "Jugadores en linea"
+  timestamp: true
+  fields:
+    - name: "📊 En Linea"
+      value: "**{online}** / **{max}**"
+      inline: true
+
+# ==========================================
+#  DEATH EMBED
+# ==========================================
+death:
+  title: "💀 Muerte"
+  description: "**{player}** murio"
+  color: 15548997
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  author: "Fin del Camino"
+  author_icon: "https://minotar.net/avatar/{player}/128"
+  footer: "F en el chat"
+  timestamp: true
+  fields:
+    - name: "❤️ Vida"
+      value: "{health}"
+      inline: true
+    - name: "🍖 Hambre"
+      value: "{food}"
+      inline: true
+    - name: "🌍 Mundo"
+      value: "{world}"
+      inline: true
+
+# ==========================================
+#  ADVANCEMENT EMBED
+# ==========================================
+advancement:
+  title: "🏆 Logro Completado"
+  description: "**{player}** desbloqueo **{advancement}**"
+  color: 16766720
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  author: "Progreso"
+  author_icon: "https://minotar.net/avatar/{player}/128"
+  footer: "Sigue asi!"
+  timestamp: true
+
+# ==========================================
+#  CHAT FORMATS
+# ==========================================
+chat:
+  mc_to_discord: "**[MC]** {player}: {message}"
+  discord_to_mc: "[DC] {player}: {message}"
+  webhook_name: "{player}"
+  webhook_avatar: "https://minotar.net/avatar/{player}/128"
+
+# ==========================================
+#  VERIFY
+# ==========================================
+verify:
+  welcome:
+    title: "🔐 Verifica tu Cuenta"
+    description: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
+    color: 5814783
+    thumbnail: "https://minotar.net/avatar/server/128"
+    author: "EligiusMC"
+    author_icon: "https://minotar.net/avatar/EligiusMC/128"
+    footer: "Sigue los pasos"
+    timestamp: true
+    fields:
+      - name: "📋 Como verificar"
+        value: "1. Entra al servidor de Minecraft\n2. Escribe `/verify` en el chat\n3. Haz clic en **Verificar** abajo\n4. Ingresa el codigo"
+        inline: false
+      - name: "✨ Beneficios"
+        value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario\n• Establecer tu cumpleanos"
+        inline: false
+
+  code_message: "Tu codigo de verificacion es: **{code}**\nIngresa `/verify {code}` en el servidor"
+  success_mc: "✅ Cuenta vinculada correctamente con {discord}!"
+  success_discord: "✅ Tu cuenta ha sido vinculada correctamente"
+  already_linked: "✅ Tu cuenta ya esta vinculada"
+  invalid_code: "❌ Codigo invalido o expirado"
+
+# ==========================================
+#  BIRTHDAY
+# ==========================================
+birthday:
+  setup:
+    title: "🎂 Configurar Cumpleanos"
+    description: "Ingresa tu cumpleaños en formato **dd/MM/yyyy**\nEjemplo: `25/12/1990`"
+    color: 16711851
+    footer: "Este mensaje se eliminara"
+  success: "✅ Cumpleanos configurado: {date}"
+  already_set: "✅ Tu cumpleanos ya esta configurado: {date}"
+  today: "🎂 ¡Hoy es el cumpleanos de **{player}**! ¡Feliz cumpleanos!"
+  reward_message: "¡Recibe tus regalos de cumpleanos!"
+
+# ==========================================
+#  PROFILE
+# ==========================================
+profile:
+  title: "👤 Perfil de {player}"
+  color: 5814783
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  fields:
+    - name: "❤️ Vida"
+      value: "{health}/20"
+      inline: true
+    - name: "🍖 Hambre"
+      value: "{food}/20"
+      inline: true
+    - name: "⭐ Nivel"
+      value: "{level}"
+      inline: true
+    - name: "🌍 Mundo"
+      value: "{world}"
+      inline: true
+    - name: "📍 Coordenadas"
+      value: "X: {x} Y: {y} Z: {z}"
+      inline: true
+    - name: "🧭 Direccion"
+      value: "{direction}"
+      inline: true
+
+# ==========================================
+#  INVENTORY
+# ==========================================
+inventory:
+  title: "🎒 Inventario de {player}"
+  color: 16753920
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  empty: "Tu inventario esta vacio"
+  categories:
+    weapons: "⚔️ Armas"
+    armor: "🛡️ Armadura"
+    tools: "⛏️ Herramientas"
+    blocks: "🧱 Bloques"
+    food: "🍎 Comida"
+    potions: "🧪 Pociones"
+    misc: "📦 Otros"
+  footer: "Espacios: {used}/{total}"
+
+# ==========================================
+#  WHERE AM I
+# ==========================================
+whereami:
+  title: "📍 Ubicacion de {player}"
+  color: 3066993
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  description: |
+    ```
+    Mundo: {world}
+    X: {x}
+    Y: {y}
+    Z: {z}
+    Direccion: {direction}
+    Bioma: {biome}
+    ```
+
+# ==========================================
+#  CONSOLE
+# ==========================================
+console:
+  permission_denied: "❌ No tienes permisos para ejecutar comandos"
+  command_blacklisted: "❌ Comando bloqueado: {command}"
+
+# ==========================================
+#  EVENTS
+# ==========================================
+events:
+  started: "✅ Evento **{name}** iniciado"
+  stopped: "🛑 Evento **{name}** finalizado"
+  no_permission: "❌ No tienes permisos para gestionar eventos"
+  list_title: "📋 Eventos Disponibles"
+  no_events: "No hay eventos configurados"
+
+# ==========================================
+#  ERRORS
+# ==========================================
+errors:
+  not_online: "❌ No estas en linea"
+  player_not_found: "❌ Jugador no encontrado: {player}"
+  database_error: "❌ Error de base de datos"
+  discord_error: "❌ Error de conexion con Discord"

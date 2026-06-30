@@ -1,7 +1,6 @@
 package com.makrozai.eligiusconnector.discord;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -10,13 +9,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class DiscordListener extends ListenerAdapter {
 
     private final EligiusConnector plugin;
-    private final Pattern MINECRAFT_NAME_PATTERN = Pattern.compile("^[a-zA-Z0-9_]{3,16}$");
 
     public DiscordListener(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -24,21 +20,17 @@ public class DiscordListener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        // Ignore bot messages
         if (event.getAuthor().isBot()) return;
 
-        // Ignore messages from console channel
-        String consoleChannelId = plugin.getConfigManager().getConsoleChannelId();
+        String consoleChannelId = plugin.getConfigAdapter().getConsoleChannelId();
         if (event.getChannel().getId().equals(consoleChannelId)) {
             handleConsoleMessage(event);
             return;
         }
 
-        // Handle chat bridge
-        String globalChannelId = plugin.getConfigManager().getGlobalChannelId();
+        String globalChannelId = plugin.getConfigAdapter().getGlobalChannelId();
         if (event.getChannel().getId().equals(globalChannelId)) {
             handleChatBridge(event);
-            return;
         }
     }
 
@@ -46,29 +38,26 @@ public class DiscordListener extends ListenerAdapter {
         String message = event.getMessage().getContentRaw();
         String discordName = event.getAuthor().getName();
 
-        // Check if the user is linked
         UUID minecraftUuid = plugin.getDatabaseManager().getMinecraftUuid(event.getAuthor().getIdLong());
         String prefix = discordName;
 
         if (minecraftUuid != null) {
-            // Get Minecraft name
             String minecraftName = plugin.getDatabaseManager().getMinecraftName(event.getAuthor().getIdLong());
-            if (minecraftName != null) {
-                prefix = minecraftName;
-            }
+            if (minecraftName != null) prefix = minecraftName;
         }
 
-        // Format message
-        String format = plugin.getConfigManager().getChatConfig().getString("DiscordToMinecraftFormat", "[DC] %username%: {message}");
-        String formattedMessage = format
-                .replace("%username%", discordName)
-                .replace("%player_name%", prefix)
-                .replace("{message}", message);
+        boolean useEmbeds = plugin.getConfigAdapter().isChatBridgeUseEmbed();
+        String formattedMessage;
+        if (useEmbeds) {
+            formattedMessage = prefix + ": " + message;
+        } else {
+            formattedMessage = "[DC] " + prefix + ": " + message;
+        }
 
-        // Send to Minecraft
+        final String finalMessage = formattedMessage;
         Bukkit.getScheduler().runTask(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(formattedMessage);
+                player.sendMessage(finalMessage);
             }
         });
     }
@@ -77,49 +66,26 @@ public class DiscordListener extends ListenerAdapter {
         String message = event.getMessage().getContentRaw();
         Member member = event.getMember();
 
-        // Check permissions
         if (member == null || !member.hasPermission(net.dv8tion.jda.api.Permission.MANAGE_SERVER)) {
-            event.getChannel().sendMessage("You don't have permission to execute console commands.").queue();
+            plugin.getDiscordManager().sendPermissionDenied(
+                    plugin.getConfigAdapter().getConsoleChannelId(),
+                    "You don't have permission to execute console commands."
+            );
             return;
         }
 
-        // Check blacklist
         String command = message.split(" ")[0].toLowerCase();
-        java.util.List<String> blacklist = plugin.getConfigManager().getConfig().getStringList("ConsoleCommand.Blacklist");
+        // Check blacklist from config
+        java.util.List<String> blacklist = plugin.getConfigAdapter().getConfig().getStringList("modules.console.blacklist");
         if (blacklist.contains(command)) {
-            event.getChannel().sendMessage("This command is blacklisted: " + command).queue();
+            plugin.getDiscordManager().sendPermissionDenied(
+                    plugin.getConfigAdapter().getConsoleChannelId(),
+                    "This command is blacklisted: `" + command + "`"
+            );
             return;
         }
 
-        // Execute command
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message);
-        });
-
-        // Log to audit
-        plugin.getDatabaseManager().logAudit(
-                "info",
-                "console_command",
-                event.getAuthor().getName(),
-                "discord",
-                message,
-                null
-        );
-    }
-
-    public void sendMinecraftMessageToDiscord(String playerName, String message) {
-        String globalChannelId = plugin.getConfigManager().getGlobalChannelId();
-        TextChannel channel = plugin.getDiscordManager().getChannel(globalChannelId);
-
-        if (channel != null) {
-            // Format message
-            String format = plugin.getConfigManager().getChatConfig().getString("MinecraftToDiscordFormat", "[MC] %player_displayname%: {message}");
-            String formattedMessage = format
-                    .replace("%player_displayname%", playerName)
-                    .replace("%player_name%", playerName)
-                    .replace("{message}", message);
-
-            channel.sendMessage(formattedMessage).queue();
-        }
+        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message));
+        plugin.getDatabaseManager().logAudit("info", "console_command", event.getAuthor().getName(), "discord", message, null);
     }
 }

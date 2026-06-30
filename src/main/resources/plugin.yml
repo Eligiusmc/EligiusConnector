@@ -18,6 +18,16 @@ commands:
   unlink:
     description: Unlink your Minecraft account from Discord
     usage: /unlink [player]
+  events:
+    description: Manage custom events
+    usage: /events <list|start|stop> [id]
+    aliases: [event]
+  birthday:
+    description: Manage your birthday
+    usage: /birthday <set|check> [date]
+  chat:
+    description: Send a message to Discord
+    usage: /chat <message>
 
 permissions:
   connector.verify:
@@ -40,6 +50,9 @@ permissions:
     default: false
   connector.chat.send:
     description: Allows sending chat messages
+    default: true
+  connector.chat:
+    description: Allows using /chat command
     default: true
   connector.chat.filter.bypass:
     description: Bypass chat filters
@@ -80,12 +93,18 @@ permissions:
   connector.jobs.other:
     description: View other players jobs
     default: op
+  connector.events:
+    description: Manage custom events
+    default: op
   connector.events.start:
     description: Start custom events
     default: op
   connector.events.stop:
     description: Stop custom events
     default: op
+  connector.birthday:
+    description: Manage birthday
+    default: true
   connector.notifications.receive:
     description: Receive notifications
     default: true

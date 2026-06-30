@@ -1,0 +1,65 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - English Language        ║
+# ╚══════════════════════════════════════════════════╝
+
+general:
+  prefix: "[EC]"
+  enabled: "Enabled"
+  disabled: "Disabled"
+  reload: "Configuration reloaded"
+  error: "Error"
+
+commands:
+  verify:
+    description: "Verify your Minecraft account"
+    usage: "/verify <code>"
+    success: "✅ Account verified successfully"
+    invalid: "❌ Invalid code"
+    expired: "❌ Code expired"
+    already: "✅ Your account is already verified"
+
+  unlink:
+    description: "Unlink your account"
+    usage: "/unlink [player]"
+    success: "✅ Account unlinked"
+    not_linked: "❌ Your account is not linked"
+    no_permission: "❌ No permission to unlink others"
+
+  connector:
+    description: "Admin commands"
+    usage: "/connector <reload|status>"
+    reload_success: "✅ Configuration reloaded"
+    status_title: "📊 Plugin Status"
+    status_discord: "Discord: {status}"
+    status_database: "Database: {type}"
+    status_linked: "Linked accounts: {count}"
+
+  events:
+    description: "Manage events"
+    usage: "/events <list|start|stop|reload>"
+    list_title: "📋 Available Events"
+    no_events: "No events configured"
+    started: "✅ Event {name} started"
+    stopped: "🛑 Event {name} stopped"
+    not_found: "❌ Event not found: {name}"
+
+  birthday:
+    description: "Manage birthday"
+    usage: "/birthday <set|clear>"
+    set_success: "✅ Birthday set: {date}"
+    clear_success: "✅ Birthday cleared"
+    invalid_format: "❌ Invalid format. Use dd/MM/yyyy"
+
+  chat:
+    description: "Toggle chat bridge"
+    usage: "/chat"
+    enabled: "✅ Chat bridge enabled"
+    disabled: "❌ Chat bridge disabled"
+
+permissions:
+  verify: "connector.verify"
+  unlink_self: "connector.unlink.self"
+  unlink_other: "connector.unlink.other"
+  admin: "connector.admin"
+  events: "connector.events"
+  birthday: "connector.birthday"
