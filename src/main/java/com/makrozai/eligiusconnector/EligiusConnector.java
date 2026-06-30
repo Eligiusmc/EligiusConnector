@@ -11,6 +11,7 @@ import com.makrozai.eligiusconnector.listeners.PlayerListener;
 import com.makrozai.eligiusconnector.listeners.StatsListener;
 import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
 import com.makrozai.eligiusconnector.tasks.AllMembersCounterTask;
+import com.makrozai.eligiusconnector.tasks.NicknameSyncTask;
 import com.makrozai.eligiusconnector.tasks.OnlineCounterTask;
 import com.makrozai.eligiusconnector.tasks.ServerStatusCounterTask;
 import com.makrozai.eligiusconnector.util.StartupLogger;
@@ -36,6 +37,7 @@ public final class EligiusConnector extends JavaPlugin {
     private OnlineCounterTask onlineCounterTask;
     private AllMembersCounterTask allMembersCounterTask;
     private ServerStatusCounterTask serverStatusCounterTask;
+    private NicknameSyncTask nicknameSyncTask;
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
     private final Map<Long, Long> verifyExpiry = new ConcurrentHashMap<>();
@@ -99,6 +101,10 @@ public final class EligiusConnector extends JavaPlugin {
             serverStatusCounterTask = new ServerStatusCounterTask(this);
             serverStatusCounterTask.start();
         }
+        if (configAdapter.isSynchronizationEnabled() && configAdapter.isNicknameSyncEnabled()) {
+            nicknameSyncTask = new NicknameSyncTask(this);
+            nicknameSyncTask.start();
+        }
 
         // Start console log reader
         if (configAdapter.isConsoleEnabled()) {
@@ -126,6 +132,7 @@ public final class EligiusConnector extends JavaPlugin {
         if (onlineCounterTask != null) onlineCounterTask.stop();
         if (allMembersCounterTask != null) allMembersCounterTask.stop();
         if (serverStatusCounterTask != null) serverStatusCounterTask.stop();
+        if (nicknameSyncTask != null) nicknameSyncTask.stop();
         if (consoleLogReader != null) consoleLogReader.stop();
         if (discordManager != null) discordManager.shutdown();
         if (databaseManager != null) databaseManager.close();
@@ -228,6 +235,7 @@ public final class EligiusConnector extends JavaPlugin {
     public PlayerStatsManager getStatsManager() { return statsManager; }
     public Map<Long, String> getVerifyCodes() { return verifyCodes; }
     public Map<Long, Long> getBirthdaySetupUsers() { return birthdaySetupUsers; }
+    public NicknameSyncTask getNicknameSyncTask() { return nicknameSyncTask; }
 
     private void safeSetExecutor(String name, org.bukkit.command.CommandExecutor executor) {
         var cmd = getCommand(name);

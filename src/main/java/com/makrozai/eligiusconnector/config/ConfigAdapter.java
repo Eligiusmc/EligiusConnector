@@ -349,6 +349,11 @@ public class ConfigAdapter {
         return mapping;
     }
 
+    // Nickname sync
+    public boolean isNicknameSyncEnabled() { return synchronizationConfig.getBoolean("nickname.enabled", true); }
+    public int getNicknameCycleSeconds() { return synchronizationConfig.getInt("nickname.cycle_time_seconds", 30); }
+    public String getNicknameFormat() { return synchronizationConfig.getString("nickname.format", "%player_name%"); }
+
     // ==========================================
     //  PROFILE CONFIG GETTERS
     // ==========================================

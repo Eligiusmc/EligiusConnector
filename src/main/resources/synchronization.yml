@@ -12,9 +12,9 @@ roles:
     verified: "1521342858945101894"
 
 nickname:
-  enabled: false
-  cycle_time_seconds: 5
-  format: "[%connector_clan_tag_%player_name%%] %player_displayname%"
+  enabled: true
+  cycle_time_seconds: 30
+  format: "%player_name%"
 
 bans:
   discord_to_mc: false

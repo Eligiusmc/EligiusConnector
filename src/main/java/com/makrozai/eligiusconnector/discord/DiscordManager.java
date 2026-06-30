@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class DiscordManager {
@@ -110,6 +111,37 @@ public class DiscordManager {
                     error -> plugin.getLogger().warning("Failed to send message: " + error.getMessage())
             );
         }
+    }
+
+    // Send temporary message (auto-delete after delaySeconds)
+    public void sendTempMessage(String channelId, String message, int delaySeconds) {
+        TextChannel channel = getChannel(channelId);
+        if (channel != null) {
+            channel.sendMessage(message).queue(msg ->
+                    msg.delete().queueAfter(delaySeconds, TimeUnit.SECONDS,
+                            success -> {},
+                            error -> plugin.getLogger().warning("Failed to delete temp message: " + error.getMessage())
+                    ),
+                    error -> plugin.getLogger().warning("Failed to send temp message: " + error.getMessage())
+            );
+        }
+    }
+
+    // Clear all bot messages in a channel
+    public void clearChannel(String channelId) {
+        if (!isConnected()) return;
+        TextChannel channel = getChannel(channelId);
+        if (channel == null) return;
+
+        channel.getHistory().retrievePast(100).queue(messages -> {
+            if (!isConnected()) return;
+            messages.stream()
+                    .filter(msg -> msg.getAuthor().equals(jda.getSelfUser()))
+                    .forEach(msg -> msg.delete().queue(
+                            success -> {},
+                            error -> {}
+                    ));
+        }, error -> {});
     }
 
     // Send embed messages
@@ -236,11 +268,15 @@ public class DiscordManager {
 
     // Convenience methods
     public void sendStatusEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getStatusChannelId(), plugin.getConfigAdapter().getStatusOnEmbed(), replacements);
+        String channelId = plugin.getConfigAdapter().getStatusChannelId();
+        clearChannel(channelId);
+        sendEmbed(channelId, plugin.getConfigAdapter().getStatusOnEmbed(), replacements);
     }
 
     public void sendStatusOffEmbed() {
-        sendEmbed(plugin.getConfigAdapter().getStatusChannelId(), plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>());
+        String channelId = plugin.getConfigAdapter().getStatusChannelId();
+        clearChannel(channelId);
+        sendEmbed(channelId, plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>());
     }
 
     public void sendJoinEmbed(Map<String, String> replacements) {

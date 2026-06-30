@@ -64,7 +64,10 @@ public class VerifyCommand implements CommandExecutor {
 
             plugin.getDatabaseManager().logAudit("info", "account_linked", player.getName(), "minecraft", "Discord ID: " + discordId, null);
 
-            plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getVerifyChannelId(), "✅ **" + player.getName() + "** has linked their Minecraft account!");
+            plugin.getDiscordManager().sendTempMessage(
+                    plugin.getConfigAdapter().getVerifyChannelId(),
+                    "✅ **" + player.getName() + "** ha vinculado su cuenta de Minecraft!",
+                    5);
 
             // Assign verified role
             plugin.assignVerifiedRole(discordId);

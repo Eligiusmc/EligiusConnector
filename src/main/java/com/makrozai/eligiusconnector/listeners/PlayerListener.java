@@ -73,6 +73,11 @@ public class PlayerListener implements Listener {
             Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
             if (discordId != null) {
                 plugin.getDatabaseManager().logAudit("info", "player_join", player.getName(), "minecraft", "Discord: " + discordId, null);
+
+                // Sync nickname on join
+                if (plugin.getNicknameSyncTask() != null) {
+                    plugin.getNicknameSyncTask().syncPlayer(player);
+                }
             }
         });
     }
