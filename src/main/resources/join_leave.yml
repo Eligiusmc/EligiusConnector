@@ -7,15 +7,15 @@ join:
   channel: "1521276575889358960"
   embed:
     color: 5763719
-    thumbnail: "https://minotar.net/avatar/{player}/128"
-    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author_icon: "https://minotar.net/avatar/%player_name%/128"
     timestamp: true
     fields:
       - name: "📊 En Linea"
-        value: "**{online}** / **{max}**"
+        value: "**%player_online%** / **%server_max_players%**"
         inline: true
       - name: "🆕 Primera Vez"
-        value: "{first_join}"
+        value: "%player_first_join%"
         inline: true
 
 leave:
@@ -23,12 +23,12 @@ leave:
   channel: "1521276575889358960"
   embed:
     color: 15548997
-    thumbnail: "https://minotar.net/avatar/{player}/128"
-    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author_icon: "https://minotar.net/avatar/%player_name%/128"
     timestamp: true
     fields:
       - name: "📊 En Linea"
-        value: "**{online}** / **{max}**"
+        value: "**%player_online%** / **%server_max_players%**"
         inline: true
 
 death:
@@ -36,18 +36,18 @@ death:
   channel: "1521276578708066578"
   embed:
     color: 15548997
-    thumbnail: "https://minotar.net/avatar/{player}/128"
-    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author_icon: "https://minotar.net/avatar/%player_name%/128"
     timestamp: true
     fields:
       - name: "❤️ Vida"
-        value: "{health}"
+        value: "%player_health%"
         inline: true
       - name: "🍖 Hambre"
-        value: "{food}"
+        value: "%player_food%"
         inline: true
       - name: "🌍 Mundo"
-        value: "{world}"
+        value: "%player_world%"
         inline: true
 
 advancement:
@@ -55,6 +55,6 @@ advancement:
   channel: "1521276581522444350"
   embed:
     color: 16766720
-    thumbnail: "https://minotar.net/avatar/{player}/128"
-    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author_icon: "https://minotar.net/avatar/%player_name%/128"
     timestamp: true

@@ -45,11 +45,11 @@ end_commands:
 rewards:
   first_killer:
     commands:
-      - "give {player} minecraft:netherite_sword 1"
+      - "give %player_name% minecraft:netherite_sword 1"
     message: "¡Has derrotado al Wither! Recibe una espada de netherita"
   all_participants:
     commands:
-      - "give {player} minecraft:experience_bottle 16"
+      - "give %player_name% minecraft:experience_bottle 16"
     message: "Participacion en la derrota del Wither"
 
 discord:
@@ -67,6 +67,6 @@ discord:
         inline: true
   end:
     title: "🎯 Boss Derrotado"
-    description: "**Wither** fue derrotado por **{player}**!"
+    description: "**Wither** fue derrotado por **%player_name%**!"
     color: 65280
-    thumbnail: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"

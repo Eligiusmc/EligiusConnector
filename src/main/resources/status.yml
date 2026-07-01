@@ -3,23 +3,43 @@
 # ╚══════════════════════════════════════════════════╝
 
 channel: "1521276573033173204"
-update_interval_seconds: 30
 
 online:
+  title: "🟢 Server Online"
+  description: "The Minecraft server is now **online** and ready to play!"
   color: 5763719
   thumbnail: "https://minotar.net/avatar/server/128"
+  author: "EligiusMC Status"
   author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "Server started"
   timestamp: true
   fields:
-    - name: "👥 Jugadores"
-      value: "**{online}** / **{max}**"
+    - name: "📋 Server"
+      value: "EligiusMC"
       inline: true
-    - name: "🌍 Mundo"
+    - name: "🎮 Game Mode"
       value: "Survival"
       inline: true
+    - name: "🌍 World"
+      value: "Overworld"
+      inline: true
+    - name: "📢 Information"
+      value: "Join us and start your adventure!"
+      inline: false
 
 offline:
+  title: "🔴 Server Offline"
+  description: "The Minecraft server is currently **offline** for maintenance."
   color: 15548997
+  thumbnail: "https://minotar.net/avatar/server/128"
+  author: "EligiusMC Status"
   author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "We'll be back soon"
   timestamp: true
-  fields: []
+  fields:
+    - name: "📋 Status"
+      value: "Under maintenance"
+      inline: true
+    - name: "⏰ Expected"
+      value: "Shortly"
+      inline: true

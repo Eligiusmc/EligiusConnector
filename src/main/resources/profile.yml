@@ -25,7 +25,7 @@ panel:
 
 profile:
   color: 5814783
-  thumbnail: "https://minotar.net/avatar/{player}/128"
+  thumbnail: "https://minotar.net/avatar/%player_name%/128"
   show_uuid: true
   show_discord_link: true
   show_kd: true
@@ -39,13 +39,13 @@ profile:
 
 inventory:
   color: 16753920
-  thumbnail: "https://minotar.net/avatar/{player}/128"
+  thumbnail: "https://minotar.net/avatar/%player_name%/128"
   empty_category_hidden: true
   max_items_per_category: 10
 
 whereami:
   color: 3066993
-  thumbnail: "https://minotar.net/avatar/{player}/128"
+  thumbnail: "https://minotar.net/avatar/%player_name%/128"
   show_direction: true
   direction_format: "full"
   show_biome: true

@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import com.makrozai.eligiusconnector.util.StartupLogger;
+import org.bukkit.entity.Player;
 
 import java.awt.Color;
 import java.util.EnumSet;
@@ -179,11 +180,15 @@ public class DiscordManager {
 
     // Send embed messages
     public void sendEmbed(String channelId, Map<String, Object> embedConfig, Map<String, String> replacements) {
+        sendEmbed(channelId, embedConfig, replacements, null);
+    }
+
+    public void sendEmbed(String channelId, Map<String, Object> embedConfig, Map<String, String> replacements, Player player) {
         TextChannel channel = getChannel(channelId);
         if (channel == null || embedConfig == null || embedConfig.isEmpty()) return;
 
         try {
-            MessageEmbed embed = buildEmbed(embedConfig, replacements != null ? replacements : new java.util.HashMap<>());
+            MessageEmbed embed = buildEmbed(embedConfig, replacements != null ? replacements : new java.util.HashMap<>(), player);
             if (embed != null) {
                 channel.sendMessageEmbeds(embed).queue(
                         success -> {},
@@ -196,13 +201,13 @@ public class DiscordManager {
     }
 
     // Build MessageEmbed from config map
-    public MessageEmbed buildEmbed(Map<String, Object> embedConfig, Map<String, String> replacements) {
+    public MessageEmbed buildEmbed(Map<String, Object> embedConfig, Map<String, String> replacements, Player player) {
         if (embedConfig == null) return null;
 
         EmbedBuilder embed = new EmbedBuilder();
 
-        String title = replacePlaceholders((String) embedConfig.get("title"), replacements);
-        String description = replacePlaceholders((String) embedConfig.get("description"), replacements);
+        String title = applyPapi(replacePlaceholders((String) embedConfig.get("title"), replacements), player);
+        String description = applyPapi(replacePlaceholders((String) embedConfig.get("description"), replacements), player);
 
         if (title != null && !title.isEmpty()) embed.setTitle(title);
         if (description != null && !description.isEmpty()) embed.setDescription(description);
@@ -234,14 +239,14 @@ public class DiscordManager {
             }
         }
 
-        String thumbnail = replacePlaceholders((String) embedConfig.get("thumbnail"), replacements);
+        String thumbnail = applyPapi(replacePlaceholders((String) embedConfig.get("thumbnail"), replacements), player);
         if (thumbnail != null && !thumbnail.isEmpty()) embed.setThumbnail(thumbnail);
 
-        String image = replacePlaceholders((String) embedConfig.get("image"), replacements);
+        String image = applyPapi(replacePlaceholders((String) embedConfig.get("image"), replacements), player);
         if (image != null && !image.isEmpty()) embed.setImage(image);
 
-        String author = replacePlaceholders((String) embedConfig.get("author"), replacements);
-        String authorIcon = replacePlaceholders((String) embedConfig.get("authorIcon"), replacements);
+        String author = applyPapi(replacePlaceholders((String) embedConfig.get("author"), replacements), player);
+        String authorIcon = applyPapi(replacePlaceholders((String) embedConfig.get("authorIcon"), replacements), player);
         if (author != null && !author.isEmpty()) {
             if (authorIcon != null && !authorIcon.isEmpty()) {
                 embed.setAuthor(author, null, authorIcon);
@@ -250,8 +255,8 @@ public class DiscordManager {
             }
         }
 
-        String footer = replacePlaceholders((String) embedConfig.get("footer"), replacements);
-        String footerIcon = replacePlaceholders((String) embedConfig.get("footerIcon"), replacements);
+        String footer = applyPapi(replacePlaceholders((String) embedConfig.get("footer"), replacements), player);
+        String footerIcon = applyPapi(replacePlaceholders((String) embedConfig.get("footerIcon"), replacements), player);
         if (footer != null && !footer.isEmpty()) {
             if (footerIcon != null && !footerIcon.isEmpty()) {
                 embed.setFooter(footer, footerIcon);
@@ -271,8 +276,8 @@ public class DiscordManager {
         List<Map<String, Object>> fields = (List<Map<String, Object>>) embedConfig.get("fields");
         if (fields != null) {
             for (Map<String, Object> field : fields) {
-                String name = replacePlaceholders((String) field.get("name"), replacements);
-                String value = replacePlaceholders((String) field.get("value"), replacements);
+                String name = applyPapi(replacePlaceholders((String) field.get("name"), replacements), player);
+                String value = applyPapi(replacePlaceholders((String) field.get("value"), replacements), player);
                 Boolean inline = (Boolean) field.get("inline");
                 if (name != null && value != null && !name.isEmpty() && !value.isEmpty()) {
                     embed.addField(name, value, inline != null && inline);
@@ -300,30 +305,30 @@ public class DiscordManager {
     }
 
     // Convenience methods
-    public void sendStatusEmbed(Map<String, String> replacements) {
+    public void sendStatusEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
         String channelId = plugin.getConfigAdapter().getStatusChannelId();
-        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOnEmbed(), replacements));
+        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOnEmbed(), replacements, player));
     }
 
     public void sendStatusOffEmbed() {
         String channelId = plugin.getConfigAdapter().getStatusChannelId();
-        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>()));
+        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>(), null));
     }
 
-    public void sendJoinEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getJoinsChannelId(), plugin.getConfigAdapter().getJoinEmbed(), replacements);
+    public void sendJoinEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
+        sendEmbed(plugin.getConfigAdapter().getJoinsChannelId(), plugin.getConfigAdapter().getJoinEmbed(), replacements, player);
     }
 
-    public void sendLeaveEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getJoinsChannelId(), plugin.getConfigAdapter().getLeaveEmbed(), replacements);
+    public void sendLeaveEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
+        sendEmbed(plugin.getConfigAdapter().getJoinsChannelId(), plugin.getConfigAdapter().getLeaveEmbed(), replacements, player);
     }
 
-    public void sendDeathEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getDeathsChannelId(), plugin.getConfigAdapter().getDeathEmbed(), replacements);
+    public void sendDeathEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
+        sendEmbed(plugin.getConfigAdapter().getDeathsChannelId(), plugin.getConfigAdapter().getDeathEmbed(), replacements, player);
     }
 
-    public void sendAdvancementEmbed(Map<String, String> replacements) {
-        sendEmbed(plugin.getConfigAdapter().getMissionsChannelId(), plugin.getConfigAdapter().getAdvancementEmbed(), replacements);
+    public void sendAdvancementEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
+        sendEmbed(plugin.getConfigAdapter().getMissionsChannelId(), plugin.getConfigAdapter().getAdvancementEmbed(), replacements, player);
     }
 
     public void sendPermissionDenied(String channelId, String reason) {
@@ -331,7 +336,7 @@ public class DiscordManager {
         embedConfig.put("title", "❌ Permission Denied");
         embedConfig.put("description", reason);
         embedConfig.put("color", 0xED4245);
-        sendEmbed(channelId, embedConfig, new java.util.HashMap<>());
+        sendEmbed(channelId, embedConfig, new java.util.HashMap<>(), null);
     }
 
     public void sendChatMessage(String playerName, String message, String avatarUrl) {
@@ -354,6 +359,11 @@ public class DiscordManager {
             text = text.replace("{" + entry.getKey() + "}", entry.getValue());
         }
         return text;
+    }
+
+    private String applyPapi(String text, org.bukkit.entity.Player player) {
+        if (text == null || text.isEmpty()) return text;
+        return plugin.applyPlaceholders(player, text);
     }
 
     // Modify member nickname via JDA (owner must be skipped beforehand)

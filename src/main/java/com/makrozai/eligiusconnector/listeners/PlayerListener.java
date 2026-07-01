@@ -51,9 +51,10 @@ public class PlayerListener implements Listener {
                 }
             }
         }
-        return plugin.getConfigAdapter().getWebhookAvatar()
-                .replace("{player}", player.getName())
-                .replace("{player_name}", player.getName());
+        return plugin.applyPlaceholders(player,
+                plugin.getConfigAdapter().getWebhookAvatar()
+                        .replace("{player}", player.getName())
+                        .replace("{player_name}", player.getName()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -75,7 +76,7 @@ public class PlayerListener implements Listener {
             replacements.put("max", String.valueOf(max));
             replacements.put("first_join", String.valueOf(firstJoin));
 
-            plugin.getDiscordManager().sendJoinEmbed(replacements);
+            plugin.getDiscordManager().sendJoinEmbed(replacements, player);
 
             // Update online counter
             if (plugin.getConfigAdapter().isOnlineCounterEnabled()) {
@@ -83,6 +84,7 @@ public class PlayerListener implements Listener {
                 plugin.getDiscordManager().updateChannelName(
                         plugin.getConfigAdapter().getOnlineCounterChannel(),
                         format.replace("{count}", String.valueOf(online))
+                                .replace("%player_online%", String.valueOf(online))
                 );
             }
 
@@ -116,7 +118,7 @@ public class PlayerListener implements Listener {
             replacements.put("online", String.valueOf(online));
             replacements.put("max", String.valueOf(max));
 
-            plugin.getDiscordManager().sendLeaveEmbed(replacements);
+            plugin.getDiscordManager().sendLeaveEmbed(replacements, player);
 
             // Update online counter
             if (plugin.getConfigAdapter().isOnlineCounterEnabled()) {
@@ -124,6 +126,7 @@ public class PlayerListener implements Listener {
                 plugin.getDiscordManager().updateChannelName(
                         plugin.getConfigAdapter().getOnlineCounterChannel(),
                         format.replace("{count}", String.valueOf(online))
+                                .replace("%player_online%", String.valueOf(online))
                 );
             }
 
@@ -151,7 +154,7 @@ public class PlayerListener implements Listener {
             replacements.put("food", String.valueOf(player.getFoodLevel()));
             replacements.put("world", player.getWorld().getName());
 
-            plugin.getDiscordManager().sendDeathEmbed(replacements);
+            plugin.getDiscordManager().sendDeathEmbed(replacements, player);
         });
     }
 
@@ -168,7 +171,7 @@ public class PlayerListener implements Listener {
             replacements.put("player", player.getName());
             replacements.put("advancement", finalName);
 
-            plugin.getDiscordManager().sendAdvancementEmbed(replacements);
+            plugin.getDiscordManager().sendAdvancementEmbed(replacements, player);
         });
     }
 

@@ -34,7 +34,7 @@ Este proyecto pertenece al ecosistema **Eligiusmc**. Seguir la misma arquitectur
 
 ## Skills Obligatorios
 
-### Siempre activos
+### Siempre activos (nunca desactivar)
 - **caveman**: Modo ultra-compreso. Ahorrar tokens siempre.
 - **ponytail**: Laziest senior dev. Solo escribir lo necesario.
 
@@ -81,6 +81,7 @@ Este proyecto pertenece al ecosistema **Eligiusmc**. Seguir la misma arquitectur
 6. **i18n**: Soporte multi-idioma desde el principio
 7. **bStats**: Métricas anónimas integradas
 8. **Release Please**: Automatización de releases con Conventional Commits
+9. **No commit/push sin autorización**: Nunca hacer git commit ni git push a menos que el usuario lo pida explícitamente
 
 ## Testing
 

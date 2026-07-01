@@ -30,19 +30,19 @@ start_commands:
 
 end_commands:
   - "say ¡El Torneo PvP ha terminado!"
-  - "give {winner} minecraft:diamond_block 4"
+  - "give %player_name% minecraft:diamond_block 4"
 
 rewards:
   winner:
     commands:
-      - "give {player} minecraft:netherite_helmet 1"
-      - "give {player} minecraft:netherite_chestplate 1"
-      - "give {player} minecraft:netherite_leggings 1"
-      - "give {player} minecraft:netherite_boots 1"
+      - "give %player_name% minecraft:netherite_helmet 1"
+      - "give %player_name% minecraft:netherite_chestplate 1"
+      - "give %player_name% minecraft:netherite_leggings 1"
+      - "give %player_name% minecraft:netherite_boots 1"
     message: "¡Felicidades! Eres el campeon del torneo"
   runner_up:
     commands:
-      - "give {player} minecraft:diamond_block 2"
+      - "give %player_name% minecraft:diamond_block 2"
     message: "Segundo lugar - Buen trabajo"
 
 discord:
@@ -59,5 +59,5 @@ discord:
         inline: true
   end:
     title: "🏆 Torneo Finalizado"
-    description: "**{winner}** ha ganado el torneo!"
+    description: "**%player_name%** ha ganado el torneo!"
     color: 16766720

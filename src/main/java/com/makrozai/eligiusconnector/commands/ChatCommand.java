@@ -40,9 +40,10 @@ public class ChatCommand implements CommandExecutor {
         }
 
         String message = String.join(" ", args);
-        String avatarUrl = plugin.getConfigAdapter().getWebhookAvatar()
-                .replace("{player}", player.getName())
-                .replace("{player_name}", player.getName());
+        String avatarUrl = plugin.applyPlaceholders(player,
+                plugin.getConfigAdapter().getWebhookAvatar()
+                        .replace("{player}", player.getName())
+                        .replace("{player_name}", player.getName()));
 
         plugin.getDiscordManager().sendChatMessage(player.getName(), message, avatarUrl);
         player.sendMessage(ChatColor.GREEN + "[DC] " + player.getName() + ": " + message);

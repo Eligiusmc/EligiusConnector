@@ -8,13 +8,13 @@ mc_to_discord: true
 discord_to_mc: true
 
 format:
-  mc_to_discord: "{player}: {message}"
-  discord_to_mc: "[DC] {player}: {message}"
+  mc_to_discord: "%player_name%: %player_message%"
+  discord_to_mc: "[DC] %player_name%: %player_message%"
 
 webhooks:
   enabled: true
   name: "Minecraft"
-  avatar: "https://minotar.net/avatar/{player}/128"
+  avatar: "https://minotar.net/avatar/%player_name%/128"
 
 filters:
   spam:

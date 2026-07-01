@@ -20,7 +20,9 @@ public class AllMembersCounterTask {
             if (guild == null) return;
             int members = guild.getMemberCount();
             String format = plugin.getConfigAdapter().getAllMembersFormat();
-            String newName = format.replace("{count}", String.valueOf(members));
+            String newName = format
+                    .replace("{count}", String.valueOf(members))
+                    .replace("%server_members%", String.valueOf(members));
             plugin.getDiscordManager().updateChannelName(
                     plugin.getConfigAdapter().getAllMembersChannelId(), newName);
         }, 0L, plugin.getConfigAdapter().getAllMembersCounterInterval() * 20L);

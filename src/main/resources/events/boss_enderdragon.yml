@@ -37,11 +37,11 @@ end_commands:
 rewards:
   first_killer:
     commands:
-      - "give {player} minecraft:elytra 1"
+      - "give %player_name% minecraft:elytra 1"
     message: "¡Has derrotado al Dragon! Recibe una Elytra"
   all_participants:
     commands:
-      - "give {player} minecraft:experience_bottle 64"
+      - "give %player_name% minecraft:experience_bottle 64"
 
 discord:
   start:

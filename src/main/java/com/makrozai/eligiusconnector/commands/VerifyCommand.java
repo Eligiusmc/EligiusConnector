@@ -114,9 +114,9 @@ public class VerifyCommand implements CommandExecutor {
         if (commands == null || commands.isEmpty()) return;
 
         for (String cmd : commands) {
-            String resolved = cmd
-                    .replace("{player}", player.getName())
-                    .replace("{uuid}", player.getUniqueId().toString());
+            String resolved = plugin.applyPlaceholders(player,
+                    cmd.replace("{player}", player.getName())
+                            .replace("{uuid}", player.getUniqueId().toString()));
             plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), resolved);
         }
     }

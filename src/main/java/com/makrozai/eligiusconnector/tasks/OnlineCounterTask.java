@@ -17,7 +17,10 @@ public class OnlineCounterTask {
         task = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             int online = Bukkit.getOnlinePlayers().size();
             String format = plugin.getConfigAdapter().getOnlineFormat();
-            String newName = format.replace("{count}", String.valueOf(online));
+            String newName = format
+                    .replace("{count}", String.valueOf(online))
+                    .replace("%player_online%", String.valueOf(online))
+                    .replace("%server_online%", String.valueOf(online));
             plugin.getDiscordManager().updateChannelName(
                     plugin.getConfigAdapter().getOnlineChannelId(), newName);
         }, 0L, plugin.getConfigAdapter().getOnlineCounterInterval() * 20L);

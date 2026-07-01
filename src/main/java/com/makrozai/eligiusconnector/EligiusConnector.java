@@ -14,11 +14,12 @@ import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
 import com.makrozai.eligiusconnector.tasks.AllMembersCounterTask;
 import com.makrozai.eligiusconnector.tasks.NicknameSyncTask;
 import com.makrozai.eligiusconnector.tasks.OnlineCounterTask;
-import com.makrozai.eligiusconnector.tasks.ServerStatusCounterTask;
 import com.makrozai.eligiusconnector.util.StartupLogger;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
@@ -38,7 +39,6 @@ public final class EligiusConnector extends JavaPlugin {
     private PlayerStatsManager statsManager;
     private OnlineCounterTask onlineCounterTask;
     private AllMembersCounterTask allMembersCounterTask;
-    private ServerStatusCounterTask serverStatusCounterTask;
     private NicknameSyncTask nicknameSyncTask;
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
@@ -103,10 +103,6 @@ public final class EligiusConnector extends JavaPlugin {
             allMembersCounterTask = new AllMembersCounterTask(this);
             allMembersCounterTask.start();
         }
-        if (configAdapter.isServerStatusCounterEnabled()) {
-            serverStatusCounterTask = new ServerStatusCounterTask(this);
-            serverStatusCounterTask.start();
-        }
         if (configAdapter.isSynchronizationEnabled() && configAdapter.isNicknameSyncEnabled()) {
             nicknameSyncTask = new NicknameSyncTask(this);
             nicknameSyncTask.start();
@@ -138,7 +134,6 @@ public final class EligiusConnector extends JavaPlugin {
         sendServerStatus(false);
         if (onlineCounterTask != null) onlineCounterTask.stop();
         if (allMembersCounterTask != null) allMembersCounterTask.stop();
-        if (serverStatusCounterTask != null) serverStatusCounterTask.stop();
         if (nicknameSyncTask != null) nicknameSyncTask.stop();
         if (consoleLogReader != null) consoleLogReader.stop();
         if (discordManager != null) discordManager.shutdown();
@@ -148,19 +143,17 @@ public final class EligiusConnector extends JavaPlugin {
 
     private void sendServerStatus(boolean online) {
         if (discordManager == null || !discordManager.isConnected()) return;
-
-        // Update server status channel name
-        if (serverStatusCounterTask != null) {
-            serverStatusCounterTask.updateStatus(online);
-        }
-
         if (!configAdapter.isStatusEnabled()) return;
 
+        // Rename status channel
+        String channelName = online
+                ? configAdapter.getServerStatusFormatOnline()
+                : configAdapter.getServerStatusFormatOffline();
+        discordManager.updateChannelName(configAdapter.getServerStatusChannel(), channelName);
+
+        // Send status embed
         if (online) {
-            Map<String, String> replacements = new java.util.HashMap<>();
-            replacements.put("online", String.valueOf(Bukkit.getOnlinePlayers().size()));
-            replacements.put("max", String.valueOf(Bukkit.getMaxPlayers()));
-            discordManager.sendStatusEmbed(replacements);
+            discordManager.sendStatusEmbed(new java.util.HashMap<>(), null);
         } else {
             discordManager.sendStatusOffEmbed();
         }
@@ -262,6 +255,14 @@ public final class EligiusConnector extends JavaPlugin {
     public String msg(org.bukkit.entity.Player player, String key, java.util.Map<String, String> replacements) {
         if (player == null) return languageManager.get(key, replacements);
         return languageManager.get(player.getUniqueId(), key, replacements);
+    }
+
+    public String applyPlaceholders(Player player, String text) {
+        if (text == null || text.isEmpty()) return text;
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            return PlaceholderAPI.setPlaceholders(player, text);
+        }
+        return text;
     }
 
     private void safeSetExecutor(String name, org.bukkit.command.CommandExecutor executor) {

@@ -29,14 +29,14 @@ start_commands:
   - "say ¡Busca el tesoro escondido en el mundo!"
 
 found_commands:
-  - "say ¡{player} ha encontrado el tesoro!"
-  - "give {player} minecraft:gold_block 8"
+  - "say ¡%player_name% ha encontrado el tesoro!"
+  - "give %player_name% minecraft:gold_block 8"
 
 rewards:
   finder:
     commands:
-      - "give {player} minecraft:gold_block 8"
-      - "give {player} minecraft:diamond 4"
+      - "give %player_name% minecraft:gold_block 8"
+      - "give %player_name% minecraft:diamond 4"
     message: "¡Has encontrado el tesoro!"
 
 hint:
@@ -58,6 +58,6 @@ discord:
         inline: false
   found:
     title: "💎 Tesoro Encontrado"
-    description: "**{player}** ha encontrado el tesoro!"
+    description: "**%player_name%** ha encontrado el tesoro!"
     color: 16766720
-    thumbnail: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"

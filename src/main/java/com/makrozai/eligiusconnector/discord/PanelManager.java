@@ -54,19 +54,13 @@ public class PanelManager {
             List<Button> buttons = buildPanelButtons(panelConfig);
 
             channel.sendMessageEmbeds(embed).addActionRow(buttons).queue(
-                    msg -> {
-                        saveMessageId(panelType, msg.getId());
-                        plugin.getLogger().info("[Panels] Created " + panelType + " panel (ID: " + msg.getId() + ")");
-                    },
+                    msg -> plugin.getLogger().info("[Panels] Created " + panelType + " panel"),
                     error -> plugin.getLogger().warning("[Panels] Failed to create " + panelType + " panel: " + error.getMessage())
             );
         });
     }
 
     public void deletePanel(String panelType) {
-        String messageId = getConfigMessageId(panelType);
-        if (messageId == null || messageId.isEmpty()) return;
-
         ConfigurationSection panelConfig = getPanelConfig(panelType);
         if (panelConfig == null) return;
 
@@ -76,10 +70,7 @@ public class PanelManager {
         TextChannel channel = plugin.getDiscordManager().getChannel(channelId);
         if (channel == null) return;
 
-        channel.deleteMessageById(messageId).queue(
-                success -> saveMessageId(panelType, ""),
-                error -> {}
-        );
+        plugin.getDiscordManager().clearChannel(channelId);
     }
 
     public void reloadPanels() {
@@ -215,14 +206,6 @@ public class PanelManager {
             case "profile": return plugin.getConfigAdapter().getProfileConfig().getConfigurationSection("panel");
             default: return null;
         }
-    }
-
-    private String getConfigMessageId(String panelType) {
-        return plugin.getConfigAdapter().getPanelMessageId(panelType);
-    }
-
-    public void saveMessageId(String panelType, String messageId) {
-        plugin.getConfigAdapter().setPanelMessageId(panelType, messageId);
     }
 
     private Color getColor(Map<String, Object> config, int def) {

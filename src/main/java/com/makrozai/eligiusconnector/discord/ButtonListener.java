@@ -77,7 +77,7 @@ public class ButtonListener extends ListenerAdapter {
 
             String thumbnail = getStringOrDefault(embedConfig, "thumbnail", "");
             if (!thumbnail.isEmpty()) {
-                embed.setThumbnail(thumbnail.replace("{player}", event.getUser().getName()));
+                embed.setThumbnail(plugin.applyPlaceholders(null, thumbnail.replace("{player}", event.getUser().getName())));
             }
 
             String author = getStringOrDefault(embedConfig, "author", "");
@@ -128,12 +128,12 @@ public class ButtonListener extends ListenerAdapter {
             Map<String, Object> config = plugin.getConfigAdapter().getWhereamiEmbed();
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(getStringOrDefault(config, "title", "📍 Ubicación").replace("{player}", player.getName()));
+            embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", "📍 Ubicación").replace("{player}", player.getName())));
             embed.setColor(getColorOrDefault(config, 0x2ECC71));
 
             String thumbnail = getStringOrDefault(config, "thumbnail", "");
             if (!thumbnail.isEmpty()) {
-                embed.setThumbnail(thumbnail.replace("{player}", player.getName()));
+                embed.setThumbnail(plugin.applyPlaceholders(player, thumbnail.replace("{player}", player.getName())));
             }
 
             String info = """
@@ -191,12 +191,12 @@ public class ButtonListener extends ListenerAdapter {
             Map<String, String> categoryLabels = getCategoryLabels(config);
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(getStringOrDefault(config, "title", "🎒 Inventario").replace("{player}", player.getName()));
+            embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", "🎒 Inventario").replace("{player}", player.getName())));
             embed.setColor(getColorOrDefault(config, 0xF39C12));
 
             String thumbnail = getStringOrDefault(config, "thumbnail", "");
             if (!thumbnail.isEmpty()) {
-                embed.setThumbnail(thumbnail.replace("{player}", player.getName()));
+                embed.setThumbnail(plugin.applyPlaceholders(player, thumbnail.replace("{player}", player.getName())));
             }
 
             int maxPerCategory = 10;
@@ -253,9 +253,9 @@ public class ButtonListener extends ListenerAdapter {
             PlayerStatsManager.PlayerStats stats = uuid != null ? plugin.getStatsManager().getStats(uuid) : null;
 
             if (player != null && player.isOnline()) {
-                embed.setTitle(getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", player.getName()));
+                embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", player.getName())));
                 embed.setColor(getColorOrDefault(config, 0x5865F2));
-                embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
+                embed.setThumbnail(plugin.applyPlaceholders(player, "https://minotar.net/avatar/" + player.getName() + "/128"));
 
                 Long linkedId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
 
@@ -313,7 +313,7 @@ public class ButtonListener extends ListenerAdapter {
                 embed.addField(plugin.msg("keys.discord.profile.ping_label"), "**" + player.getPing() + " ms**", true);
 
             } else {
-                embed.setTitle(getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular"));
+                embed.setTitle(plugin.applyPlaceholders(null, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular")));
                 embed.setColor(Color.GRAY);
 
                 if (stats != null) {

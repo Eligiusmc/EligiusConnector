@@ -20,11 +20,11 @@ setup_embed:
 
 rewards:
   commands:
-    - "give {player} minecraft:cake 1"
-    - "give {player} minecraft:firework_rocket 16"
+    - "give %player_name% minecraft:cake 1"
+    - "give %player_name% minecraft:firework_rocket 16"
   discord_role: ""
 
 discord_embed:
   color: 16711851
-  thumbnail: "https://minotar.net/avatar/{player}/128"
+  thumbnail: "https://minotar.net/avatar/%player_name%/128"
   timestamp: true

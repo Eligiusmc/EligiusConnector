@@ -30,9 +30,9 @@ sounds:
     pitch: 1.0
 
 post_verify_commands:
-  - "give {player} minecraft:diamond 1"
-  - "say ¡{player} se ha verificado!"
-  - "lp user {player} parent set default"
+  - "give %player_name% minecraft:diamond 1"
+  - "say ¡%player_name% se ha verificado!"
+  - "lp user %player_name% parent set default"
 
 welcome_embed:
   enabled: true

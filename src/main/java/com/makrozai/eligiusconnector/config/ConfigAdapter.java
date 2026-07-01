@@ -24,7 +24,6 @@ public class ConfigAdapter {
     private FileConfiguration verifyConfig;
     private FileConfiguration birthdayConfig;
     private FileConfiguration consoleConfig;
-    private FileConfiguration notificationsConfig;
     private FileConfiguration synchronizationConfig;
     private FileConfiguration countersConfig;
     private FileConfiguration profileConfig;
@@ -42,7 +41,6 @@ public class ConfigAdapter {
         verifyConfig = loadConfig("verify.yml");
         birthdayConfig = loadConfig("birthday.yml");
         consoleConfig = loadConfig("console.yml");
-        notificationsConfig = loadConfig("notifications.yml");
         synchronizationConfig = loadConfig("synchronization.yml");
         countersConfig = loadConfig("counters.yml");
         profileConfig = loadConfig("profile.yml");
@@ -57,7 +55,6 @@ public class ConfigAdapter {
         verifyConfig = reloadConfig("verify.yml");
         birthdayConfig = reloadConfig("birthday.yml");
         consoleConfig = reloadConfig("console.yml");
-        notificationsConfig = reloadConfig("notifications.yml");
         synchronizationConfig = reloadConfig("synchronization.yml");
         countersConfig = reloadConfig("counters.yml");
         profileConfig = reloadConfig("profile.yml");
@@ -149,7 +146,6 @@ public class ConfigAdapter {
     public boolean isVerifyEnabled() { return isModuleEnabled("verify"); }
     public boolean isBirthdayEnabled() { return isModuleEnabled("birthday"); }
     public boolean isConsoleEnabled() { return isModuleEnabled("console"); }
-    public boolean isNotificationsEnabled() { return isModuleEnabled("notifications"); }
     public boolean isSynchronizationEnabled() { return isModuleEnabled("synchronization"); }
     public boolean isCountersEnabled() { return isModuleEnabled("counters"); }
     public boolean isProfileEnabled() { return isModuleEnabled("profile"); }
@@ -296,18 +292,6 @@ public class ConfigAdapter {
     public String getConsoleCommandBlacklisted() { return consoleConfig.getString("messages.command_blacklisted", ""); }
 
     // ==========================================
-    //  NOTIFICATIONS CONFIG GETTERS
-    // ==========================================
-
-    public FileConfiguration getNotificationsConfig() { return notificationsConfig; }
-    public boolean isServerStartEnabled() { return notificationsConfig.getBoolean("server_start.enabled", true); }
-    public String getServerStartChannel() { return notificationsConfig.getString("server_start.channel", ""); }
-    public String getServerStartMessage() { return notificationsConfig.getString("server_start.message", ""); }
-    public boolean isServerStopEnabled() { return notificationsConfig.getBoolean("server_stop.enabled", true); }
-    public String getServerStopChannel() { return notificationsConfig.getString("server_stop.channel", ""); }
-    public String getServerStopMessage() { return notificationsConfig.getString("server_stop.message", ""); }
-
-    // ==========================================
     //  COUNTERS CONFIG GETTERS
     // ==========================================
 
@@ -326,7 +310,6 @@ public class ConfigAdapter {
     public String getServerStatusChannel() { return countersConfig.getString("server_status.channel", ""); }
     public String getServerStatusFormatOnline() { return countersConfig.getString("server_status.format_online", "🟢 Online - {count} jugadores"); }
     public String getServerStatusFormatOffline() { return countersConfig.getString("server_status.format_offline", "🔴 Offline"); }
-    public int getServerStatusInterval() { return countersConfig.getInt("server_status.update_interval_seconds", 30); }
 
     // Aliases for callers using old names
     public String getOnlineChannelId() { return getOnlineCounterChannel(); }
@@ -374,24 +357,6 @@ public class ConfigAdapter {
     public Map<String, Object> getProfileEmbed() { return getEmbedFromConfig(profileConfig, "profile"); }
     public Map<String, Object> getInventoryEmbed() { return getEmbedFromConfig(profileConfig, "inventory"); }
     public Map<String, Object> getWhereamiEmbed() { return getEmbedFromConfig(profileConfig, "whereami"); }
-
-    // ==========================================
-    //  PANELS CONFIG
-    // ==========================================
-
-    public String getPanelMessageId(String panelType) {
-        return config.getString("panels." + panelType + "_message_id", "");
-    }
-
-    public void setPanelMessageId(String panelType, String messageId) {
-        config.set("panels." + panelType + "_message_id", messageId);
-        try {
-            File file = new File(plugin.getDataFolder(), "config.yml");
-            config.save(file);
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to save panel message ID: " + e.getMessage());
-        }
-    }
 
     // ==========================================
     //  EVENTS CONFIG

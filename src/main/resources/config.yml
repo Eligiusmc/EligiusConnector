@@ -29,7 +29,6 @@ modules:
   verify: true
   birthday: true
   console: true
-  notifications: true
   synchronization: true
   counters: true
   profile: true
@@ -73,11 +72,3 @@ audit:
 #  DEBUG
 # ==========================================
 debug: false
-
-# ==========================================
-#  PANELS (auto-generated on install)
-# ==========================================
-panels:
-  verify_message_id: ""
-  birthday_message_id: ""
-  profile_message_id: ""

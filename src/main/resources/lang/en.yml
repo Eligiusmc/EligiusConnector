@@ -216,10 +216,6 @@ keys:
       no_permission: "You don't have permission to execute console commands."
       command_blacklisted: "This command is blacklisted: `{command}`"
 
-    notifications:
-      server_start: ":white_check_mark: Server started.\n:busts_in_silhouette: Players online: {online}"
-      server_stop: ":x: Server shutting down..."
-
     panel:
       verify:
         title: "🔐 Verify Your Account"

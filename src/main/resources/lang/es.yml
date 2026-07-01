@@ -216,10 +216,6 @@ keys:
       no_permission: "No tienes permisos para ejecutar comandos de consola."
       command_blacklisted: "Comando bloqueado: `{command}`"
 
-    notifications:
-      server_start: ":white_check_mark: Servidor iniciado.\n:busts_in_silhouette: Jugadores online: {online}"
-      server_stop: ":x: Servidor apagandose..."
-
     panel:
       verify:
         title: "🔐 Verifica tu Cuenta"

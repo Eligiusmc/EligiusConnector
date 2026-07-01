@@ -5,18 +5,17 @@
 online:
   enabled: true
   channel: "1521280346585305268"
-  format: "🟢 online: {count}"
+  format: "🟢 online: %server_online%"
   update_interval_seconds: 30
 
 all_members:
   enabled: true
   channel: "1521280350343532654"
-  format: "👥 all-members: {count}"
+  format: "👥 all-members: %server_members%"
   update_interval_seconds: 300
 
 server_status:
   enabled: true
   channel: "1521276573033173204"
-  format_online: "🟢 Online - {count} jugadores"
+  format_online: "🟢 Online"
   format_offline: "🔴 Offline"
-  update_interval_seconds: 30
