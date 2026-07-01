@@ -546,8 +546,11 @@ public class ButtonListener extends ListenerAdapter {
     }
 
     private String getStringOrDefault(Map<String, Object> map, String key, String defaultValue) {
+        if (map == null) return defaultValue;
         Object value = map.get(key);
-        return value != null ? String.valueOf(value) : defaultValue;
+        if (value == null) return defaultValue;
+        String str = String.valueOf(value);
+        return str.isEmpty() ? defaultValue : str;
     }
 
     private int getColorOrDefault(Map<String, Object> map, int defaultColor) {

@@ -167,15 +167,15 @@ para evitar dependencia compile-time.
 
 ## Reglas de Desarrollo
 
-1. **YAGNI primero**: No crear algo que no se necesita ahora
-2. **Reutilizar antes de crear**: Verificar si Paper/Spigot ya provee la funcionalidad
-3. **Zero-lag**: Todo debe ser async cuando sea posible (usar `Scheduler.runAsync`)
-4. **Zero-dependencies**: Evitar ProtocolLib si Paper API lo soporta
-5. **Folia-ready**: Usar `Scheduler.runAsync/runTimerAsync` en vez de `Bukkit.getScheduler()` directo
-6. **i18n**: Soporte multi-idioma desde el principio
-7. **bStats**: Metricas anonimas integradas
-8. **Release Please**: Automatizacion de releases con Conventional Commits
-9. **No commit/push sin autorizacion**: Nunca hacer git commit ni git push a menos que el usuario lo pida explicitamente
+1. **🚫 NUNCA commit/push sin autorizacion explicita**: No ejecutar `git commit` ni `git push` a menos que el usuario lo solicite. Si el usuario dice "commit" o "haz commit", hacerlo. Si no lo pide, NUNCA.
+2. **YAGNI primero**: No crear algo que no se necesita ahora
+3. **Reutilizar antes de crear**: Verificar si Paper/Spigot ya provee la funcionalidad
+4. **Zero-lag**: Todo debe ser async cuando sea posible (usar `Scheduler.runAsync`)
+5. **Zero-dependencies**: Evitar ProtocolLib si Paper API lo soporta
+6. **Folia-ready**: Usar `Scheduler.runAsync/runTimerAsync` en vez de `Bukkit.getScheduler()` directo
+7. **i18n**: Soporte multi-idioma desde el principio
+8. **bStats**: Metricas anonimas integradas
+9. **Release Please**: Automatizacion de releases con Conventional Commits
 
 ## Testing
 
