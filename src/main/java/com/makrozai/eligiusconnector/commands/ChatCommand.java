@@ -18,24 +18,24 @@ public class ChatCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getConfigAdapter().isChatEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Chat bridge module is disabled.");
+            sender.sendMessage(plugin.msg(null, "keys.command.chat.disabled_module"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+            sender.sendMessage(plugin.msg(null, "keys.general.not_online"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("connector.chat")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            player.sendMessage(plugin.msg(player, "keys.general.no_permission"));
             return true;
         }
 
         if (args.length == 0) {
-            player.sendMessage(ChatColor.RED + "Usage: /chat <message>");
+            player.sendMessage(plugin.msg(player, "keys.command.chat.usage"));
             return true;
         }
 

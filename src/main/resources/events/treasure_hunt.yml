@@ -10,7 +10,6 @@ enabled: true
 type: "command_chain"
 channel: "1521276584299069491"
 
-# Ubicaciones del tesoro (se elige una al azar)
 treasure_locations:
   - world: "world"
     x: 100
@@ -25,17 +24,14 @@ treasure_locations:
     y: 50
     z: -300
 
-# Comandos de inicio
 start_commands:
   - "say ¡Una busqueda del tesoro ha comenzado!"
   - "say ¡Busca el tesoro escondido en el mundo!"
 
-# Comandos cuando alguien encuentra el tesoro
 found_commands:
   - "say ¡{player} ha encontrado el tesoro!"
   - "give {player} minecraft:gold_block 8"
 
-# Recompensas
 rewards:
   finder:
     commands:
@@ -43,7 +39,6 @@ rewards:
       - "give {player} minecraft:diamond 4"
     message: "¡Has encontrado el tesoro!"
 
-# Pista (opcional)
 hint:
   enabled: true
   interval_minutes: 10
@@ -52,7 +47,6 @@ hint:
     - "Busca en las montanas"
     - "El tesoro esta a nivel del mar"
 
-# Embed de Discord
 discord:
   start:
     title: "🗺️ Busqueda del Tesoro"

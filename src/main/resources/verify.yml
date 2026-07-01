@@ -4,19 +4,20 @@
 
 channel: "1521272231068700702"
 
+panel:
+  enabled: true
+  channel_id: "1521272231068700702"
+  buttons:
+    - id: "verify"
+      label: "Verificar"
+      emoji: "🔐"
+      style: "PRIMARY"
+
 code:
   length: 6
   expiry_minutes: 5
   character_set: "numeric"
 
-messages:
-  code_message: "Tu codigo de verificacion es: **{code}**\nIngresa `/verify {code}` en el servidor"
-  success_mc: "✅ Cuenta vinculada correctamente!"
-  success_discord: "✅ Tu cuenta ha sido vinculada correctamente"
-  already_linked: "✅ Tu cuenta ya esta vinculada"
-  invalid_code: "❌ Codigo invalido o expirado"
-
-# Sonidos que se reproducen en Minecraft al verificar
 sounds:
   enabled: true
   success:
@@ -28,8 +29,6 @@ sounds:
     volume: 1.0
     pitch: 1.0
 
-# Comandos que se ejecutan despues de verificar exitosamente
-# Usa {player} para el nombre del jugador, {uuid} para su UUID
 post_verify_commands:
   - "give {player} minecraft:diamond 1"
   - "say ¡{player} se ha verificado!"
@@ -37,13 +36,10 @@ post_verify_commands:
 
 welcome_embed:
   enabled: true
-  title: "🔐 Verifica tu Cuenta"
-  description: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
   color: 5814783
   thumbnail: "https://minotar.net/avatar/server/128"
   author: "EligiusMC"
   author_icon: "https://minotar.net/avatar/EligiusMC/128"
-  footer: "Sigue los pasos"
   timestamp: true
   fields:
     - name: "📋 Como verificar"

@@ -212,6 +212,26 @@ public class DatabaseManager {
         return null;
     }
 
+    public Long getDiscordIdByName(String playerName) {
+        String sql = "SELECT discord_id FROM connector_accounts WHERE player_name = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, playerName);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("discord_id");
+                }
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().log(Level.SEVERE, "Failed to get Discord ID by name", e);
+        }
+        return null;
+    }
+
+    public boolean isLinkedByName(String playerName) {
+        return getDiscordIdByName(playerName) != null;
+    }
+
     public UUID getMinecraftUuid(long discordId) {
         String sql = "SELECT minecraft_uuid FROM connector_accounts WHERE discord_id = ?";
         try (Connection conn = getConnection();

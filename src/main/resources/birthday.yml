@@ -2,32 +2,29 @@
 # ║        EligiusConnector - Birthday               ║
 # ╚══════════════════════════════════════════════════╝
 
-channel: "1521276581522444350"
+channel: "1521276588107366553"
 date_format: "dd/MM/yyyy"
 check_interval_minutes: 60
 
-setup_embed:
-  title: "🎂 Configurar Cumpleanos"
-  description: "Ingresa tu cumpleaños en formato **dd/MM/yyyy**\nEjemplo: `25/12/1990`"
-  color: 16711851
-  footer: "Este mensaje se eliminara"
+panel:
+  enabled: true
+  channel_id: "1521276588107366553"
+  buttons:
+    - id: "set_birthday"
+      label: "Cumpleaños"
+      emoji: "🎂"
+      style: "SUCCESS"
 
-messages:
-  success: "✅ Cumpleanos configurado: {date}"
-  already_set: "✅ Tu cumpleanos ya esta configurado: {date}"
-  today: "🎂 ¡Hoy es el cumpleanos de **{player}**! ¡Feliz cumpleanos!"
-  reward_message: "¡Recibe tus regalos de cumpleanos!"
+setup_embed:
+  color: 16711851
 
 rewards:
   commands:
     - "give {player} minecraft:cake 1"
     - "give {player} minecraft:firework_rocket 16"
-  message: "¡Feliz cumpleanos {player}! Recibe tus regalos."
   discord_role: ""
 
 discord_embed:
-  title: "🎂 ¡Cumpleaños!"
-  description: "¡Hoy es el cumpleaños de **{player}**!"
   color: 16711851
   thumbnail: "https://minotar.net/avatar/{player}/128"
   timestamp: true

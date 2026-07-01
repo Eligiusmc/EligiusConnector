@@ -5,9 +5,7 @@
 server_start:
   enabled: true
   channel: "1521272219223851028"
-  message: ":white_check_mark: Servidor iniciado.\n:busts_in_silhouette: Jugadores online: {online}"
 
 server_stop:
   enabled: true
   channel: "1521272219223851028"
-  message: ":x: Servidor apagándose..."

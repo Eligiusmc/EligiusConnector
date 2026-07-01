@@ -53,7 +53,7 @@ public class ButtonListener extends ListenerAdapter {
             case "money" -> handleMoney(event);
             case "profile" -> handleProfile(event);
             case "set_birthday" -> handleSetBirthday(event);
-            default -> event.reply("Acción desconocida").setEphemeral(true).queue();
+            default -> event.reply(plugin.msg("keys.discord.verify.button_unknown_action")).setEphemeral(true).queue();
         }
     }
 
@@ -63,7 +63,7 @@ public class ButtonListener extends ListenerAdapter {
             UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
             if (uuid != null) {
-                event.reply(plugin.getConfigAdapter().getVerifyAlreadyLinked()).setEphemeral(true).queue();
+                event.reply(plugin.msg("keys.command.verify.already_linked")).setEphemeral(true).queue();
                 return;
             }
 
@@ -86,9 +86,9 @@ public class ButtonListener extends ListenerAdapter {
                 embed.setAuthor(author, null, authorIcon.isEmpty() ? null : authorIcon);
             }
 
-            embed.addField("🔐 Código de Verificación", "`" + code + "`", false);
+            embed.addField(plugin.msg("keys.discord.verify.code_title"), "`" + code + "`", false);
             embed.addBlankField(false);
-            embed.addField("📋 Pasos", "1. Entra al servidor de Minecraft\n2. Escribe `/verify " + code + "` en el chat", false);
+            embed.addField("📋 Pasos", plugin.msg("keys.discord.verify.code_steps").replace("{code}", code), false);
 
             String footer = getStringOrDefault(embedConfig, "footer", "");
             if (!footer.isEmpty()) {
@@ -108,14 +108,14 @@ public class ButtonListener extends ListenerAdapter {
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         if (uuid == null) {
-            event.reply("❌ Tu cuenta no está vinculada").setEphemeral(true).queue();
+            event.reply(plugin.msg("keys.discord.whereami.not_linked")).setEphemeral(true).queue();
             return;
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> {
             Player player = Bukkit.getPlayer(uuid);
             if (player == null || !player.isOnline()) {
-                event.reply("❌ No estás en línea").setEphemeral(true).queue();
+                event.reply(plugin.msg("keys.discord.whereami.not_online")).setEphemeral(true).queue();
                 return;
             }
 
@@ -137,27 +137,30 @@ public class ButtonListener extends ListenerAdapter {
             }
 
             String info = """
-                    Mundo:      %s
-                    X:          %d
-                    Y:          %d
-                    Z:          %d
-                    Dirección:  %s
-                    Bioma:      %s
-                    Bloque:     %s
+                    %s      %s
+                    %s          %d
+                    %s          %d
+                    %s          %d
+                    %s  %s
+                    %s      %s
+                    %s     %s
                     """.formatted(
-                    loc.getWorld().getName(),
-                    loc.getBlockX(),
-                    loc.getBlockY(),
-                    loc.getBlockZ(),
-                    direction,
-                    capitalizeWords(biome),
-                    blockFace
+                    plugin.msg("keys.discord.whereami.world"), loc.getWorld().getName(),
+                    plugin.msg("keys.discord.whereami.x"), loc.getBlockX(),
+                    plugin.msg("keys.discord.whereami.y"), loc.getBlockY(),
+                    plugin.msg("keys.discord.whereami.z"), loc.getBlockZ(),
+                    plugin.msg("keys.discord.whereami.direction"), direction,
+                    plugin.msg("keys.discord.whereami.biome"), capitalizeWords(biome),
+                    plugin.msg("keys.discord.whereami.block"), blockFace
             );
 
-            embed.addField("**📍 Tu Ubicación**", "```" + info + "```", false);
+            embed.addField("**" + plugin.msg("keys.discord.whereami.info") + "**", "```" + info + "```", false);
 
             if (Boolean.TRUE.equals(config.getOrDefault("show_tp_command", true))) {
-                embed.setFooter("/tp @s " + loc.getBlockX() + " " + loc.getBlockY() + " " + loc.getBlockZ());
+                embed.setFooter(plugin.msg("keys.discord.whereami.tp_footer")
+                        .replace("{x}", String.valueOf(loc.getBlockX()))
+                        .replace("{y}", String.valueOf(loc.getBlockY()))
+                        .replace("{z}", String.valueOf(loc.getBlockZ())));
             }
 
             embed.setTimestamp(java.time.Instant.now());
@@ -170,14 +173,14 @@ public class ButtonListener extends ListenerAdapter {
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         if (uuid == null) {
-            event.reply("❌ Tu cuenta no está vinculada").setEphemeral(true).queue();
+            event.reply(plugin.msg("keys.discord.verify.button_not_linked")).setEphemeral(true).queue();
             return;
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> {
             Player player = Bukkit.getPlayer(uuid);
             if (player == null || !player.isOnline()) {
-                event.reply("❌ No estás en línea").setEphemeral(true).queue();
+                event.reply(plugin.msg("keys.discord.verify.button_not_online")).setEphemeral(true).queue();
                 return;
             }
 
@@ -219,10 +222,10 @@ public class ButtonListener extends ListenerAdapter {
                         .collect(Collectors.joining("\n"));
 
                 String suffix = items.size() > maxPerCategory
-                        ? "\n... +" + (items.size() - maxPerCategory) + " más"
+                        ? "\n" + plugin.msg("keys.discord.inventory.more").replace("{count}", String.valueOf(items.size() - maxPerCategory))
                         : "";
 
-                embed.addField(emoji + " " + label, displayItems.isEmpty() ? "*Vacío*" : displayItems + suffix, false);
+                embed.addField(emoji + " " + label, displayItems.isEmpty() ? plugin.msg("keys.discord.inventory.empty") : displayItems + suffix, false);
             }
 
             int usedSlots = 0;
@@ -230,7 +233,7 @@ public class ButtonListener extends ListenerAdapter {
                 if (item != null && item.getType() != Material.AIR) usedSlots++;
             }
 
-            String footer = getStringOrDefault(config, "footer", "Espacios: {used}/{total}");
+            String footer = getStringOrDefault(config, "footer", plugin.msg("keys.discord.inventory.footer"));
             embed.setFooter(footer.replace("{used}", String.valueOf(usedSlots)).replace("{total}", String.valueOf(contents.length)));
             embed.setTimestamp(java.time.Instant.now());
 
@@ -250,58 +253,52 @@ public class ButtonListener extends ListenerAdapter {
             PlayerStatsManager.PlayerStats stats = uuid != null ? plugin.getStatsManager().getStats(uuid) : null;
 
             if (player != null && player.isOnline()) {
-                embed.setTitle(getStringOrDefault(config, "title", "👤 Perfil").replace("{player}", player.getName()));
+                embed.setTitle(getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", player.getName()));
                 embed.setColor(getColorOrDefault(config, 0x5865F2));
                 embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
 
-                String linkedDiscord = "No vinculado";
                 Long linkedId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
-                if (linkedId != null) {
-                    linkedDiscord = "<@" + linkedId + ">";
-                }
 
-                embed.addField("📋 Información",
+                embed.addField(plugin.msg("keys.discord.profile.info_label"),
                         "**Nombre:** " + player.getName() + "\n**UUID:** " + player.getUniqueId(), false);
 
-                embed.addField("🔗 Vinculación",
-                        linkedId != null ? "**Estado:** ✅ Vinculado\n**Discord:** " + linkedDiscord
-                                : "**Estado:** ❌ No vinculado",
+                embed.addField(plugin.msg("keys.discord.profile.linked_label"),
+                        linkedId != null ? plugin.msg("keys.discord.profile.linked_status").replace("{discord}", "<@" + linkedId + ">")
+                                : plugin.msg("keys.discord.profile.unlinked_status"),
                         false);
 
                 int kills = stats != null ? stats.getKills() : 0;
                 int deaths = stats != null ? stats.getDeaths() : 0;
                 double kd = deaths == 0 ? kills : (double) kills / deaths;
-                embed.addField("☠️ Combate",
+                embed.addField(plugin.msg("keys.discord.profile.combat_label"),
                         "**Kills:** " + kills + "\n**Deaths:** " + deaths + "\n**K/D:** " + String.format("%.2f", kd),
                         false);
 
                 String playtime = stats != null ? formatPlaytime(stats.getTotalPlaytime()) : "0h 0m";
-                embed.addField("⏱️ Playtime", "**" + playtime + "**", false);
+                embed.addField(plugin.msg("keys.discord.profile.playtime_label"), "**" + playtime + "**", false);
 
                 String healthBar = buildProgressBar((int) player.getHealth(), 20);
-                embed.addField("❤️ Vida",
+                embed.addField(plugin.msg("keys.discord.profile.health_label"),
                         healthBar + " " + (int) player.getHealth() + "/20",
                         false);
 
                 String foodBar = buildProgressBar(player.getFoodLevel(), 20);
-                embed.addField("🍖 Hambre",
+                embed.addField(plugin.msg("keys.discord.profile.food_label"),
                         foodBar + " " + player.getFoodLevel() + "/20",
                         false);
 
                 int totalXp = player.getLevel() * 1000 + player.getExpToLevel();
                 String xpBar = buildProgressBar(totalXp - player.getExpToLevel(), totalXp);
-                embed.addField("⭐ Experiencia",
+                embed.addField(plugin.msg("keys.discord.profile.xp_label"),
                         xpBar + " " + player.getLevel() + " nivel(es)",
                         false);
 
-                embed.addField("🎯 Nivel", "**" + player.getLevel() + "**", true);
-
-                embed.addField("🌍 Mundo", "**" + player.getWorld().getName() + "**", true);
-
-                embed.addField("🧭 Dirección", "**" + getCardinalDirection(player) + "**", true);
+                embed.addField(plugin.msg("keys.discord.profile.level_label"), "**" + player.getLevel() + "**", true);
+                embed.addField(plugin.msg("keys.discord.profile.world_label"), "**" + player.getWorld().getName() + "**", true);
+                embed.addField(plugin.msg("keys.discord.profile.direction_label"), "**" + getCardinalDirection(player) + "**", true);
 
                 Location loc = player.getLocation();
-                embed.addField("📍 Coordenadas",
+                embed.addField(plugin.msg("keys.discord.profile.coords_label"),
                         "**X:** " + loc.getBlockX() + " **Y:** " + loc.getBlockY() + " **Z:** " + loc.getBlockZ(),
                         true);
 
@@ -312,29 +309,28 @@ public class ButtonListener extends ListenerAdapter {
                     case SPECTATOR -> "Espectador";
                     default -> player.getGameMode().name();
                 };
-                embed.addField("🎮 Gamemode", "**" + gamemode + "**", true);
-
-                embed.addField("📡 Ping", "**" + player.getPing() + " ms**", true);
+                embed.addField(plugin.msg("keys.discord.profile.gamemode_label"), "**" + gamemode + "**", true);
+                embed.addField(plugin.msg("keys.discord.profile.ping_label"), "**" + player.getPing() + " ms**", true);
 
             } else {
-                embed.setTitle(getStringOrDefault(config, "title", "👤 Perfil").replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular"));
+                embed.setTitle(getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular"));
                 embed.setColor(Color.GRAY);
 
                 if (stats != null) {
-                    embed.addField("📋 Información",
+                    embed.addField(plugin.msg("keys.discord.profile.info_label"),
                             "**Nombre:** " + stats.getPlayerName() + "\n**UUID:** " + stats.getUuid(), false);
 
                     String playtime = formatPlaytime(stats.getTotalPlaytime());
-                    embed.addField("⏱️ Playtime", "**" + playtime + "**", false);
-                    embed.addField("☠️ Combate",
+                    embed.addField(plugin.msg("keys.discord.profile.playtime_label"), "**" + playtime + "**", false);
+                    embed.addField(plugin.msg("keys.discord.profile.combat_label"),
                             "**Kills:** " + stats.getKills() + "\n**Deaths:** " + stats.getDeaths(),
                             false);
                 } else {
-                    embed.setDescription("Jugador no encontrado o sin datos disponibles");
+                    embed.setDescription(plugin.msg("keys.discord.profile.offline_desc"));
                 }
             }
 
-            String footer = getStringOrDefault(config, "footer", "Datos en tiempo real");
+            String footer = getStringOrDefault(config, "footer", plugin.msg("keys.discord.profile.footer"));
             embed.setFooter(footer);
             embed.setTimestamp(java.time.Instant.now());
 
@@ -348,11 +344,11 @@ public class ButtonListener extends ListenerAdapter {
             UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("💰 Balance");
+            embed.setTitle(plugin.msg("keys.discord.money.title"));
             embed.setColor(Color.YELLOW);
 
             if (uuid == null) {
-                embed.setDescription("❌ Tu cuenta no está vinculada");
+                embed.setDescription(plugin.msg("keys.discord.money.not_linked"));
                 event.replyEmbeds(embed.build()).setEphemeral(true).queue();
                 return;
             }
@@ -366,16 +362,16 @@ public class ButtonListener extends ListenerAdapter {
                     Player player = Bukkit.getPlayer(uuid);
                     if (player != null && player.isOnline()) {
                         double balance = econ.getBalance(player);
-                        embed.setDescription("**Balance:** $" + String.format("%.2f", balance));
+                        embed.setDescription(plugin.msg("keys.discord.money.balance") + String.format("%.2f", balance));
                         embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
                     } else {
-                        embed.setDescription("❌ No estás en línea");
+                        embed.setDescription(plugin.msg("keys.discord.money.not_online"));
                     }
                 } else {
-                    embed.setDescription("⚠️ Economy no está configurada");
+                    embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
                 }
             } catch (ClassNotFoundException e) {
-                embed.setDescription("⚠️ Economy no está configurada");
+                embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
             }
 
             event.replyEmbeds(embed.build()).setEphemeral(true).queue();
@@ -388,12 +384,12 @@ public class ButtonListener extends ListenerAdapter {
             String existing = plugin.getDatabaseManager().getBirthday(discordId);
 
             if (existing != null && !existing.isEmpty()) {
-                event.reply("✅ Ya tienes un cumpleaños establecido: **" + existing + "**\nUsa `/birthday` para cambiarlo.")
+                event.reply(plugin.msg("keys.discord.birthday.already_set").replace("{date}", existing))
                         .setEphemeral(true).queue();
                 return;
             }
 
-            event.reply("📅 Usa el comando `/birthday set dd/MM/yyyy` para establecer tu cumpleaños.")
+            event.reply(plugin.msg("keys.discord.birthday.set_instruction"))
                     .setEphemeral(true).queue();
         });
     }

@@ -21,14 +21,14 @@ public class VerifyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+            sender.sendMessage(plugin.msg(null, "keys.general.not_online"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("connector.verify")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            player.sendMessage(plugin.msg(player, "keys.general.no_permission"));
             return true;
         }
 
@@ -46,7 +46,7 @@ public class VerifyCommand implements CommandExecutor {
         String code = args[0];
 
         if (code.length() != 6 || !code.matches("[0-9]+")) {
-            player.sendMessage(ChatColor.RED + "Invalid code format. Code must be 6 digits.");
+            player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_format"));
             playSound(player, false);
             return true;
         }
@@ -72,7 +72,7 @@ public class VerifyCommand implements CommandExecutor {
 
             plugin.getDiscordManager().sendTempMessage(
                     plugin.getConfigAdapter().getVerifyChannelId(),
-                    "✅ **" + player.getName() + "** ha vinculado su cuenta de Minecraft!",
+                    plugin.msg(null, "keys.command.verify.discord_linked").replace("{player}", player.getName()),
                     5);
 
             // Assign verified role
@@ -81,7 +81,7 @@ public class VerifyCommand implements CommandExecutor {
             // Execute post-verify commands
             executePostVerifyCommands(player);
         } else {
-            player.sendMessage(ChatColor.RED + "Failed to link account. Please try again.");
+            player.sendMessage(plugin.msg(player, "keys.command.verify.link_failed"));
             playSound(player, false);
         }
 

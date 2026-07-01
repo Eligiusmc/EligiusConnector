@@ -5,6 +5,7 @@ import com.makrozai.eligiusconnector.config.LanguageManager;
 import com.makrozai.eligiusconnector.database.DatabaseManager;
 import com.makrozai.eligiusconnector.discord.ConsoleLogReader;
 import com.makrozai.eligiusconnector.discord.DiscordManager;
+import com.makrozai.eligiusconnector.discord.PanelManager;
 import com.makrozai.eligiusconnector.discord.WebhookManager;
 import com.makrozai.eligiusconnector.events.EventManager;
 import com.makrozai.eligiusconnector.listeners.PlayerListener;
@@ -31,6 +32,7 @@ public final class EligiusConnector extends JavaPlugin {
     private DatabaseManager databaseManager;
     private DiscordManager discordManager;
     private WebhookManager webhookManager;
+    private PanelManager panelManager;
     private ConsoleLogReader consoleLogReader;
     private EventManager eventManager;
     private PlayerStatsManager statsManager;
@@ -70,6 +72,10 @@ public final class EligiusConnector extends JavaPlugin {
         discordManager.initialize();
 
         webhookManager = new WebhookManager(this);
+
+        // Initialize panels
+        panelManager = new PanelManager(this);
+        panelManager.initializePanels();
 
         // Create verified role if needed
         if (configAdapter.isRoleSyncEnabled()) {
@@ -232,11 +238,31 @@ public final class EligiusConnector extends JavaPlugin {
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public DiscordManager getDiscordManager() { return discordManager; }
     public WebhookManager getWebhookManager() { return webhookManager; }
+    public PanelManager getPanelManager() { return panelManager; }
     public EventManager getEventManager() { return eventManager; }
     public PlayerStatsManager getStatsManager() { return statsManager; }
     public Map<Long, String> getVerifyCodes() { return verifyCodes; }
     public Map<Long, Long> getBirthdaySetupUsers() { return birthdaySetupUsers; }
     public NicknameSyncTask getNicknameSyncTask() { return nicknameSyncTask; }
+
+    // i18n helper methods
+    public String msg(String key) {
+        return languageManager.get(key);
+    }
+
+    public String msg(org.bukkit.entity.Player player, String key) {
+        if (player == null) return languageManager.get(key);
+        return languageManager.get(player.getUniqueId(), key);
+    }
+
+    public String msg(String key, java.util.Map<String, String> replacements) {
+        return languageManager.get(key, replacements);
+    }
+
+    public String msg(org.bukkit.entity.Player player, String key, java.util.Map<String, String> replacements) {
+        if (player == null) return languageManager.get(key, replacements);
+        return languageManager.get(player.getUniqueId(), key, replacements);
+    }
 
     private void safeSetExecutor(String name, org.bukkit.command.CommandExecutor executor) {
         var cmd = getCommand(name);

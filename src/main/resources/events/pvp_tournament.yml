@@ -10,10 +10,8 @@ enabled: true
 type: "timed"
 channel: "1521276584299069491"
 
-# Duracion del evento
 duration_minutes: 60
 
-# Configuracion del torneo
 config:
   min_players: 4
   max_players: 16
@@ -25,18 +23,15 @@ config:
   arena_radius: 50
   elimination_mode: "last_standing"
 
-# Comandos de inicio
 start_commands:
   - "say ¡El Torneo PvP ha comenzado!"
   - "tp @a 0 64 0"
   - "effect give @a minecraft:absorption 60 1"
 
-# Comandos de fin
 end_commands:
   - "say ¡El Torneo PvP ha terminado!"
   - "give {winner} minecraft:diamond_block 4"
 
-# Recompensas
 rewards:
   winner:
     commands:
@@ -50,7 +45,6 @@ rewards:
       - "give {player} minecraft:diamond_block 2"
     message: "Segundo lugar - Buen trabajo"
 
-# Embed de Discord
 discord:
   start:
     title: "⚔️ Torneo PvP Iniciado"

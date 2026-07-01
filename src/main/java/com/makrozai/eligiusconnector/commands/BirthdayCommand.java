@@ -20,19 +20,19 @@ public class BirthdayCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!plugin.getConfigAdapter().isBirthdayEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Birthday module is disabled.");
+            sender.sendMessage(plugin.msg(null, "keys.command.birthday.disabled"));
             return true;
         }
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+            sender.sendMessage(plugin.msg(null, "keys.general.not_online"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("connector.birthday")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            player.sendMessage(plugin.msg(player, "keys.general.no_permission"));
             return true;
         }
 
@@ -55,33 +55,33 @@ public class BirthdayCommand implements CommandExecutor {
     }
 
     private void sendHelp(Player player) {
-        player.sendMessage(ChatColor.GOLD + "=== Birthday ===");
-        player.sendMessage(ChatColor.YELLOW + "/birthday set <dd/MM/yyyy>" + ChatColor.WHITE + " - Set your birthday");
-        player.sendMessage(ChatColor.YELLOW + "/birthday check" + ChatColor.WHITE + " - Check your birthday");
+        player.sendMessage(plugin.msg(player, "keys.command.birthday.help_title"));
+        player.sendMessage(plugin.msg(player, "keys.command.birthday.help_set"));
+        player.sendMessage(plugin.msg(player, "keys.command.birthday.help_check"));
     }
 
     private boolean handleSet(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /birthday set <dd/MM/yyyy>");
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.usage"));
             return true;
         }
 
         String date = args[1];
         if (!date.matches("\\d{2}/\\d{2}/\\d{4}")) {
-            player.sendMessage(ChatColor.RED + "Invalid date format. Use dd/MM/yyyy");
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.invalid_format"));
             return true;
         }
 
         Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
         if (discordId == null) {
-            player.sendMessage(ChatColor.RED + "You need to link your Discord account first. Use /verify");
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.not_linked"));
             return true;
         }
 
         if (plugin.getDatabaseManager().setBirthday(discordId, date)) {
             player.sendMessage(plugin.getConfigAdapter().getBirthdaySuccess());
         } else {
-            player.sendMessage(ChatColor.RED + "Failed to save birthday.");
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.save_failed"));
         }
         return true;
     }
@@ -89,15 +89,15 @@ public class BirthdayCommand implements CommandExecutor {
     private boolean handleCheck(Player player) {
         Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
         if (discordId == null) {
-            player.sendMessage(ChatColor.RED + "You need to link your Discord account first. Use /verify");
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.not_linked"));
             return true;
         }
 
         String birthday = plugin.getDatabaseManager().getBirthday(discordId);
         if (birthday != null && !birthday.isEmpty()) {
-            player.sendMessage(ChatColor.GREEN + "Your birthday: " + birthday);
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.your_birthday").replace("{date}", birthday));
         } else {
-            player.sendMessage(ChatColor.YELLOW + "You haven't set your birthday yet.");
+            player.sendMessage(plugin.msg(player, "keys.command.birthday.not_set"));
         }
         return true;
     }

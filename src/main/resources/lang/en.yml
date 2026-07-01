@@ -29,6 +29,9 @@ keys:
       success_discord: "&aYour account has been linked successfully"
       invalid_code: "&cInvalid code or expired"
       already_linked: "&aYour account is already linked"
+      invalid_format: "&cInvalid format. Code must be 6 digits."
+      link_failed: "&cFailed to link account. Please try again."
+      discord_linked: "✅ **{player}** has linked their Minecraft account!"
 
     unlink:
       description: "Unlink your account"
@@ -40,6 +43,8 @@ keys:
       failed: "&cFailed to unlink account"
       target_not_found: "&cPlayer not found: {player}"
       target_not_linked: "&c{player}'s account is not linked"
+      no_permission_self: "&cYou don't have permission to unlink your account."
+      success_self: "&aAccount unlinked successfully!"
 
     connector:
       description: "Admin commands"
@@ -48,6 +53,15 @@ keys:
       status_discord: "Discord: {status}"
       status_database: "Database: {type}"
       status_linked: "Linked accounts: {count}"
+      help_title: "=== EligiusConnector ==="
+      help_reload: "/connector reload - Reload configuration"
+      help_profile: "/connector profile [player] - View profile"
+      help_status: "/connector status - View plugin status"
+      help_papi: "/connector papi - View placeholders"
+      no_permission_reload: "&cYou don't have permission to reload."
+      no_permission_profile: "&cYou don't have permission to view other players' profiles."
+      no_permission_status: "&cYou don't have permission to view status."
+      no_permission_papi: "&cYou don't have permission to view placeholders."
 
     events:
       description: "Manage events"
@@ -56,6 +70,9 @@ keys:
       started: "&aEvent {name} started"
       stopped: "&cEvent {name} stopped"
       not_found: "&cEvent not found: {name}"
+      disabled: "&cEvents module is disabled."
+      usage_start: "&cUsage: /events start <id>"
+      usage_stop: "&cUsage: /events stop <id>"
 
     birthday:
       description: "Manage birthday"
@@ -67,12 +84,22 @@ keys:
       already_set: "&aYour birthday is already set: {date}"
       today: "🎂 Today is **{player}**'s birthday! Happy birthday!"
       reward_message: "Receive your birthday gifts!"
+      disabled: "&cBirthday module is disabled."
+      help_title: "🎂 Birthday"
+      help_set: "/birthday set <dd/MM/yyyy> - Set your birthday"
+      help_check: "/birthday check - Check your birthday"
+      usage: "&cUsage: /birthday set <dd/MM/yyyy>"
+      save_failed: "&cFailed to save birthday."
+      your_birthday: "&aYour birthday: "
+      not_set: "&cYou haven't set your birthday yet."
 
     chat:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge enabled"
       disabled: "&cChat bridge disabled"
       blocked: "&cYour message has been blocked. ({reason})"
+      disabled_module: "&cChat module is disabled."
+      usage: "&cUsage: /chat <message>"
 
   discord:
     status:
@@ -118,6 +145,9 @@ keys:
       code_steps: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat"
       permission_denied: "❌ You don't have permission to execute console commands"
       command_blacklisted: "❌ Command blacklisted: {command}"
+      button_unknown_action: "Unknown action"
+      button_not_linked: "❌ Your account is not linked"
+      button_not_online: "❌ You are not online"
 
     birthday:
       setup_title: "🎂 Set Birthday"
@@ -175,6 +205,13 @@ keys:
       not_linked: "❌ Your account is not linked"
       not_online: "❌ You are not online"
 
+    money:
+      title: "💰 Balance"
+      not_linked: "❌ Your account is not linked"
+      not_online: "❌ You are not online"
+      economy_disabled: "⚠️ Economy is not configured"
+      balance: "**Balance:** $"
+
     console:
       no_permission: "You don't have permission to execute console commands."
       command_blacklisted: "This command is blacklisted: `{command}`"
@@ -182,6 +219,35 @@ keys:
     notifications:
       server_start: ":white_check_mark: Server started.\n:busts_in_silhouette: Players online: {online}"
       server_stop: ":x: Server shutting down..."
+
+    panel:
+      verify:
+        title: "🔐 Verify Your Account"
+        desc: "Link your Minecraft account to unlock all features"
+        author: "EligiusMC"
+        footer: "Follow the steps"
+        field_howto_name: "📋 How to verify"
+        field_howto_value: "1. Join the Minecraft server\n2. Type `/verify` in chat\n3. Click **Verify** below\n4. Enter the code"
+        field_benefits_name: "✨ Benefits"
+        field_benefits_value: "• Chat bridge MC ↔ Discord\n• View profile and inventory\n• Set your birthday"
+      birthday:
+        title: "🎂 Birthday System"
+        desc: "Register your birthday and receive special rewards!"
+        field_date_name: "📅 Birthday"
+        field_date_value: "Enter your date in format: **DD/MM**"
+        field_reward_name: "🎁 Reward"
+        field_reward_value: "Earn extra money on your birthday!"
+      profile:
+        title: "👤 Player Profile"
+        desc: "View your profile, inventory and location on the server"
+        field_profile_name: "👤 Profile"
+        field_profile_value: "View your full profile"
+        field_inventory_name: "🎒 Inventory"
+        field_inventory_value: "View your current inventory"
+        field_location_name: "📍 Location"
+        field_location_value: "Where are you in the world?"
+        field_money_name: "💰 Money"
+        field_money_value: "Check your balance"
 
   chat:
     format:

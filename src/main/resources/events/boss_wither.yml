@@ -10,7 +10,6 @@ enabled: true
 type: "mob_spawn"
 channel: "1521276584299069491"
 
-# Configuracion de spawn
 spawn:
   mob: "wither"
   custom_name: "⚔️ Shadow Knight"
@@ -30,23 +29,19 @@ spawn:
     - name: "generic.movement_speed"
       base: 0.3
 
-# Comandos de inicio
 start_commands:
   - "say ¡Un Wither ha aparecido!"
   - "effect give @a minecraft:regeneration 30 1"
 
-# Condiciones de finalizacion
 end_conditions:
   - type: "mob_killed"
     entity: "wither"
   - type: "timeout"
     minutes: 30
 
-# Comandos de fin
 end_commands:
   - "say ¡El Wither ha sido derrotado!"
 
-# Recompensas
 rewards:
   first_killer:
     commands:
@@ -57,7 +52,6 @@ rewards:
       - "give {player} minecraft:experience_bottle 16"
     message: "Participacion en la derrota del Wither"
 
-# Embed de Discord
 discord:
   start:
     title: "⚔️ Boss Spawned"

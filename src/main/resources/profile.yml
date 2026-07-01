@@ -2,8 +2,28 @@
 # ║        EligiusConnector - Profile Commands        ║
 # ╚══════════════════════════════════════════════════╝
 
+panel:
+  enabled: true
+  channel_id: "1521391141436653668"
+  buttons:
+    - id: "profile"
+      label: "Perfil"
+      emoji: "👤"
+      style: "PRIMARY"
+    - id: "inventory"
+      label: "Inventario"
+      emoji: "🎒"
+      style: "SECONDARY"
+    - id: "whereami"
+      label: "Ubicación"
+      emoji: "📍"
+      style: "SECONDARY"
+    - id: "money"
+      label: "Dinero"
+      emoji: "💰"
+      style: "SUCCESS"
+
 profile:
-  title: "👤 Perfil de {player}"
   color: 5814783
   thumbnail: "https://minotar.net/avatar/{player}/128"
   show_uuid: true
@@ -15,27 +35,15 @@ profile:
   show_xp_bar: true
   show_gamemode: true
   show_ping: true
-  footer: "Datos en tiempo real"
   timestamp: true
 
 inventory:
-  title: "🎒 Inventario de {player}"
   color: 16753920
   thumbnail: "https://minotar.net/avatar/{player}/128"
-  categories:
-    weapons: "⚔️ Armas"
-    armor: "🛡️ Armadura"
-    tools: "⛏️ Herramientas"
-    blocks: "🧱 Bloques"
-    food: "🍎 Comida"
-    potions: "🧪 Pociones"
-    misc: "📦 Otros"
   empty_category_hidden: true
   max_items_per_category: 10
-  footer: "Espacios: {used}/{total}"
 
 whereami:
-  title: "📍 Ubicacion de {player}"
   color: 3066993
   thumbnail: "https://minotar.net/avatar/{player}/128"
   show_direction: true

@@ -376,12 +376,28 @@ public class ConfigAdapter {
     public Map<String, Object> getWhereamiEmbed() { return getEmbedFromConfig(profileConfig, "whereami"); }
 
     // ==========================================
+    //  PANELS CONFIG
+    // ==========================================
+
+    public String getPanelMessageId(String panelType) {
+        return config.getString("panels." + panelType + "_message_id", "");
+    }
+
+    public void setPanelMessageId(String panelType, String messageId) {
+        config.set("panels." + panelType + "_message_id", messageId);
+        try {
+            File file = new File(plugin.getDataFolder(), "config.yml");
+            config.save(file);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save panel message ID: " + e.getMessage());
+        }
+    }
+
+    // ==========================================
     //  EVENTS CONFIG
     // ==========================================
 
     public String getEventsFolder() { return "events"; }
-    public String getEventsNoEvents() { return "No hay eventos activos."; }
-    public String getEventsListTitle() { return "=== Eventos Activos ==="; }
 
     // ==========================================
     //  LANGUAGE

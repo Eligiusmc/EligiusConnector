@@ -22,7 +22,3 @@ reverse:
     - "ban"
     - "op"
     - "deop"
-
-messages:
-  permission_denied: "❌ No tienes permisos para ejecutar comandos"
-  command_blacklisted: "❌ Comando bloqueado: {command}"

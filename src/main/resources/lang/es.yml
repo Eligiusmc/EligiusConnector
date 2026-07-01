@@ -29,17 +29,22 @@ keys:
       success_discord: "&aTu cuenta ha sido vinculada correctamente"
       invalid_code: "&cCodigo invalido o expirado"
       already_linked: "&aTu cuenta ya esta vinculada"
+      invalid_format: "&cFormato invalido. El codigo debe tener 6 digitos."
+      link_failed: "&cError al vincular la cuenta. Intentalo de nuevo."
+      discord_linked: "✅ **{player}** ha vinculado su cuenta de Minecraft!"
 
     unlink:
       description: "Desvincular tu cuenta"
       success: "&aCuenta desvinculada"
       not_linked: "&cTu cuenta no esta vinculada"
       no_permission: "&cNo permisos para desvincular otros"
-      unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
-      unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
+      unlinked_by: ":x: La cuenta de **{target}** fue desvinculada por **{player}**."
+      unlinked_self: ":x: **{player}** desvinculo su cuenta de Minecraft."
       failed: "&cError al desvincular cuenta"
       target_not_found: "&cJugador no encontrado: {player}"
       target_not_linked: "&cLa cuenta de {player} no esta vinculada"
+      no_permission_self: "&cNo tienes permisos para desvincular tu cuenta."
+      success_self: "&aCuenta desvinculada correctamente!"
 
     connector:
       description: "Comandos administrativos"
@@ -48,6 +53,15 @@ keys:
       status_discord: "Discord: {status}"
       status_database: "Base de datos: {type}"
       status_linked: "Cuentas vinculadas: {count}"
+      help_title: "=== EligiusConnector ==="
+      help_reload: "/connector reload - Recargar configuracion"
+      help_profile: "/connector profile [jugador] - Ver perfil"
+      help_status: "/connector status - Ver estado del plugin"
+      help_papi: "/connector papi - Ver placeholders"
+      no_permission_reload: "&cNo tienes permisos para recargar."
+      no_permission_profile: "&cNo tienes permisos para ver perfiles de otros jugadores."
+      no_permission_status: "&cNo tienes permisos para ver el estado."
+      no_permission_papi: "&cNo tienes permisos para ver los placeholders."
 
     events:
       description: "Gestionar eventos"
@@ -56,6 +70,9 @@ keys:
       started: "&aEvento {name} iniciado"
       stopped: "&cEvento {name} finalizado"
       not_found: "&cEvento no encontrado: {name}"
+      disabled: "&cEl modulo de eventos esta deshabilitado."
+      usage_start: "&cUso: /events start <id>"
+      usage_stop: "&cUso: /events stop <id>"
 
     birthday:
       description: "Gestionar cumpleanos"
@@ -67,12 +84,22 @@ keys:
       already_set: "&aTu cumpleanos ya esta configurado: {date}"
       today: "🎂 ¡Hoy es el cumpleanos de **{player}**! ¡Feliz cumpleanos!"
       reward_message: "¡Recibe tus regalos de cumpleanos!"
+      disabled: "&cEl modulo de cumpleanos esta deshabilitado."
+      help_title: "🎂 Cumpleanos"
+      help_set: "/birthday set <dd/MM/yyyy> - Establecer cumpleanos"
+      help_check: "/birthday check - Verificar cumpleanos"
+      usage: "&cUso: /birthday set <dd/MM/yyyy>"
+      save_failed: "&cError al guardar el cumpleanos."
+      your_birthday: "&aTu cumpleanos: "
+      not_set: "&cAun no has establecido tu cumpleanos."
 
     chat:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge habilitado"
       disabled: "&cChat bridge deshabilitado"
       blocked: "&cTu mensaje ha sido bloqueado. ({reason})"
+      disabled_module: "&cEl modulo de chat esta deshabilitado."
+      usage: "&cUso: /chat <mensaje>"
 
   discord:
     status:
@@ -118,6 +145,9 @@ keys:
       code_steps: "1. Entra al servidor de Minecraft\n2. Escribe `/verify {code}` en el chat"
       permission_denied: "❌ No tienes permisos para ejecutar comandos"
       command_blacklisted: "❌ Comando bloqueado: {command}"
+      button_unknown_action: "Acción desconocida"
+      button_not_linked: "❌ Tu cuenta no está vinculada"
+      button_not_online: "❌ No estás en línea"
 
     birthday:
       setup_title: "🎂 Configurar Cumpleanos"
@@ -175,13 +205,49 @@ keys:
       not_linked: "❌ Tu cuenta no esta vinculada"
       not_online: "❌ No estas en linea"
 
+    money:
+      title: "💰 Balance"
+      not_linked: "❌ Tu cuenta no esta vinculada"
+      not_online: "❌ No estas en linea"
+      economy_disabled: "⚠️ Economy no esta configurada"
+      balance: "**Balance:** $"
+
     console:
-      no_permission: "You don't have permission to execute console commands."
-      command_blacklisted: "This command is blacklisted: `{command}`"
+      no_permission: "No tienes permisos para ejecutar comandos de consola."
+      command_blacklisted: "Comando bloqueado: `{command}`"
 
     notifications:
       server_start: ":white_check_mark: Servidor iniciado.\n:busts_in_silhouette: Jugadores online: {online}"
       server_stop: ":x: Servidor apagandose..."
+
+    panel:
+      verify:
+        title: "🔐 Verifica tu Cuenta"
+        desc: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
+        author: "EligiusMC"
+        footer: "Sigue los pasos"
+        field_howto_name: "📋 Como verificar"
+        field_howto_value: "1. Entra al servidor de Minecraft\n2. Escribe `/verify` en el chat\n3. Haz clic en **Verificar** abajo\n4. Ingresa el codigo"
+        field_benefits_name: "✨ Beneficios"
+        field_benefits_value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario\n• Establecer tu cumpleanos"
+      birthday:
+        title: "🎂 Sistema de Cumpleaños"
+        desc: "¡Registra tu cumpleaños y recibe recompensas especiales!"
+        field_date_name: "📅 Fecha de nacimiento"
+        field_date_value: "Escribe tu fecha en formato: **DD/MM**"
+        field_reward_name: "🎁 Recompensa"
+        field_reward_value: "¡Gana dinero extra en tu cumpleaños!"
+      profile:
+        title: "👤 Perfil del Jugador"
+        desc: "Consulta tu perfil, inventario y ubicación en el servidor"
+        field_profile_name: "👤 Perfil"
+        field_profile_value: "Mira tu perfil completo"
+        field_inventory_name: "🎒 Inventario"
+        field_inventory_value: "Consulta tu inventario actual"
+        field_location_name: "📍 Ubicación"
+        field_location_value: "¿Dónde estás en el mundo?"
+        field_money_name: "💰 Dinero"
+        field_money_value: "Consulta tu saldo"
 
   chat:
     format:

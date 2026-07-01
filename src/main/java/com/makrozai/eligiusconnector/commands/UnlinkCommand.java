@@ -18,79 +18,59 @@ public class UnlinkCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+            sender.sendMessage(ChatColor.RED + plugin.msg("keys.general.not_online"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (args.length > 0) {
-            // Unlink another player (admin only)
             if (!player.hasPermission("connector.unlink.other")) {
-                player.sendMessage(ChatColor.RED + "You don't have permission to unlink other players.");
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.no_permission"));
                 return true;
             }
 
             String targetName = args[0];
-            Player target = plugin.getServer().getPlayer(targetName);
+            Long targetDiscordId = plugin.getDatabaseManager().getDiscordIdByName(targetName);
 
-            if (target == null) {
-                player.sendMessage(ChatColor.RED + "Player not found: " + targetName);
+            if (targetDiscordId == null) {
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.target_not_found").replace("{player}", targetName));
                 return true;
             }
 
-            if (!plugin.getDatabaseManager().isLinked(target.getUniqueId())) {
-                player.sendMessage(ChatColor.RED + targetName + "'s account is not linked.");
+            if (!plugin.getDatabaseManager().isLinkedByName(targetName)) {
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.target_not_linked").replace("{player}", targetName));
                 return true;
             }
 
-            if (plugin.getDatabaseManager().unlinkAccountByUUID(target.getUniqueId())) {
-                player.sendMessage(ChatColor.GREEN + "Successfully unlinked " + targetName + "'s account.");
-
-                // Log to audit
-                plugin.getDatabaseManager().logAudit(
-                        "info",
-                        "account_unlinked",
-                        player.getName(),
-                        "minecraft",
-                        "Unlinked " + targetName,
-                        null
-                );
-
-                // Send to Discord
-                plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getGlobalChannelId(), ":x: **" + targetName + "**'s account has been unlinked by **" + player.getName() + "**.");
+            if (plugin.getDatabaseManager().unlinkAccount(targetDiscordId)) {
+                player.sendMessage(ChatColor.GREEN + plugin.msg(player, "keys.command.unlink.success").replace("{player}", targetName));
+                plugin.getDatabaseManager().logAudit("info", "account_unlinked", player.getName(), "minecraft", "Unlinked " + targetName, null);
+                plugin.getDiscordManager().sendMessage(
+                        plugin.getConfigAdapter().getGlobalChannelId(),
+                        plugin.msg("keys.command.unlink.unlinked_by").replace("{target}", targetName).replace("{player}", player.getName()));
             } else {
-                player.sendMessage(ChatColor.RED + "Failed to unlink " + targetName + "'s account.");
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.failed").replace("{player}", targetName));
             }
         } else {
-            // Unlink self
             if (!player.hasPermission("connector.unlink.self")) {
-                player.sendMessage(ChatColor.RED + "You don't have permission to unlink your account.");
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.no_permission"));
                 return true;
             }
 
             if (!plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
-                player.sendMessage(ChatColor.RED + "Your account is not linked.");
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.not_linked"));
                 return true;
             }
 
             if (plugin.getDatabaseManager().unlinkAccountByUUID(player.getUniqueId())) {
-                player.sendMessage(ChatColor.GREEN + "Account unlinked successfully!");
-
-                // Log to audit
-                plugin.getDatabaseManager().logAudit(
-                        "info",
-                        "account_unlinked",
-                        player.getName(),
-                        "minecraft",
-                        "Self unlink",
-                        null
-                );
-
-                // Send to Discord
-                plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getGlobalChannelId(), ":x: **" + player.getName() + "** has unlinked their Minecraft account.");
+                player.sendMessage(ChatColor.GREEN + plugin.msg(player, "keys.command.unlink.success_self"));
+                plugin.getDatabaseManager().logAudit("info", "account_unlinked", player.getName(), "minecraft", "Self unlink", null);
+                plugin.getDiscordManager().sendMessage(
+                        plugin.getConfigAdapter().getGlobalChannelId(),
+                        plugin.msg("keys.command.unlink.unlinked_self").replace("{player}", player.getName()));
             } else {
-                player.sendMessage(ChatColor.RED + "Failed to unlink account.");
+                player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.failed"));
             }
         }
 
