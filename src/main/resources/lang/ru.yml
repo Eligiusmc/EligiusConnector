@@ -3,6 +3,32 @@
 # ╚══════════════════════════════════════════════════╝
 
 keys:
+  error:
+    not_linked:
+      title: "🔗 Аккаунт не привязан"
+      description: "Сначала привяжите аккаунт Minecraft. Используйте кнопку **Verificar**."
+    not_online:
+      title: "🎮 Не в сети"
+      description: "Подключитесь к серверу Minecraft."
+    already_linked:
+      title: "✅ Уже привязан"
+      description: "Ваш аккаунт уже привязан."
+    no_permission:
+      title: "🚫 Нет прав"
+      description: "У вас нет прав на выполнение этой команды."
+    command_blacklisted:
+      title: "🚫 Команда заблокирована"
+      description: "Эта команда в черном списке безопасности."
+    internal_error:
+      title: "⚠️ Внутренняя ошибка"
+      description: "Произошла непредвиденная ошибка."
+    economy_disabled:
+      title: "💰 Недоступно"
+      description: "Экономическая система не настроена."
+    unknown_action:
+      title: "❓ Неизвестное действие"
+      description: "Эта кнопка не имеет действия."
+
   general:
     prefix: "&7[&6EC&7] "
     enabled: "Включено"
@@ -46,13 +72,6 @@ keys:
       started: "&aСобытие {name} начато"
       stopped: "&cСобытие {name} остановлено"
       not_found: "&cСобытие не найдено: {name}"
-
-    birthday:
-      description: "Управление днём рождения"
-      set_success: "&aДень рождения: {date}"
-      clear_success: "&aДень рождения удалён"
-      invalid_format: "&cФормат: dd/MM/yyyy"
-      not_linked: "&cСначала привяжите аккаунт. Используйте /verify"
 
     chat:
       description: "Переключить мост чата"

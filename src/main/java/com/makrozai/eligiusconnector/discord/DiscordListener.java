@@ -1,7 +1,9 @@
 package com.makrozai.eligiusconnector.discord;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -62,10 +64,7 @@ public class DiscordListener extends ListenerAdapter {
         Member member = event.getMember();
 
         if (member == null || !member.hasPermission(net.dv8tion.jda.api.Permission.MANAGE_SERVER)) {
-            plugin.getDiscordManager().sendPermissionDenied(
-                    plugin.getConfigAdapter().getConsoleChannelId(),
-                    "You don't have permission to execute console commands."
-            );
+            sendErrorToChannel(event.getChannel().asTextChannel(), "no_permission");
             return;
         }
 
@@ -73,14 +72,21 @@ public class DiscordListener extends ListenerAdapter {
         String command = message.split(" ")[0].toLowerCase();
         java.util.List<String> blacklist = plugin.getConfigAdapter().getConsoleBlacklist();
         if (blacklist.contains(command)) {
-            plugin.getDiscordManager().sendPermissionDenied(
-                    plugin.getConfigAdapter().getConsoleChannelId(),
-                    "This command is blacklisted: `" + command + "`"
-            );
+            sendErrorToChannel(event.getChannel().asTextChannel(), "command_blacklisted");
             return;
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message));
         plugin.getDatabaseManager().logAudit("info", "console_command", event.getAuthor().getName(), "discord", message, null);
+    }
+
+    private void sendErrorToChannel(TextChannel channel, String errorKey) {
+        MessageEmbed embed = new EmbedBuilder()
+                .setTitle(plugin.msg("keys.error." + errorKey + ".title"))
+                .setDescription(plugin.msg("keys.error." + errorKey + ".description"))
+                .setColor(errorKey.equals("no_permission") || errorKey.equals("command_blacklisted") ? 0xED4245 : 0xFEE75C)
+                .setTimestamp(java.time.Instant.now())
+                .build();
+        channel.sendMessageEmbeds(embed).queue();
     }
 }

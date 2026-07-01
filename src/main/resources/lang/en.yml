@@ -3,6 +3,32 @@
 # ╚══════════════════════════════════════════════════╝
 
 keys:
+  error:
+    not_linked:
+      title: "🔗 Account not linked"
+      description: "You need to link your Minecraft account first. Use the **Verify** button in the panel."
+    not_online:
+      title: "🎮 Not online"
+      description: "You must be connected to the Minecraft server to use this feature."
+    already_linked:
+      title: "✅ Already linked"
+      description: "Your account is already linked. Use `/unlink` if you want to change it."
+    no_permission:
+      title: "🚫 No permission"
+      description: "You don't have permission to execute this command."
+    command_blacklisted:
+      title: "🚫 Command blacklisted"
+      description: "This command is on the security blacklist."
+    internal_error:
+      title: "⚠️ Internal error"
+      description: "An unexpected error occurred. Try again in a few seconds."
+    economy_disabled:
+      title: "💰 Not available"
+      description: "The economy system is not configured on this server."
+    unknown_action:
+      title: "❓ Unknown action"
+      description: "This button has no valid action assigned."
+
   general:
     prefix: "&7[&6EC&7] "
     enabled: "Enabled"
@@ -74,25 +100,6 @@ keys:
       usage_start: "&cUsage: /events start <id>"
       usage_stop: "&cUsage: /events stop <id>"
 
-    birthday:
-      description: "Manage birthday"
-      set_success: "&aBirthday: {date}"
-      clear_success: "&aBirthday cleared"
-      invalid_format: "&cFormat: dd/MM/yyyy"
-      not_linked: "&cLink your account first. Use /verify"
-      success: "&aBirthday set: {date}"
-      already_set: "&aYour birthday is already set: {date}"
-      today: "🎂 Today is **{player}**'s birthday! Happy birthday!"
-      reward_message: "Receive your birthday gifts!"
-      disabled: "&cBirthday module is disabled."
-      help_title: "🎂 Birthday"
-      help_set: "/birthday set <dd/MM/yyyy> - Set your birthday"
-      help_check: "/birthday check - Check your birthday"
-      usage: "&cUsage: /birthday set <dd/MM/yyyy>"
-      save_failed: "&cFailed to save birthday."
-      your_birthday: "&aYour birthday: "
-      not_set: "&cYou haven't set your birthday yet."
-
     chat:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge enabled"
@@ -143,20 +150,6 @@ keys:
       footer: "Follow the steps"
       code_title: "🔐 Verification Code"
       code_steps: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat"
-      permission_denied: "❌ You don't have permission to execute console commands"
-      command_blacklisted: "❌ Command blacklisted: {command}"
-      button_unknown_action: "Unknown action"
-      button_not_linked: "❌ Your account is not linked"
-      button_not_online: "❌ You are not online"
-
-    birthday:
-      setup_title: "🎂 Set Birthday"
-      setup_desc: "Enter your birthday in format **dd/MM/yyyy**\nExample: `25/12/1990`"
-      setup_footer: "This message will be deleted"
-      discord_title: "🎂 Birthday!"
-      discord_desc: "Today is **{player}**'s birthday!"
-      already_set: "✅ You already have a birthday set: **{date}**\nUse `/birthday` to change it."
-      set_instruction: "📅 Use `/birthday set dd/MM/yyyy` to set your birthday."
 
     profile:
       title: "👤 Profile of {player}"
@@ -202,14 +195,9 @@ keys:
       biome: "Biome"
       block: "Block"
       tp_footer: "/tp @s {x} {y} {z}"
-      not_linked: "❌ Your account is not linked"
-      not_online: "❌ You are not online"
 
     money:
       title: "💰 Balance"
-      not_linked: "❌ Your account is not linked"
-      not_online: "❌ You are not online"
-      economy_disabled: "⚠️ Economy is not configured"
       balance: "**Balance:** $"
 
     console:
@@ -218,32 +206,24 @@ keys:
 
     panel:
       verify:
-        title: "🔐 Verify Your Account"
-        desc: "Link your Minecraft account to unlock all features"
-        author: "EligiusMC"
-        footer: "Follow the steps"
-        field_howto_name: "📋 How to verify"
-        field_howto_value: "1. Join the Minecraft server\n2. Type `/verify` in chat\n3. Click **Verify** below\n4. Enter the code"
-        field_benefits_name: "✨ Benefits"
-        field_benefits_value: "• Chat bridge MC ↔ Discord\n• View profile and inventory\n• Set your birthday"
-      birthday:
-        title: "🎂 Birthday System"
-        desc: "Register your birthday and receive special rewards!"
-        field_date_name: "📅 Birthday"
-        field_date_value: "Enter your date in format: **DD/MM**"
-        field_reward_name: "🎁 Reward"
-        field_reward_value: "Earn extra money on your birthday!"
+        buttons:
+          verify:
+            label: "Verify"
+            emoji: "🔐"
       profile:
-        title: "👤 Player Profile"
-        desc: "View your profile, inventory and location on the server"
-        field_profile_name: "👤 Profile"
-        field_profile_value: "View your full profile"
-        field_inventory_name: "🎒 Inventory"
-        field_inventory_value: "View your current inventory"
-        field_location_name: "📍 Location"
-        field_location_value: "Where are you in the world?"
-        field_money_name: "💰 Money"
-        field_money_value: "Check your balance"
+        buttons:
+          profile:
+            label: "Profile"
+            emoji: "👤"
+          inventory:
+            label: "Inventory"
+            emoji: "🎒"
+          whereami:
+            label: "Location"
+            emoji: "📍"
+          money:
+            label: "Money"
+            emoji: "💰"
 
   chat:
     format:

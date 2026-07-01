@@ -27,7 +27,6 @@ modules:
   deaths: true
   advancements: true
   verify: true
-  birthday: true
   console: true
   synchronization: true
   profile: true

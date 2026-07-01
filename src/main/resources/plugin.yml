@@ -22,9 +22,6 @@ commands:
     description: Manage custom events
     usage: /events <list|start|stop> [id]
     aliases: [event]
-  birthday:
-    description: Manage your birthday
-    usage: /birthday <set|check> [date]
   chat:
     description: Send a message to Discord
     usage: /chat <message>
@@ -51,9 +48,6 @@ permissions:
   connector.events:
     description: Manage custom events
     default: op
-  connector.birthday:
-    description: Manage birthday
-    default: true
   connector.notifications.receive:
     description: Receive notifications
     default: true

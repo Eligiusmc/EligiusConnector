@@ -77,8 +77,7 @@ public class DatabaseManager {
                 "minecraft_uuid VARCHAR(36) UNIQUE," +
                 "minecraft_name VARCHAR(16)," +
                 "linked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "linked_by VARCHAR(16)," +
-                "birthday VARCHAR(10)" +
+                "linked_by VARCHAR(16)" +
                 ")";
 
         String auditTable = "CREATE TABLE IF NOT EXISTS connector_audit_log (" +
@@ -355,36 +354,6 @@ public class DatabaseManager {
                 return rs.next();
             }
         } catch (SQLException e) {
-            return false;
-        }
-    }
-
-    public String getBirthday(long discordId) {
-        String sql = "SELECT birthday FROM connector_accounts WHERE discord_id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setLong(1, discordId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getString("birthday");
-                }
-            }
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to get birthday", e);
-        }
-        return null;
-    }
-
-    public boolean setBirthday(long discordId, String birthday) {
-        String sql = "UPDATE connector_accounts SET birthday = ? WHERE discord_id = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, birthday);
-            stmt.setLong(2, discordId);
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            plugin.getLogger().log(Level.SEVERE, "Failed to set birthday", e);
             return false;
         }
     }

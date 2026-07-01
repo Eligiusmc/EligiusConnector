@@ -43,7 +43,6 @@ public final class EligiusConnector extends JavaPlugin {
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
     private final Map<Long, Long> verifyExpiry = new ConcurrentHashMap<>();
-    private final Map<Long, Long> birthdaySetupUsers = new ConcurrentHashMap<>();
 
     private long startTime;
 
@@ -94,7 +93,6 @@ public final class EligiusConnector extends JavaPlugin {
         safeSetExecutor("unlink", new com.makrozai.eligiusconnector.commands.UnlinkCommand(this));
         safeSetExecutor("connector", new com.makrozai.eligiusconnector.commands.ConnectorCommand(this));
         safeSetExecutor("events", new com.makrozai.eligiusconnector.commands.EventsCommand(this));
-        safeSetExecutor("birthday", new com.makrozai.eligiusconnector.commands.BirthdayCommand(this));
         safeSetExecutor("chat", new com.makrozai.eligiusconnector.commands.ChatCommand(this));
 
         // Initialize counters
@@ -224,7 +222,6 @@ public final class EligiusConnector extends JavaPlugin {
     public EventManager getEventManager() { return eventManager; }
     public PlayerStatsManager getStatsManager() { return statsManager; }
     public Map<Long, String> getVerifyCodes() { return verifyCodes; }
-    public Map<Long, Long> getBirthdaySetupUsers() { return birthdaySetupUsers; }
     public NicknameSyncTask getNicknameSyncTask() { return nicknameSyncTask; }
     public CounterManager getCounterManager() { return counterManager; }
     public PlaceholderResolver getPlaceholderResolver() { return placeholderResolver; }

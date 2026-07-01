@@ -5,13 +5,21 @@
 channel: "1521272231068700702"
 
 panel:
-  enabled: true
-  channel_id: "1521272231068700702"
+  embed:
+    title: "🔐 Verifica tu Cuenta"
+    description: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
+    color: "0x5865F2"
+    author: "EligiusMC"
+    footer: "Sigue los pasos"
+    fields:
+      - name: "📋 Como verificar"
+        value: "1. Entra al servidor de Minecraft\n2. Escribe /verify en el chat\n3. Haz clic en Verificar abajo\n4. Ingresa el codigo"
+        inline: false
+      - name: "✨ Beneficios"
+        value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario"
+        inline: false
   buttons:
-    - id: "verify"
-      label: "Verificar"
-      emoji: "🔐"
-      style: "PRIMARY"
+    verify: true
 
 code:
   length: 6
@@ -43,10 +51,10 @@ welcome_embed:
   timestamp: true
   fields:
     - name: "📋 Como verificar"
-      value: "1. Entra al servidor de Minecraft\n2. Escribe `/verify` en el chat\n3. Haz clic en **Verificar** abajo\n4. Ingresa el codigo"
+      value: "1. Entra al servidor de Minecraft\n2. Escribe /verify en el chat\n3. Haz clic en Verificar abajo\n4. Ingresa el codigo"
       inline: false
     - name: "✨ Beneficios"
-      value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario\n• Establecer tu cumpleanos"
+      value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario"
       inline: false
 
 messages:

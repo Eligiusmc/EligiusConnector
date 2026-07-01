@@ -3,6 +3,32 @@
 # ╚══════════════════════════════════════════════════╝
 
 keys:
+  error:
+    not_linked:
+      title: "🔗 Compte non lie"
+      description: "Lie d'abord ton compte Minecraft. Utilise le bouton **Verifier**."
+    not_online:
+      title: "🎮 Pas en ligne"
+      description: "Tu dois etre connecte au serveur Minecraft."
+    already_linked:
+      title: "✅ Deja lie"
+      description: "Ton compte est deja lie."
+    no_permission:
+      title: "🚫 Pas de permission"
+      description: "Tu n'as pas la permission d'executer cette commande."
+    command_blacklisted:
+      title: "🚫 Commande bloquee"
+      description: "Cette commande est sur la liste noire de securite."
+    internal_error:
+      title: "⚠️ Erreur interne"
+      description: "Une erreur inattendue s'est produite."
+    economy_disabled:
+      title: "💰 Non disponible"
+      description: "Le systeme economique n'est pas configure."
+    unknown_action:
+      title: "❓ Action inconnue"
+      description: "Ce bouton n'a pas d'action valide."
+
   general:
     prefix: "&7[&6EC&7] "
     enabled: "Activé"
@@ -46,13 +72,6 @@ keys:
       started: "&aÉvénement {name} démarré"
       stopped: "&cÉvénement {name} arrêté"
       not_found: "&cÉvénement non trouvé: {name}"
-
-    birthday:
-      description: "Gérer les anniversaires"
-      set_success: "&aAnniversaire: {date}"
-      clear_success: "&aAnniversaire effacé"
-      invalid_format: "&cFormat: dd/MM/yyyy"
-      not_linked: "&cLiez votre compte d'abord. Utilisez /verify"
 
     chat:
       description: "Basculer le chat bridge"

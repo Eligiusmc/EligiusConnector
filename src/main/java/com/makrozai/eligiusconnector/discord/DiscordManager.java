@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import com.makrozai.eligiusconnector.util.StartupLogger;
@@ -347,12 +348,26 @@ public class DiscordManager {
         sendEmbed(plugin.getConfigAdapter().getMissionsChannelId(), plugin.getConfigAdapter().getAdvancementEmbed(), replacements, player);
     }
 
-    public void sendPermissionDenied(String channelId, String reason) {
-        Map<String, Object> embedConfig = new java.util.HashMap<>();
-        embedConfig.put("title", "❌ Permission Denied");
-        embedConfig.put("description", reason);
-        embedConfig.put("color", 0xED4245);
-        sendEmbed(channelId, embedConfig, new java.util.HashMap<>(), null);
+    public void sendErrorEmbed(InteractionHook hook, String errorKey) {
+        String title = plugin.msg("keys.error." + errorKey + ".title");
+        String desc = plugin.msg("keys.error." + errorKey + ".description");
+        int color = getErrorColor(errorKey);
+        MessageEmbed embed = new EmbedBuilder()
+                .setTitle(title)
+                .setDescription(desc)
+                .setColor(color)
+                .setTimestamp(java.time.Instant.now())
+                .build();
+        hook.sendMessageEmbeds(embed).setEphemeral(true).queue();
+    }
+
+    private int getErrorColor(String key) {
+        return switch (key) {
+            case "no_permission", "command_blacklisted", "internal_error",
+                 "unknown_action", "panel_not_found", "channel_not_found",
+                 "database_error", "config_missing" -> 0xED4245;
+            default -> 0xFEE75C;
+        };
     }
 
     public void sendChatMessage(String playerName, String message, String avatarUrl) {

@@ -3,6 +3,32 @@
 # ╚══════════════════════════════════════════════════╝
 
 keys:
+  error:
+    not_linked:
+      title: "🔗 Konto nicht verknüpft"
+      description: "Verknüpfe zuerst dein Minecraft-Konto. Nutze den **Verifizieren**-Button."
+    not_online:
+      title: "🎮 Nicht online"
+      description: "Du musst mit dem Minecraft-Server verbunden sein."
+    already_linked:
+      title: "✅ Bereits verknüpft"
+      description: "Dein Konto ist bereits verknüpft."
+    no_permission:
+      title: "🚫 Keine Berechtigung"
+      description: "Du hast keine Berechtigung für diesen Befehl."
+    command_blacklisted:
+      title: "🚫 Befehl blockiert"
+      description: "Dieser Befehl ist aus Sicherheitsgründen blockiert."
+    internal_error:
+      title: "⚠️ Interner Fehler"
+      description: "Ein unerwarteter Fehler ist aufgetreten."
+    economy_disabled:
+      title: "💰 Nicht verfügbar"
+      description: "Das Wirtschaftssystem ist nicht konfiguriert."
+    unknown_action:
+      title: "❓ Unbekannte Aktion"
+      description: "Dieser Button hat keine gültige Aktion."
+
   general:
     prefix: "&7[&6EC&7] "
     enabled: "Aktiviert"
@@ -46,13 +72,6 @@ keys:
       started: "&aEvent {name} gestartet"
       stopped: "&cEvent {name} gestoppt"
       not_found: "&cEvent nicht gefunden: {name}"
-
-    birthday:
-      description: "Geburtstag verwalten"
-      set_success: "&aGeburtstag: {date}"
-      clear_success: "&aGeburtstag gelöscht"
-      invalid_format: "&cFormat: dd/MM/yyyy"
-      not_linked: "&cVerknüpfen Sie zuerst Ihr Konto. Verwenden Sie /verify"
 
     chat:
       description: "Chat-Bridge umschalten"

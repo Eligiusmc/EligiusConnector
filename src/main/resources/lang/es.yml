@@ -3,6 +3,32 @@
 # ╚══════════════════════════════════════════════════╝
 
 keys:
+  error:
+    not_linked:
+      title: "🔗 Cuenta no vinculada"
+      description: "Necesitas vincular tu cuenta de Minecraft. Usa el boton **Verificar** en el panel."
+    not_online:
+      title: "🎮 No estas en linea"
+      description: "Conectate al servidor de Minecraft para usar esta funcion."
+    already_linked:
+      title: "✅ Ya vinculada"
+      description: "Tu cuenta ya esta vinculada. Usa `/unlink` si quieres cambiarla."
+    no_permission:
+      title: "🚫 Sin permisos"
+      description: "No tienes permisos para ejecutar este comando."
+    command_blacklisted:
+      title: "🚫 Comando bloqueado"
+      description: "Este comando esta en la lista negra de seguridad."
+    internal_error:
+      title: "⚠️ Error interno"
+      description: "Ocurrio un error inesperado. Intenta de nuevo en unos segundos."
+    economy_disabled:
+      title: "💰 No disponible"
+      description: "El sistema de economia no esta configurado en el servidor."
+    unknown_action:
+      title: "❓ Accion desconocida"
+      description: "Este boton no tiene una accion valida asignada."
+
   general:
     prefix: "&7[&6EC&7] "
     enabled: "Habilitado"
@@ -74,25 +100,6 @@ keys:
       usage_start: "&cUso: /events start <id>"
       usage_stop: "&cUso: /events stop <id>"
 
-    birthday:
-      description: "Gestionar cumpleanos"
-      set_success: "&aCumpleanos: {date}"
-      clear_success: "&aCumpleanos eliminado"
-      invalid_format: "&cFormato: dd/MM/yyyy"
-      not_linked: "&cVincula tu cuenta primero. Usa /verify"
-      success: "&aCumpleanos configurado: {date}"
-      already_set: "&aTu cumpleanos ya esta configurado: {date}"
-      today: "🎂 ¡Hoy es el cumpleanos de **{player}**! ¡Feliz cumpleanos!"
-      reward_message: "¡Recibe tus regalos de cumpleanos!"
-      disabled: "&cEl modulo de cumpleanos esta deshabilitado."
-      help_title: "🎂 Cumpleanos"
-      help_set: "/birthday set <dd/MM/yyyy> - Establecer cumpleanos"
-      help_check: "/birthday check - Verificar cumpleanos"
-      usage: "&cUso: /birthday set <dd/MM/yyyy>"
-      save_failed: "&cError al guardar el cumpleanos."
-      your_birthday: "&aTu cumpleanos: "
-      not_set: "&cAun no has establecido tu cumpleanos."
-
     chat:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge habilitado"
@@ -143,20 +150,6 @@ keys:
       footer: "Sigue los pasos"
       code_title: "🔐 Codigo de Verificacion"
       code_steps: "1. Entra al servidor de Minecraft\n2. Escribe `/verify {code}` en el chat"
-      permission_denied: "❌ No tienes permisos para ejecutar comandos"
-      command_blacklisted: "❌ Comando bloqueado: {command}"
-      button_unknown_action: "Acción desconocida"
-      button_not_linked: "❌ Tu cuenta no está vinculada"
-      button_not_online: "❌ No estás en línea"
-
-    birthday:
-      setup_title: "🎂 Configurar Cumpleanos"
-      setup_desc: "Ingresa tu cumpleaños en formato **dd/MM/yyyy**\nEjemplo: `25/12/1990`"
-      setup_footer: "Este mensaje se eliminara"
-      discord_title: "🎂 ¡Cumpleaños!"
-      discord_desc: "¡Hoy es el cumpleanos de **{player}**!"
-      already_set: "✅ Ya tienes un cumpleaños establecido: **{date}**\nUsa `/birthday` para cambiarlo."
-      set_instruction: "📅 Usa el comando `/birthday set dd/MM/yyyy` para establecer tu cumpleaños."
 
     profile:
       title: "👤 Perfil de {player}"
@@ -207,9 +200,6 @@ keys:
 
     money:
       title: "💰 Balance"
-      not_linked: "❌ Tu cuenta no esta vinculada"
-      not_online: "❌ No estas en linea"
-      economy_disabled: "⚠️ Economy no esta configurada"
       balance: "**Balance:** $"
 
     console:
@@ -218,32 +208,24 @@ keys:
 
     panel:
       verify:
-        title: "🔐 Verifica tu Cuenta"
-        desc: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
-        author: "EligiusMC"
-        footer: "Sigue los pasos"
-        field_howto_name: "📋 Como verificar"
-        field_howto_value: "1. Entra al servidor de Minecraft\n2. Escribe `/verify` en el chat\n3. Haz clic en **Verificar** abajo\n4. Ingresa el codigo"
-        field_benefits_name: "✨ Beneficios"
-        field_benefits_value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario\n• Establecer tu cumpleanos"
-      birthday:
-        title: "🎂 Sistema de Cumpleaños"
-        desc: "¡Registra tu cumpleaños y recibe recompensas especiales!"
-        field_date_name: "📅 Fecha de nacimiento"
-        field_date_value: "Escribe tu fecha en formato: **DD/MM**"
-        field_reward_name: "🎁 Recompensa"
-        field_reward_value: "¡Gana dinero extra en tu cumpleaños!"
+        buttons:
+          verify:
+            label: "Verificar"
+            emoji: "🔐"
       profile:
-        title: "👤 Perfil del Jugador"
-        desc: "Consulta tu perfil, inventario y ubicación en el servidor"
-        field_profile_name: "👤 Perfil"
-        field_profile_value: "Mira tu perfil completo"
-        field_inventory_name: "🎒 Inventario"
-        field_inventory_value: "Consulta tu inventario actual"
-        field_location_name: "📍 Ubicación"
-        field_location_value: "¿Dónde estás en el mundo?"
-        field_money_name: "💰 Dinero"
-        field_money_value: "Consulta tu saldo"
+        buttons:
+          profile:
+            label: "Perfil"
+            emoji: "👤"
+          inventory:
+            label: "Inventario"
+            emoji: "🎒"
+          whereami:
+            label: "Ubicación"
+            emoji: "📍"
+          money:
+            label: "Dinero"
+            emoji: "💰"
 
   chat:
     format:

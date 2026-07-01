@@ -2,26 +2,31 @@
 # ║        EligiusConnector - Profile Commands        ║
 # ╚══════════════════════════════════════════════════╝
 
+channel: "1521391141436653668"
+
 panel:
-  enabled: true
-  channel_id: "1521391141436653668"
+  embed:
+    title: "👤 Perfil del Jugador"
+    description: "Consulta tu perfil, inventario y ubicación en el servidor"
+    color: "0x57F287"
+    fields:
+      - name: "👤 Perfil"
+        value: "Mira tu perfil completo con estadisticas, salud, ubicacion y mas"
+        inline: true
+      - name: "🎒 Inventario"
+        value: "Revisa todos los items en tu inventario organizados por categoria"
+        inline: true
+      - name: "📍 Ubicacion"
+        value: "Descubre donde estas en el mundo con coordenadas exactas"
+        inline: true
+      - name: "💰 Dinero"
+        value: "Consulta tu saldo actual en el servidor"
+        inline: true
   buttons:
-    - id: "profile"
-      label: "Perfil"
-      emoji: "👤"
-      style: "PRIMARY"
-    - id: "inventory"
-      label: "Inventario"
-      emoji: "🎒"
-      style: "SECONDARY"
-    - id: "whereami"
-      label: "Ubicación"
-      emoji: "📍"
-      style: "SECONDARY"
-    - id: "money"
-      label: "Dinero"
-      emoji: "💰"
-      style: "SUCCESS"
+    profile: true
+    inventory: true
+    whereami: true
+    money: true
 
 profile:
   color: 5814783

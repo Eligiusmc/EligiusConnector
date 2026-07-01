@@ -22,7 +22,6 @@ public class ConfigAdapter {
     private FileConfiguration statusConfig;
     private FileConfiguration joinLeaveConfig;
     private FileConfiguration verifyConfig;
-    private FileConfiguration birthdayConfig;
     private FileConfiguration consoleConfig;
     private FileConfiguration synchronizationConfig;
     private FileConfiguration countersConfig;
@@ -39,7 +38,6 @@ public class ConfigAdapter {
         statusConfig = loadConfig("status.yml");
         joinLeaveConfig = loadConfig("join_leave.yml");
         verifyConfig = loadConfig("verify.yml");
-        birthdayConfig = loadConfig("birthday.yml");
         consoleConfig = loadConfig("console.yml");
         synchronizationConfig = loadConfig("synchronization.yml");
         countersConfig = loadConfig("counters.yml");
@@ -53,7 +51,6 @@ public class ConfigAdapter {
         statusConfig = reloadConfig("status.yml");
         joinLeaveConfig = reloadConfig("join_leave.yml");
         verifyConfig = reloadConfig("verify.yml");
-        birthdayConfig = reloadConfig("birthday.yml");
         consoleConfig = reloadConfig("console.yml");
         synchronizationConfig = reloadConfig("synchronization.yml");
         countersConfig = reloadConfig("counters.yml");
@@ -144,7 +141,6 @@ public class ConfigAdapter {
     public boolean isDeathsEnabled() { return isModuleEnabled("deaths"); }
     public boolean isAdvancementsEnabled() { return isModuleEnabled("advancements"); }
     public boolean isVerifyEnabled() { return isModuleEnabled("verify"); }
-    public boolean isBirthdayEnabled() { return isModuleEnabled("birthday"); }
     public boolean isConsoleEnabled() { return isModuleEnabled("console"); }
     public boolean isSynchronizationEnabled() { return isModuleEnabled("synchronization"); }
     public boolean isCountersEnabled() {
@@ -263,22 +259,6 @@ public class ConfigAdapter {
     public java.util.List<String> getPostVerifyCommands() { return verifyConfig.getStringList("post_verify_commands"); }
 
     public int getCodeExpiryMinutes() { return getVerifyCodeExpiryMinutes(); }
-
-    // ==========================================
-    //  BIRTHDAY CONFIG GETTERS
-    // ==========================================
-
-    public FileConfiguration getBirthdayConfig() { return birthdayConfig; }
-    public String getBirthdayChannelId() { return birthdayConfig.getString("channel", ""); }
-    public String getBirthdayDateFormat() { return birthdayConfig.getString("date_format", "dd/MM/yyyy"); }
-    public Map<String, Object> getBirthdaySetupEmbed() { return getEmbedFromConfig(birthdayConfig, "setup_embed"); }
-    public String getBirthdaySuccess() { return birthdayConfig.getString("messages.success", ""); }
-    public String getBirthdayAlreadySet() { return birthdayConfig.getString("messages.already_set", ""); }
-    public String getBirthdayToday() { return birthdayConfig.getString("messages.today", ""); }
-    public String getBirthdayRewardMessage() { return birthdayConfig.getString("messages.reward_message", ""); }
-    public List<String> getBirthdayRewardCommands() { return birthdayConfig.getStringList("rewards.commands"); }
-    public String getBirthdayRewardRole() { return birthdayConfig.getString("rewards.discord_role", ""); }
-    public Map<String, Object> getBirthdayDiscordEmbed() { return getEmbedFromConfig(birthdayConfig, "discord_embed"); }
 
     // ==========================================
     //  CONSOLE CONFIG GETTERS

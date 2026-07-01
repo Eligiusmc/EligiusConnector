@@ -3,6 +3,32 @@
 # ╚══════════════════════════════════════════════════╝
 
 keys:
+  error:
+    not_linked:
+      title: "🔗 Conta nao vinculada"
+      description: "Vincule sua conta Minecraft primeiro. Use o botao **Verificar**."
+    not_online:
+      title: "🎮 Nao esta online"
+      description: "Conecte-se ao servidor Minecraft para usar esta funcao."
+    already_linked:
+      title: "✅ Ja vinculada"
+      description: "Sua conta ja esta vinculada."
+    no_permission:
+      title: "🚫 Sem permissao"
+      description: "Voce nao tem permissao para executar este comando."
+    command_blacklisted:
+      title: "🚫 Comando bloqueado"
+      description: "Este comando esta na lista negra de seguranca."
+    internal_error:
+      title: "⚠️ Erro interno"
+      description: "Ocorreu um erro inesperado."
+    economy_disabled:
+      title: "💰 Nao disponivel"
+      description: "O sistema de economia nao esta configurado."
+    unknown_action:
+      title: "❓ Acao desconhecida"
+      description: "Este botao nao tem uma acao valida."
+
   general:
     prefix: "&7[&6EC&7] "
     enabled: "Ativado"
@@ -46,13 +72,6 @@ keys:
       started: "&aEvento {name} iniciado"
       stopped: "&cEvento {name} finalizado"
       not_found: "&cEvento não encontrado: {name}"
-
-    birthday:
-      description: "Gerenciar aniversário"
-      set_success: "&aAniversário: {date}"
-      clear_success: "&aAniversário removido"
-      invalid_format: "&cFormato: dd/MM/yyyy"
-      not_linked: "&cVincule sua conta primeiro. Use /verify"
 
     chat:
       description: "Alternar chat bridge"

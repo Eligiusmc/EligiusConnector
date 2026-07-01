@@ -52,8 +52,7 @@ public class ButtonListener extends ListenerAdapter {
             case "inventory" -> handleInventory(event);
             case "money" -> handleMoney(event);
             case "profile" -> handleProfile(event);
-            case "set_birthday" -> handleSetBirthday(event);
-            default -> event.reply(plugin.msg("keys.discord.verify.button_unknown_action")).setEphemeral(true).queue();
+            default -> plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "unknown_action");
         }
     }
 
@@ -65,7 +64,7 @@ public class ButtonListener extends ListenerAdapter {
                 UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
                 if (uuid != null) {
-                    event.getHook().sendMessage(plugin.msg("keys.command.verify.already_linked")).setEphemeral(true).queue();
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "already_linked");
                     return;
                 }
 
@@ -104,7 +103,7 @@ public class ButtonListener extends ListenerAdapter {
                 event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             } catch (Exception e) {
                 plugin.getLogger().warning("Verify button error: " + e.getMessage());
-                event.getHook().sendMessage("❌ Error al generar el codigo. Intenta de nuevo.").setEphemeral(true).queue();
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
             }
         });
     }
@@ -115,7 +114,7 @@ public class ButtonListener extends ListenerAdapter {
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         if (uuid == null) {
-            event.getHook().sendMessage(plugin.msg("keys.discord.whereami.not_linked")).setEphemeral(true).queue();
+            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
             return;
         }
 
@@ -123,7 +122,7 @@ public class ButtonListener extends ListenerAdapter {
             try {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null || !player.isOnline()) {
-                    event.getHook().sendMessage(plugin.msg("keys.discord.whereami.not_online")).setEphemeral(true).queue();
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
                     return;
                 }
 
@@ -175,7 +174,7 @@ public class ButtonListener extends ListenerAdapter {
                 event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             } catch (Exception e) {
                 plugin.getLogger().warning("WhereAmI button error: " + e.getMessage());
-                event.getHook().sendMessage("❌ Error al obtener ubicacion.").setEphemeral(true).queue();
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
             }
         });
     }
@@ -186,7 +185,7 @@ public class ButtonListener extends ListenerAdapter {
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         if (uuid == null) {
-            event.getHook().sendMessage(plugin.msg("keys.discord.verify.button_not_linked")).setEphemeral(true).queue();
+            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
             return;
         }
 
@@ -194,7 +193,7 @@ public class ButtonListener extends ListenerAdapter {
             try {
                 Player player = Bukkit.getPlayer(uuid);
                 if (player == null || !player.isOnline()) {
-                    event.getHook().sendMessage(plugin.msg("keys.discord.verify.button_not_online")).setEphemeral(true).queue();
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
                     return;
                 }
 
@@ -254,7 +253,7 @@ public class ButtonListener extends ListenerAdapter {
                 event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             } catch (Exception e) {
                 plugin.getLogger().warning("Inventory button error: " + e.getMessage());
-                event.getHook().sendMessage("❌ Error al obtener inventario.").setEphemeral(true).queue();
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
             }
         });
     }
@@ -266,11 +265,16 @@ public class ButtonListener extends ListenerAdapter {
 
         Bukkit.getScheduler().runTask(plugin, () -> {
             try {
+                if (uuid == null) {
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
+                    return;
+                }
+
                 Map<String, Object> config = plugin.getConfigAdapter().getProfileEmbed();
                 EmbedBuilder embed = new EmbedBuilder();
 
-                Player player = uuid != null ? Bukkit.getPlayer(uuid) : null;
-                PlayerStatsManager.PlayerStats stats = uuid != null ? plugin.getStatsManager().getStats(uuid) : null;
+                Player player = Bukkit.getPlayer(uuid);
+                PlayerStatsManager.PlayerStats stats = plugin.getStatsManager().getStats(uuid);
 
                 if (player != null && player.isOnline()) {
                     embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", player.getName())));
@@ -329,7 +333,7 @@ public class ButtonListener extends ListenerAdapter {
                     embed.addField(plugin.msg("keys.discord.profile.ping_label"), "**" + player.getPing() + " ms**", true);
 
                 } else {
-                    embed.setTitle(plugin.applyPlaceholders(null, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular")));
+                    embed.setTitle(plugin.applyPlaceholders(null, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", "Jugador offline")));
                     embed.setColor(Color.GRAY);
 
                     if (stats != null) {
@@ -353,7 +357,7 @@ public class ButtonListener extends ListenerAdapter {
                 event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             } catch (Exception e) {
                 plugin.getLogger().warning("Profile button error: " + e.getMessage());
-                event.getHook().sendMessage("❌ Error al obtener perfil.").setEphemeral(true).queue();
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
             }
         });
     }
@@ -365,13 +369,8 @@ public class ButtonListener extends ListenerAdapter {
                 long discordId = Long.parseLong(event.getUser().getId());
                 UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle(plugin.msg("keys.discord.money.title"));
-                embed.setColor(Color.YELLOW);
-
                 if (uuid == null) {
-                    embed.setDescription(plugin.msg("keys.discord.money.not_linked"));
-                    event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
                     return;
                 }
 
@@ -384,44 +383,25 @@ public class ButtonListener extends ListenerAdapter {
                         Player player = Bukkit.getPlayer(uuid);
                         if (player != null && player.isOnline()) {
                             double balance = econ.getBalance(player);
+                            EmbedBuilder embed = new EmbedBuilder();
+                            embed.setTitle(plugin.msg("keys.discord.money.title"));
                             embed.setDescription(plugin.msg("keys.discord.money.balance") + String.format("%.2f", balance));
                             embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
+                            embed.setColor(Color.YELLOW);
+                            embed.setTimestamp(java.time.Instant.now());
+                            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
                         } else {
-                            embed.setDescription(plugin.msg("keys.discord.money.not_online"));
+                            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
                         }
                     } else {
-                        embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");
                     }
                 } catch (ClassNotFoundException e) {
-                    embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");
                 }
-
-                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             } catch (Exception e) {
                 plugin.getLogger().warning("Money button error: " + e.getMessage());
-                event.getHook().sendMessage("❌ Error al consultar saldo.").setEphemeral(true).queue();
-            }
-        });
-    }
-
-    private void handleSetBirthday(ButtonInteractionEvent event) {
-        event.deferReply(true).queue();
-        CompletableFuture.runAsync(() -> {
-            try {
-                long discordId = Long.parseLong(event.getUser().getId());
-                String existing = plugin.getDatabaseManager().getBirthday(discordId);
-
-                if (existing != null && !existing.isEmpty()) {
-                    event.getHook().sendMessage(plugin.msg("keys.discord.birthday.already_set").replace("{date}", existing))
-                            .setEphemeral(true).queue();
-                    return;
-                }
-
-                event.getHook().sendMessage(plugin.msg("keys.discord.birthday.set_instruction"))
-                        .setEphemeral(true).queue();
-            } catch (Exception e) {
-                plugin.getLogger().warning("Birthday button error: " + e.getMessage());
-                event.getHook().sendMessage("❌ Error al configurar cumpleaños.").setEphemeral(true).queue();
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
             }
         });
     }

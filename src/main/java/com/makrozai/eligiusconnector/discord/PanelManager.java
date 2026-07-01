@@ -11,13 +11,23 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class PanelManager {
 
     private final EligiusConnector plugin;
-    private static final List<String> PANEL_TYPES = List.of("verify", "birthday", "profile");
+
+    private static final Map<String, ButtonStyle> DEFAULT_STYLES = new LinkedHashMap<>();
+
+    static {
+        DEFAULT_STYLES.put("verify", ButtonStyle.PRIMARY);
+        DEFAULT_STYLES.put("profile", ButtonStyle.PRIMARY);
+        DEFAULT_STYLES.put("inventory", ButtonStyle.SECONDARY);
+        DEFAULT_STYLES.put("whereami", ButtonStyle.SECONDARY);
+        DEFAULT_STYLES.put("money", ButtonStyle.SUCCESS);
+    }
 
     public PanelManager(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -26,32 +36,55 @@ public class PanelManager {
     public void initializePanels() {
         if (!plugin.getDiscordManager().isConnected()) return;
 
-        for (String panelType : PANEL_TYPES) {
-            ConfigurationSection panelConfig = getPanelConfig(panelType);
-            if (panelConfig == null || !panelConfig.getBoolean("enabled", true)) continue;
-
-            String channelId = panelConfig.getString("channel_id", "");
-            if (channelId.isEmpty()) {
-                plugin.getLogger().warning("[Panels] channel_id not set for " + panelType);
-                continue;
-            }
+        for (var entry : getPanelIds().entrySet()) {
+            String panelType = entry.getKey();
+            String channelId = entry.getValue();
+            if (channelId.isEmpty()) continue;
 
             TextChannel channel = plugin.getDiscordManager().getChannel(channelId);
             if (channel == null) {
-                plugin.getLogger().warning("[Panels] Channel not found: " + channelId);
+                plugin.getLogger().warning("[Panels] Channel not found for " + panelType + ": " + channelId);
                 continue;
             }
 
-            createPanel(panelType, channel, panelConfig);
+            createPanel(panelType, channel);
         }
     }
 
-    private void createPanel(String panelType, TextChannel channel, ConfigurationSection panelConfig) {
+    private Map<String, String> getPanelIds() {
+        Map<String, String> panels = new LinkedHashMap<>();
+
+        ConfigurationSection verifyCfg = plugin.getConfigAdapter().getVerifyConfig();
+        if (hasButtons(verifyCfg)) {
+            panels.put("verify", verifyCfg.getString("channel", ""));
+        }
+
+        ConfigurationSection profileCfg = plugin.getConfigAdapter().getProfileConfig();
+        if (hasButtons(profileCfg)) {
+            panels.put("profile", profileCfg.getString("channel", ""));
+        }
+
+        return panels;
+    }
+
+    private boolean hasButtons(ConfigurationSection cfg) {
+        if (cfg == null) return false;
+        ConfigurationSection panel = cfg.getConfigurationSection("panel");
+        if (panel == null) return false;
+        ConfigurationSection buttons = panel.getConfigurationSection("buttons");
+        if (buttons == null) return false;
+        for (String key : buttons.getKeys(false)) {
+            if (buttons.getBoolean(key)) return true;
+        }
+        return false;
+    }
+
+    private void createPanel(String panelType, TextChannel channel) {
         plugin.getDiscordManager().clearChannel(channel.getId(), () -> {
             MessageEmbed embed = buildPanelEmbed(panelType);
             if (embed == null) return;
 
-            List<Button> buttons = buildPanelButtons(panelConfig);
+            List<Button> buttons = buildPanelButtons(panelType);
 
             channel.sendMessageEmbeds(embed).addActionRow(buttons).queue(
                     msg -> plugin.getLogger().info("[Panels] Created " + panelType + " panel"),
@@ -61,10 +94,7 @@ public class PanelManager {
     }
 
     public void deletePanel(String panelType) {
-        ConfigurationSection panelConfig = getPanelConfig(panelType);
-        if (panelConfig == null) return;
-
-        String channelId = panelConfig.getString("channel_id", "");
+        String channelId = getChannelId(panelType);
         if (channelId.isEmpty()) return;
 
         TextChannel channel = plugin.getDiscordManager().getChannel(channelId);
@@ -74,144 +104,135 @@ public class PanelManager {
     }
 
     public void reloadPanels() {
-        for (String panelType : PANEL_TYPES) {
-            ConfigurationSection panelConfig = getPanelConfig(panelType);
-            if (panelConfig == null || !panelConfig.getBoolean("enabled", true)) continue;
-
-            String channelId = panelConfig.getString("channel_id", "");
+        for (var entry : getPanelIds().entrySet()) {
+            String channelId = entry.getValue();
             if (channelId.isEmpty()) continue;
 
             TextChannel channel = plugin.getDiscordManager().getChannel(channelId);
             if (channel == null) continue;
 
-            createPanel(panelType, channel, panelConfig);
+            createPanel(entry.getKey(), channel);
         }
+    }
+
+    private String getChannelId(String panelType) {
+        ConfigurationSection cfg = switch (panelType) {
+            case "verify" -> plugin.getConfigAdapter().getVerifyConfig();
+            case "profile" -> plugin.getConfigAdapter().getProfileConfig();
+            default -> null;
+        };
+        return cfg != null ? cfg.getString("channel", "") : "";
+    }
+
+    private ConfigurationSection getPanelSection(String panelType) {
+        ConfigurationSection cfg = switch (panelType) {
+            case "verify" -> plugin.getConfigAdapter().getVerifyConfig();
+            case "profile" -> plugin.getConfigAdapter().getProfileConfig();
+            default -> null;
+        };
+        return cfg != null ? cfg.getConfigurationSection("panel") : null;
     }
 
     private MessageEmbed buildPanelEmbed(String panelType) {
+        ConfigurationSection panel = getPanelSection(panelType);
+        if (panel == null) return null;
+
+        ConfigurationSection embedCfg = panel.getConfigurationSection("embed");
+        if (embedCfg == null) return null;
+
         EmbedBuilder embed = new EmbedBuilder();
 
-        switch (panelType) {
-            case "verify" -> {
-                ConfigurationSection config = plugin.getConfigAdapter().getVerifyConfig();
-                Map<String, Object> welcomeEmbed = config != null ? config.getConfigurationSection("welcome_embed").getValues(false) : null;
+        String title = embedCfg.getString("title", "");
+        if (!title.isEmpty()) embed.setTitle(title);
 
-                embed.setTitle(plugin.msg("keys.discord.panel.verify.title"));
-                embed.setDescription(plugin.msg("keys.discord.panel.verify.desc"));
-                embed.setColor(getColor(welcomeEmbed, 0x5865F2));
+        String description = embedCfg.getString("description", "");
+        if (!description.isEmpty()) embed.setDescription(description);
 
-                String thumbnail = welcomeEmbed != null ? String.valueOf(welcomeEmbed.getOrDefault("thumbnail", "")) : "";
-                if (!thumbnail.isEmpty()) embed.setThumbnail(thumbnail);
+        embed.setColor(parseColor(embedCfg.getString("color", ""), 0x5865F2));
 
-                String author = welcomeEmbed != null ? String.valueOf(welcomeEmbed.getOrDefault("author", "")) : "";
-                String authorIcon = welcomeEmbed != null ? String.valueOf(welcomeEmbed.getOrDefault("author_icon", "")) : "";
-                if (!author.isEmpty()) embed.setAuthor(author, null, authorIcon.isEmpty() ? null : authorIcon);
+        String thumbnail = embedCfg.getString("thumbnail", "");
+        if (!thumbnail.isEmpty()) embed.setThumbnail(thumbnail);
 
-                embed.setFooter(plugin.msg("keys.discord.panel.verify.footer"));
+        String image = embedCfg.getString("image", "");
+        if (!image.isEmpty()) embed.setImage(image);
 
-                embed.addField(
-                        plugin.msg("keys.discord.panel.verify.field_howto_name"),
-                        plugin.msg("keys.discord.panel.verify.field_howto_value"),
-                        false
-                );
-                embed.addField(
-                        plugin.msg("keys.discord.panel.verify.field_benefits_name"),
-                        plugin.msg("keys.discord.panel.verify.field_benefits_value"),
-                        false
-                );
-            }
-            case "birthday" -> {
-                embed.setTitle(plugin.msg("keys.discord.panel.birthday.title"));
-                embed.setDescription(plugin.msg("keys.discord.panel.birthday.desc"));
-                embed.setColor(new Color(0xFEE75C));
+        String author = embedCfg.getString("author", "");
+        String authorIcon = embedCfg.getString("author_icon", "");
+        if (!author.isEmpty()) {
+            embed.setAuthor(author, null, authorIcon.isEmpty() ? null : authorIcon);
+        }
 
-                embed.addField(
-                        plugin.msg("keys.discord.panel.birthday.field_date_name"),
-                        plugin.msg("keys.discord.panel.birthday.field_date_value"),
-                        true
-                );
-                embed.addField(
-                        plugin.msg("keys.discord.panel.birthday.field_reward_name"),
-                        plugin.msg("keys.discord.panel.birthday.field_reward_value"),
-                        true
-                );
-            }
-            case "profile" -> {
-                embed.setTitle(plugin.msg("keys.discord.panel.profile.title"));
-                embed.setDescription(plugin.msg("keys.discord.panel.profile.desc"));
-                embed.setColor(new Color(0x57F287));
+        String footer = embedCfg.getString("footer", "");
+        String footerIcon = embedCfg.getString("footer_icon", "");
+        if (!footer.isEmpty()) {
+            embed.setFooter(footer, footerIcon.isEmpty() ? null : footerIcon);
+        }
 
-                embed.addField(
-                        plugin.msg("keys.discord.panel.profile.field_profile_name"),
-                        plugin.msg("keys.discord.panel.profile.field_profile_value"),
-                        true
-                );
-                embed.addField(
-                        plugin.msg("keys.discord.panel.profile.field_inventory_name"),
-                        plugin.msg("keys.discord.panel.profile.field_inventory_value"),
-                        true
-                );
-                embed.addField(
-                        plugin.msg("keys.discord.panel.profile.field_location_name"),
-                        plugin.msg("keys.discord.panel.profile.field_location_value"),
-                        true
-                );
-                embed.addField(
-                        plugin.msg("keys.discord.panel.profile.field_money_name"),
-                        plugin.msg("keys.discord.panel.profile.field_money_value"),
-                        true
-                );
+        if (embedCfg.getBoolean("timestamp", false)) {
+            embed.setTimestamp(java.time.Instant.now());
+        }
+
+        List<?> fieldsList = embedCfg.getList("fields");
+        if (fieldsList != null) {
+            for (Object obj : fieldsList) {
+                if (obj instanceof Map<?, ?> map) {
+                    Object nameObj = map.get("name");
+                    Object valueObj = map.get("value");
+                    String name = nameObj != null ? String.valueOf(nameObj) : "";
+                    String value = valueObj != null ? String.valueOf(valueObj) : "";
+                    boolean inline = Boolean.TRUE.equals(map.get("inline"));
+                    if (!name.isEmpty() && !value.isEmpty()) {
+                        embed.addField(name, value, inline);
+                    }
+                }
             }
         }
 
-        return embed.build();
+        try {
+            return embed.build();
+        } catch (Exception e) {
+            plugin.getLogger().warning("[Panels] Failed to build embed for " + panelType + ": " + e.getMessage());
+            return null;
+        }
     }
 
-    private List<Button> buildPanelButtons(ConfigurationSection panelConfig) {
+    private List<Button> buildPanelButtons(String panelType) {
         List<Button> buttons = new ArrayList<>();
-        List<?> buttonList = panelConfig.getList("buttons");
-        if (buttonList == null) return buttons;
+        ConfigurationSection panel = getPanelSection(panelType);
+        if (panel == null) return buttons;
 
-        for (Object obj : buttonList) {
-            if (obj instanceof Map<?, ?> map) {
-                String id = String.valueOf(map.get("id") != null ? map.get("id") : "");
-                String label = String.valueOf(map.get("label") != null ? map.get("label") : "");
-                String emoji = String.valueOf(map.get("emoji") != null ? map.get("emoji") : "");
-                String styleStr = String.valueOf(map.get("style") != null ? map.get("style") : "SECONDARY").toUpperCase();
+        ConfigurationSection buttonCfg = panel.getConfigurationSection("buttons");
+        if (buttonCfg == null) return buttons;
 
-                if (id.isEmpty() || label.isEmpty()) continue;
+        for (String buttonId : buttonCfg.getKeys(false)) {
+            if (!buttonCfg.getBoolean(buttonId)) continue;
 
-                ButtonStyle style = switch (styleStr) {
-                    case "PRIMARY" -> ButtonStyle.PRIMARY;
-                    case "SUCCESS" -> ButtonStyle.SUCCESS;
-                    case "DANGER" -> ButtonStyle.DANGER;
-                    default -> ButtonStyle.SECONDARY;
-                };
+            String label = plugin.msg("keys.discord.panel." + panelType + ".buttons." + buttonId + ".label");
+            String emojiStr = plugin.msg("keys.discord.panel." + panelType + ".buttons." + buttonId + ".emoji");
+            ButtonStyle style = DEFAULT_STYLES.getOrDefault(buttonId, ButtonStyle.SECONDARY);
 
-                Button button = Button.of(style, id, label);
-                if (!emoji.isEmpty()) {
-                    button = button.withEmoji(Emoji.fromFormatted(emoji));
-                }
-                buttons.add(button);
+            Button button = Button.of(style, buttonId, label);
+            if (!emojiStr.isEmpty()) {
+                button = button.withEmoji(Emoji.fromFormatted(emojiStr));
             }
+            buttons.add(button);
         }
 
         return buttons;
     }
 
-    private ConfigurationSection getPanelConfig(String panelType) {
-        switch (panelType) {
-            case "verify": return plugin.getConfigAdapter().getVerifyConfig().getConfigurationSection("panel");
-            case "birthday": return plugin.getConfigAdapter().getBirthdayConfig().getConfigurationSection("panel");
-            case "profile": return plugin.getConfigAdapter().getProfileConfig().getConfigurationSection("panel");
-            default: return null;
+    private Color parseColor(String colorStr, int defaultColor) {
+        if (colorStr == null || colorStr.isEmpty()) return new Color(defaultColor);
+        try {
+            if (colorStr.startsWith("0x") || colorStr.startsWith("0X")) {
+                return new Color(Integer.parseInt(colorStr.substring(2), 16));
+            } else if (colorStr.startsWith("#")) {
+                return new Color(Integer.parseInt(colorStr.substring(1), 16));
+            } else {
+                return new Color(Integer.parseInt(colorStr));
+            }
+        } catch (NumberFormatException e) {
+            return new Color(defaultColor);
         }
-    }
-
-    private Color getColor(Map<String, Object> config, int def) {
-        if (config == null) return new Color(def);
-        Object val = config.get("color");
-        if (val instanceof Number num) return new Color(num.intValue());
-        return new Color(def);
     }
 }
