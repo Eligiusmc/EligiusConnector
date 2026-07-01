@@ -12,7 +12,7 @@ join:
     timestamp: true
     fields:
       - name: "📊 En Linea"
-        value: "**%player_online%** / **%server_max_players%**"
+        value: "**%server_online%** / **%server_max_players%**"
         inline: true
       - name: "🆕 Primera Vez"
         value: "%player_first_join%"
@@ -28,7 +28,7 @@ leave:
     timestamp: true
     fields:
       - name: "📊 En Linea"
-        value: "**%player_online%** / **%server_max_players%**"
+        value: "**%server_online%** / **%server_max_players%**"
         inline: true
 
 death:

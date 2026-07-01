@@ -120,6 +120,18 @@ cd EligiusConnector
 
 The compiled `.jar` will be available in `build/libs/`.
 
+### Running Local Test Server
+
+```bash
+cd server
+DISCORD_BOT_TOKEN="your-token" /opt/homebrew/opt/openjdk@25/bin/java -Xms1G -Xmx2G -jar spigot.jar --nogui
+```
+Or copy the jar and run outside the project:
+```bash
+cp build/libs/EligiusConnector-*.jar server/plugins/
+cd server && DISCORD_BOT_TOKEN="your-token" /opt/homebrew/opt/openjdk@25/bin/java -Xms1G -Xmx2G -jar spigot.jar --nogui
+```
+
 ### Contributing Best Practices
 
 - **Branching:** Never push directly to `master`. All work should stem from `develop` into `feature/<name>` branches.

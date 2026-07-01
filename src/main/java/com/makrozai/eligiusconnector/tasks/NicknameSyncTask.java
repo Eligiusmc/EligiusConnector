@@ -1,7 +1,7 @@
 package com.makrozai.eligiusconnector.tasks;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
-import me.clip.placeholderapi.PlaceholderAPI;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import org.bukkit.Bukkit;
@@ -14,15 +14,13 @@ public class NicknameSyncTask {
 
     private final EligiusConnector plugin;
     private BukkitTask task;
-    private final boolean placeholderApiAvailable;
 
     public NicknameSyncTask(EligiusConnector plugin) {
         this.plugin = plugin;
-        this.placeholderApiAvailable = isPlaceholderApiAvailable();
     }
 
     public void start() {
-        task = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::syncAll, 20L,
+        task = Scheduler.runTimerAsync(plugin, this::syncAll, 20L,
                 plugin.getConfigAdapter().getNicknameCycleSeconds() * 20L);
     }
 
@@ -75,34 +73,13 @@ public class NicknameSyncTask {
     }
 
     private String resolveNickname(Player player, String format) {
-        String result = format;
-        result = result.replace("%player_name%", player.getName());
-        result = result.replace("%player_displayname%", player.getDisplayName());
-        result = result.replace("%player_world%", player.getWorld().getName());
-
-        if (placeholderApiAvailable) {
-            try {
-                result = PlaceholderAPI.setPlaceholders(player, result);
-            } catch (Exception ignored) {
-            }
-        }
-
-        return result;
+        return plugin.getPlaceholderResolver().resolve(format, player);
     }
 
     public void stop() {
         if (task != null) {
             task.cancel();
             task = null;
-        }
-    }
-
-    private boolean isPlaceholderApiAvailable() {
-        try {
-            Class.forName("me.clip.placeholderapi.PlaceholderAPI");
-            return Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null;
-        } catch (ClassNotFoundException e) {
-            return false;
         }
     }
 }

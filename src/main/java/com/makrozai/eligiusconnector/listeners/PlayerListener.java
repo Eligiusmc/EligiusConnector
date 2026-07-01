@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.listeners;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -28,7 +29,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String message = event.getMessage();
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        Scheduler.runAsync(plugin, () -> {
             if (!plugin.getConfigAdapter().isChatEnabled()) return;
 
             String avatarUrl = getAvatarUrl(player);
@@ -62,7 +63,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        Scheduler.runAsync(plugin, () -> {
             if (!plugin.getConfigAdapter().isJoinLeaveEnabled()) return;
 
             int online = Bukkit.getOnlinePlayers().size();
@@ -79,13 +80,8 @@ public class PlayerListener implements Listener {
             plugin.getDiscordManager().sendJoinEmbed(replacements, player);
 
             // Update online counter
-            if (plugin.getConfigAdapter().isOnlineCounterEnabled()) {
-                String format = plugin.getConfigAdapter().getOnlineCounterFormat();
-                plugin.getDiscordManager().updateChannelName(
-                        plugin.getConfigAdapter().getOnlineCounterChannel(),
-                        format.replace("{count}", String.valueOf(online))
-                                .replace("%player_online%", String.valueOf(online))
-                );
+            if (plugin.getCounterManager() != null) {
+                plugin.getCounterManager().updateOnlineNow();
             }
 
             // Log audit
@@ -106,7 +102,7 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        Scheduler.runAsync(plugin, () -> {
             if (!plugin.getConfigAdapter().isJoinLeaveEnabled()) return;
 
             int online = Bukkit.getOnlinePlayers().size() - 1;
@@ -121,13 +117,8 @@ public class PlayerListener implements Listener {
             plugin.getDiscordManager().sendLeaveEmbed(replacements, player);
 
             // Update online counter
-            if (plugin.getConfigAdapter().isOnlineCounterEnabled()) {
-                String format = plugin.getConfigAdapter().getOnlineCounterFormat();
-                plugin.getDiscordManager().updateChannelName(
-                        plugin.getConfigAdapter().getOnlineCounterChannel(),
-                        format.replace("{count}", String.valueOf(online))
-                                .replace("%player_online%", String.valueOf(online))
-                );
+            if (plugin.getCounterManager() != null) {
+                plugin.getCounterManager().updateOnlineNow();
             }
 
             Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
@@ -141,7 +132,7 @@ public class PlayerListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        Scheduler.runAsync(plugin, () -> {
             if (!plugin.getConfigAdapter().isDeathsEnabled()) return;
 
             String deathMsg = event.getDeathMessage();
@@ -164,7 +155,7 @@ public class PlayerListener implements Listener {
         String key = event.getAdvancement().getKey().getKey();
         String finalName = capitalizeWords(key.replace("/", " > ").replace("_", " "));
 
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+        Scheduler.runAsync(plugin, () -> {
             if (!plugin.getConfigAdapter().isAdvancementsEnabled()) return;
 
             Map<String, String> replacements = new HashMap<>();

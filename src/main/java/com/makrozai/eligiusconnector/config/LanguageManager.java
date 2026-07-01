@@ -53,7 +53,9 @@ public class LanguageManager {
                         new InputStreamReader(defStream, StandardCharsets.UTF_8));
                 langConfig.setDefaults(defaults);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load language defaults for " + langCode + ": " + e.getMessage());
+        }
         languages.put(langCode, langConfig);
     }
 
@@ -67,7 +69,9 @@ public class LanguageManager {
                 String lang = rs.getString("language");
                 playerLanguages.put(uuid, lang);
             }
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to load player languages from DB: " + e.getMessage());
+        }
     }
 
     // ==========================================
@@ -147,7 +151,9 @@ public class LanguageManager {
             stmt.setString(1, playerUuid.toString());
             stmt.setString(2, langCode);
             stmt.executeUpdate();
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save player language: " + e.getMessage());
+        }
     }
 
     private String translateColorCodes(String text) {

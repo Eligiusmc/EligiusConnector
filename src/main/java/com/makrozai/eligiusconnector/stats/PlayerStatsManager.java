@@ -55,8 +55,12 @@ public class PlayerStatsManager {
     private void addColumnIfMissing(Statement stmt, String table, String column, String type) {
         try {
             stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
-        } catch (SQLException ignored) {
-            // Column already exists
+        } catch (SQLException e) {
+            // ponytail: column already exists is expected, log only unexpected errors
+            String msg = e.getMessage();
+            if (msg != null && !msg.toLowerCase().contains("duplicate")) {
+                plugin.getLogger().warning("Failed to add column " + column + ": " + msg);
+            }
         }
     }
 

@@ -45,7 +45,7 @@ public class VerifyCommand implements CommandExecutor {
 
         String code = args[0];
 
-        if (code.length() != 6 || !code.matches("[0-9]+")) {
+        if (code.length() != plugin.getConfigAdapter().getVerifyCodeLength() || !code.matches("[0-9]+")) {
             player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_format"));
             playSound(player, false);
             return true;

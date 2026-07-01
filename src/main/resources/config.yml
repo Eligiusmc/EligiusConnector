@@ -33,8 +33,6 @@ modules:
   counters: true
   profile: true
   events: true
-  placeholder_api: true
-  permissions: true
 
 # ==========================================
 #  DATABASE

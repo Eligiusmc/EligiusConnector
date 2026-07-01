@@ -213,7 +213,7 @@ public class DatabaseManager {
     }
 
     public Long getDiscordIdByName(String playerName) {
-        String sql = "SELECT discord_id FROM connector_accounts WHERE player_name = ?";
+        String sql = "SELECT discord_id FROM connector_accounts WHERE minecraft_name = ?";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, playerName);
@@ -347,7 +347,7 @@ public class DatabaseManager {
     }
 
     public boolean hasPlayedBefore(UUID uuid) {
-        String sql = "SELECT 1 FROM connector_accounts WHERE minecraft_uuid = ?";
+        String sql = "SELECT 1 FROM connector_player_stats WHERE uuid = ?";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, uuid.toString());

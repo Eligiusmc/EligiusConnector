@@ -29,11 +29,6 @@ public class StatsListener implements Listener {
         plugin.getStatsManager().updateJoin(player.getUniqueId(), player.getName());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        // Playtime is tracked by the playtime task
-    }
-
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();

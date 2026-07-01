@@ -28,3 +28,9 @@ discord_embed:
   color: 16711851
   thumbnail: "https://minotar.net/avatar/%player_name%/128"
   timestamp: true
+
+messages:
+  success: "&a¡Cumpleaños registrado: &e%date%&a!"
+  already_set: "&cYa tienes un cumpleaños registrado."
+  today: "&a¡Hoy es el cumpleaños de &e%player%&a! ¡Felicidades!"
+  reward_message: "&6🎂 ¡Feliz cumpleaños! Disfruta tus recompensas."

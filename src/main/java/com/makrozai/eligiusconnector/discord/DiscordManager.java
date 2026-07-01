@@ -157,22 +157,9 @@ public class DiscordManager {
                 return;
             }
 
-            // Delete all bot messages, then run callback
-            java.util.concurrent.atomic.AtomicInteger remaining = new java.util.concurrent.atomic.AtomicInteger(botMessages.size());
-            for (net.dv8tion.jda.api.entities.Message msg : botMessages) {
-                msg.delete().queue(
-                        success -> {
-                            if (remaining.decrementAndGet() == 0 && onComplete != null) {
-                                onComplete.run();
-                            }
-                        },
-                        error -> {
-                            if (remaining.decrementAndGet() == 0 && onComplete != null) {
-                                onComplete.run();
-                            }
-                        }
-                );
-            }
+            // ponytail: bulk delete (purgeMessages), then callback
+            channel.purgeMessages(botMessages);
+            if (onComplete != null) onComplete.run();
         }, error -> {
             if (onComplete != null) onComplete.run();
         });
@@ -295,6 +282,7 @@ public class DiscordManager {
 
     // Update channel name
     public void updateChannelName(String channelId, String newName) {
+        if (newName == null || newName.isEmpty()) return;
         TextChannel channel = getChannel(channelId);
         if (channel != null && !channel.getName().equals(newName)) {
             channel.getManager().setName(newName).queue(
@@ -310,9 +298,37 @@ public class DiscordManager {
         clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOnEmbed(), replacements, player));
     }
 
-    public void sendStatusOffEmbed() {
+    public void sendStatusOffEmbedSync() {
         String channelId = plugin.getConfigAdapter().getStatusChannelId();
-        clearChannel(channelId, () -> sendEmbed(channelId, plugin.getConfigAdapter().getStatusOffEmbed(), new java.util.HashMap<>(), null));
+        TextChannel channel = getChannel(channelId);
+        if (channel == null) {
+            plugin.getLogger().warning("[Status] Channel not found: " + channelId);
+            return;
+        }
+        try {
+            // ponytail: capture old bot messages first, then send embed, then best-effort delete old
+            // This way embed always publishes even if delete fails
+            List<net.dv8tion.jda.api.entities.Message> messages = channel.getHistory().retrievePast(100).complete();
+            List<net.dv8tion.jda.api.entities.Message> toDelete = messages.stream()
+                    .filter(msg -> msg.getAuthor().equals(jda.getSelfUser()))
+                    .toList();
+
+            Map<String, Object> embedConfig = plugin.getConfigAdapter().getStatusOffEmbed();
+            if (embedConfig != null && !embedConfig.isEmpty()) {
+                MessageEmbed embed = buildEmbed(embedConfig, new java.util.HashMap<>(), null);
+                if (embed != null) {
+                    channel.sendMessageEmbeds(embed).complete();
+                    plugin.getLogger().info("[Status] Offline embed sent successfully");
+                }
+            }
+
+            // Best-effort: delete old bot messages, don't abort on failure
+            if (!toDelete.isEmpty()) {
+                channel.purgeMessages(toDelete);
+            }
+        } catch (Exception e) {
+            plugin.getLogger().warning("Error sending offline status embed: " + e.getMessage());
+        }
     }
 
     public void sendJoinEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {

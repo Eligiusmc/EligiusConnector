@@ -115,7 +115,7 @@ public class ConfigAdapter {
     public boolean isDebug() { return config.getBoolean("debug", false); }
 
     public List<String> getGameStatus() {
-        return config.getStringList("bot.status");
+        return config.getStringList("bot.game_status");
     }
 
     // ==========================================
@@ -292,30 +292,10 @@ public class ConfigAdapter {
     public String getConsoleCommandBlacklisted() { return consoleConfig.getString("messages.command_blacklisted", ""); }
 
     // ==========================================
-    //  COUNTERS CONFIG GETTERS
+    //  COUNTERS CONFIG
     // ==========================================
 
     public FileConfiguration getCountersConfig() { return countersConfig; }
-    public boolean isOnlineCounterEnabled() { return countersConfig.getBoolean("online.enabled", true); }
-    public String getOnlineCounterChannel() { return countersConfig.getString("online.channel", ""); }
-    public String getOnlineCounterFormat() { return countersConfig.getString("online.format", "🟢 online: {count}"); }
-    public int getOnlineCounterInterval() { return countersConfig.getInt("online.update_interval_seconds", 30); }
-    public boolean isAllMembersCounterEnabled() { return countersConfig.getBoolean("all_members.enabled", true); }
-    public String getAllMembersCounterChannel() { return countersConfig.getString("all_members.channel", ""); }
-    public String getAllMembersCounterFormat() { return countersConfig.getString("all_members.format", "👥 all-members: {count}"); }
-    public int getAllMembersCounterInterval() { return countersConfig.getInt("all_members.update_interval_seconds", 300); }
-
-    // Server status counter
-    public boolean isServerStatusCounterEnabled() { return countersConfig.getBoolean("server_status.enabled", true); }
-    public String getServerStatusChannel() { return countersConfig.getString("server_status.channel", ""); }
-    public String getServerStatusFormatOnline() { return countersConfig.getString("server_status.format_online", "🟢 Online - {count} jugadores"); }
-    public String getServerStatusFormatOffline() { return countersConfig.getString("server_status.format_offline", "🔴 Offline"); }
-
-    // Aliases for callers using old names
-    public String getOnlineChannelId() { return getOnlineCounterChannel(); }
-    public String getOnlineFormat() { return getOnlineCounterFormat(); }
-    public String getAllMembersChannelId() { return getAllMembersCounterChannel(); }
-    public String getAllMembersFormat() { return getAllMembersCounterFormat(); }
 
     // ==========================================
     //  SYNCHRONIZATION CONFIG GETTERS

@@ -48,3 +48,10 @@ welcome_embed:
     - name: "✨ Beneficios"
       value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario\n• Establecer tu cumpleanos"
       inline: false
+
+messages:
+  code_message: "&aUsa &e/verify <codigo> &aen el chat del servidor Minecraft para vincular tu cuenta."
+  success_mc: "&a¡Cuenta vinculada exitosamente con Discord!"
+  success_discord: "✅ You have been linked to Minecraft player {player}!"
+  already_linked: "&cYa tienes una cuenta de Discord vinculada. Usa &e/unlink &cprimero."
+  invalid_code: "&cCodigo invalido o expirado. Genera uno nuevo en Discord."

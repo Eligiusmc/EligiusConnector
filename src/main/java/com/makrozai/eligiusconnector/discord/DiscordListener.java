@@ -46,7 +46,8 @@ public class DiscordListener extends ListenerAdapter {
             if (minecraftName != null) prefix = minecraftName;
         }
 
-        String formattedMessage = "[DC] " + prefix + ": " + message;
+        String format = plugin.getConfigAdapter().getChatFormatDiscordToMC();
+        String formattedMessage = format.replace("{player}", prefix).replace("{message}", message);
 
         final String finalMessage = formattedMessage;
         Bukkit.getScheduler().runTask(plugin, () -> {
@@ -68,6 +69,7 @@ public class DiscordListener extends ListenerAdapter {
             return;
         }
 
+        if (message == null || message.isBlank()) return;
         String command = message.split(" ")[0].toLowerCase();
         java.util.List<String> blacklist = plugin.getConfigAdapter().getConsoleBlacklist();
         if (blacklist.contains(command)) {

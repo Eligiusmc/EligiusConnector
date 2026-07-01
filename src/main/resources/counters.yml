@@ -1,21 +1,72 @@
 # ╔══════════════════════════════════════════════════╗
 # ║        EligiusConnector - Dynamic Counters       ║
+# ║        Type: periodic | state                    ║
 # ╚══════════════════════════════════════════════════╝
 
-online:
-  enabled: true
-  channel: "1521280346585305268"
-  format: "🟢 online: %server_online%"
-  update_interval_seconds: 30
+counters:
+  # ── Periodic: updates every N seconds ─────────────
+  online_players:
+    type: periodic
+    enabled: true
+    channel: "1521280346585305268"
+    format: "🟢 Jugadores: %server_online%"
+    interval: 30
 
-all_members:
-  enabled: true
-  channel: "1521280350343532654"
-  format: "👥 all-members: %server_members%"
-  update_interval_seconds: 300
+  all_members:
+    type: periodic
+    enabled: true
+    channel: "1521280350343532654"
+    format: "👥 all-members: %server_members%"
+    interval: 300
 
-server_status:
-  enabled: true
-  channel: "1521276573033173204"
-  format_online: "🟢 Online"
-  format_offline: "🔴 Offline"
+  # ── State: updates when state changes ─────────────
+  server_status:
+    type: state
+    enabled: true
+    channel: "1521276573033173204"
+    state_key: server_online
+    states:
+      online: "🟢 Online"
+      offline: "🔴 Offline"
+
+  # ── Example: disabled by default ──────────────────
+  # Uncomment and set channel IDs to use:
+
+  # ram:
+  #   type: periodic
+  #   enabled: false
+  #   channel: "CHANNEL_ID"
+  #   format: "🧠 RAM: %server_ram_used%MB"
+  #   interval: 60
+
+  # uptime:
+  #   type: periodic
+  #   enabled: false
+  #   channel: "CHANNEL_ID"
+  #   format: "⏱ Uptime: %server_uptime%"
+  #   interval: 120
+
+  # world_count:
+  #   type: periodic
+  #   enabled: false
+  #   channel: "CHANNEL_ID"
+  #   format: "🌍 Worlds: %server_worlds%"
+  #   interval: 300
+
+  # whitelist:
+  #   type: state
+  #   enabled: false
+  #   channel: "CHANNEL_ID"
+  #   state_key: whitelist
+  #   states:
+  #     "true": "🟢 Whitelist ON"
+  #     "false": "🔴 Whitelist OFF"
+
+  # maintenance:
+  #   type: state
+  #   enabled: false
+  #   channel: "CHANNEL_ID"
+  #   state_key: maintenance
+  #   states:
+  #     "true": "🔧 Mantenimiento"
+  #     "false": "✅ Normal"

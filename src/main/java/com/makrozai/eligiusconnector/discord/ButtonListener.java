@@ -396,12 +396,6 @@ public class ButtonListener extends ListenerAdapter {
 
     // ===================== Helper Methods =====================
 
-    private Player getPlayerByDiscordId(String userId) {
-        long discordId = Long.parseLong(userId);
-        UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
-        return uuid != null ? Bukkit.getPlayer(uuid) : null;
-    }
-
     private Map<String, List<String>> categorizeInventory(ItemStack[] items) {
         Map<String, List<String>> categories = new HashMap<>();
         categories.put("weapons", new ArrayList<>());

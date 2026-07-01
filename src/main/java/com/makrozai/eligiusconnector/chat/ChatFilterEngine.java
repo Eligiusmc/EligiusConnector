@@ -19,12 +19,6 @@ public class ChatFilterEngine {
             Pattern.CASE_INSENSITIVE
     );
 
-    private static final List<String> WHITELISTED_DOMAINS = List.of(
-            "youtube.com", "youtu.be", "discord.com", "discord.gg",
-            "github.com", "minecraft.net", "mojang.com", "papermc.io",
-            "spigotmc.org", "bukkit.org"
-    );
-
     private final EligiusConnector plugin;
     private final Map<UUID, List<Long>> messageTimestamps = new ConcurrentHashMap<>();
     private final Map<UUID, Integer> violationCount = new ConcurrentHashMap<>();
@@ -34,6 +28,7 @@ public class ChatFilterEngine {
     }
 
     public FilterResult filter(String message, Player player) {
+        if (player == null || message == null) return FilterResult.passed();
         if (!plugin.getConfigAdapter().isFilterEnabled()) {
             return FilterResult.passed();
         }
@@ -89,7 +84,7 @@ public class ChatFilterEngine {
         Matcher matcher = URL_PATTERN.matcher(message);
         while (matcher.find()) {
             String url = matcher.group().toLowerCase();
-            for (String domain : WHITELISTED_DOMAINS) {
+            for (String domain : plugin.getConfigAdapter().getLinksDomains()) {
                 if (url.contains(domain)) {
                     return false;
                 }
@@ -100,14 +95,14 @@ public class ChatFilterEngine {
     }
 
     private boolean exceedsCapsLimit(String message) {
-        if (message.length() < 10) return false;
+        if (message.length() < plugin.getConfigAdapter().getCapsMinLength()) return false;
 
         long uppercaseCount = message.chars()
                 .filter(Character::isUpperCase)
                 .count();
 
         double percentage = (double) uppercaseCount / message.length();
-        return percentage > 0.7;
+        return percentage > plugin.getConfigAdapter().getCapsMaxPercentage() / 100.0;
     }
 
     private String executePunishment(UUID uuid, String filterType) {

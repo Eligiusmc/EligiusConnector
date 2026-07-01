@@ -22,3 +22,7 @@ reverse:
     - "ban"
     - "op"
     - "deop"
+
+messages:
+  permission_denied: "❌ You don't have permission to execute console commands."
+  command_blacklisted: "❌ This command is blacklisted."

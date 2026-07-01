@@ -4,7 +4,7 @@ main: com.makrozai.eligiusconnector.EligiusConnector
 api-version: '1.21'
 authors: [ makrozai ]
 description: The ultimate Discord-Minecraft bridge plugin
-softdepend: [PlaceholderAPI, Vault, LuckPerms, ProtocolLib]
+softdepend: [PlaceholderAPI]
 libraries:
   - com.zaxxer:HikariCP:5.1.0
 
@@ -42,65 +42,14 @@ permissions:
   connector.console:
     description: Allows executing console commands
     default: false
-  connector.console.stop:
-    description: Allows stopping the server
-    default: false
-  connector.console.restart:
-    description: Allows restarting the server
-    default: false
   connector.chat.send:
     description: Allows sending chat messages
     default: true
   connector.chat:
     description: Allows using /chat command
     default: true
-  connector.chat.filter.bypass:
-    description: Bypass chat filters
-    default: op
-  connector.profile.self:
-    description: View own profile
-    default: true
-  connector.profile.other:
-    description: View other players profile
-    default: op
-  connector.inventory.self:
-    description: View own inventory
-    default: true
-  connector.inventory.other:
-    description: View other players inventory
-    default: op
-  connector.location.self:
-    description: View own location
-    default: true
-  connector.location.other:
-    description: View other players location
-    default: op
-  connector.roles.self:
-    description: View own roles
-    default: true
-  connector.roles.sync:
-    description: Force role synchronization
-    default: op
-  connector.homes.self:
-    description: View own homes
-    default: true
-  connector.homes.other:
-    description: View other players homes
-    default: op
-  connector.jobs.self:
-    description: View own jobs
-    default: true
-  connector.jobs.other:
-    description: View other players jobs
-    default: op
   connector.events:
     description: Manage custom events
-    default: op
-  connector.events.start:
-    description: Start custom events
-    default: op
-  connector.events.stop:
-    description: Stop custom events
     default: op
   connector.birthday:
     description: Manage birthday
@@ -113,7 +62,4 @@ permissions:
     default: op
   connector.admin:
     description: Admin commands
-    default: op
-  connector.papi:
-    description: View available placeholders
     default: op

@@ -47,6 +47,9 @@ public class ConsoleLogReader {
             if (!logFile.exists()) return;
 
             try (RandomAccessFile raf = new RandomAccessFile(logFile, "r")) {
+                // ponytail: detect log rotation (file truncated/rotated) → reset position.
+                // ISO-8859-1 readLine is fine for ASCII logs; fix UTF-8 if non-ASCII appears.
+                if (lastReadPosition > raf.length()) lastReadPosition = 0;
                 raf.seek(lastReadPosition);
                 String line;
                 StringBuilder buffer = new StringBuilder();

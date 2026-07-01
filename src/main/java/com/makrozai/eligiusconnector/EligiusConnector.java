@@ -11,9 +11,9 @@ import com.makrozai.eligiusconnector.events.EventManager;
 import com.makrozai.eligiusconnector.listeners.PlayerListener;
 import com.makrozai.eligiusconnector.listeners.StatsListener;
 import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
-import com.makrozai.eligiusconnector.tasks.AllMembersCounterTask;
+import com.makrozai.eligiusconnector.counters.CounterManager;
+import com.makrozai.eligiusconnector.placeholders.PlaceholderResolver;
 import com.makrozai.eligiusconnector.tasks.NicknameSyncTask;
-import com.makrozai.eligiusconnector.tasks.OnlineCounterTask;
 import com.makrozai.eligiusconnector.util.StartupLogger;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
@@ -37,8 +37,8 @@ public final class EligiusConnector extends JavaPlugin {
     private ConsoleLogReader consoleLogReader;
     private EventManager eventManager;
     private PlayerStatsManager statsManager;
-    private OnlineCounterTask onlineCounterTask;
-    private AllMembersCounterTask allMembersCounterTask;
+    private CounterManager counterManager;
+    private PlaceholderResolver placeholderResolver;
     private NicknameSyncTask nicknameSyncTask;
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
@@ -71,6 +71,9 @@ public final class EligiusConnector extends JavaPlugin {
         discordManager = new DiscordManager(this);
         discordManager.initialize();
 
+        // Initialize placeholder resolver
+        placeholderResolver = new PlaceholderResolver(this);
+
         webhookManager = new WebhookManager(this);
 
         // Initialize panels
@@ -94,14 +97,11 @@ public final class EligiusConnector extends JavaPlugin {
         safeSetExecutor("birthday", new com.makrozai.eligiusconnector.commands.BirthdayCommand(this));
         safeSetExecutor("chat", new com.makrozai.eligiusconnector.commands.ChatCommand(this));
 
-        // Start tasks
-        if (configAdapter.isOnlineCounterEnabled()) {
-            onlineCounterTask = new OnlineCounterTask(this);
-            onlineCounterTask.start();
-        }
-        if (configAdapter.isModuleEnabled("all_members_counter")) {
-            allMembersCounterTask = new AllMembersCounterTask(this);
-            allMembersCounterTask.start();
+        // Initialize counters
+        if (configAdapter.isCountersEnabled()) {
+            counterManager = new CounterManager(this);
+            counterManager.loadAll(configAdapter.getCountersConfig());
+            counterManager.startAll();
         }
         if (configAdapter.isSynchronizationEnabled() && configAdapter.isNicknameSyncEnabled()) {
             nicknameSyncTask = new NicknameSyncTask(this);
@@ -121,8 +121,11 @@ public final class EligiusConnector extends JavaPlugin {
             eventManager.loadEvents();
         }
 
-        // Send server start status
-        sendServerStatus(true);
+        // Send server status
+        if (counterManager != null) counterManager.onServerStart();
+        if (configAdapter.isStatusEnabled() && discordManager != null && discordManager.isConnected()) {
+            discordManager.sendStatusEmbed(new java.util.HashMap<>(), null);
+        }
 
         // Print success
         long elapsed = System.currentTimeMillis() - startTime;
@@ -131,32 +134,18 @@ public final class EligiusConnector extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        sendServerStatus(false);
-        if (onlineCounterTask != null) onlineCounterTask.stop();
-        if (allMembersCounterTask != null) allMembersCounterTask.stop();
+        if (counterManager != null) {
+            counterManager.onServerStop();
+            counterManager.stopAll();
+        }
+        if (configAdapter.isStatusEnabled() && discordManager != null && discordManager.isConnected()) {
+            discordManager.sendStatusOffEmbedSync();
+        }
         if (nicknameSyncTask != null) nicknameSyncTask.stop();
         if (consoleLogReader != null) consoleLogReader.stop();
         if (discordManager != null) discordManager.shutdown();
         if (databaseManager != null) databaseManager.close();
         getLogger().info("EligiusConnector disabled!");
-    }
-
-    private void sendServerStatus(boolean online) {
-        if (discordManager == null || !discordManager.isConnected()) return;
-        if (!configAdapter.isStatusEnabled()) return;
-
-        // Rename status channel
-        String channelName = online
-                ? configAdapter.getServerStatusFormatOnline()
-                : configAdapter.getServerStatusFormatOffline();
-        discordManager.updateChannelName(configAdapter.getServerStatusChannel(), channelName);
-
-        // Send status embed
-        if (online) {
-            discordManager.sendStatusEmbed(new java.util.HashMap<>(), null);
-        } else {
-            discordManager.sendStatusOffEmbed();
-        }
     }
 
     private void createVerifiedRoleIfNeeded() {
@@ -237,6 +226,9 @@ public final class EligiusConnector extends JavaPlugin {
     public Map<Long, String> getVerifyCodes() { return verifyCodes; }
     public Map<Long, Long> getBirthdaySetupUsers() { return birthdaySetupUsers; }
     public NicknameSyncTask getNicknameSyncTask() { return nicknameSyncTask; }
+    public CounterManager getCounterManager() { return counterManager; }
+    public PlaceholderResolver getPlaceholderResolver() { return placeholderResolver; }
+    public long getStartTime() { return startTime; }
 
     // i18n helper methods
     public String msg(String key) {
@@ -259,10 +251,7 @@ public final class EligiusConnector extends JavaPlugin {
 
     public String applyPlaceholders(Player player, String text) {
         if (text == null || text.isEmpty()) return text;
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            return PlaceholderAPI.setPlaceholders(player, text);
-        }
-        return text;
+        return placeholderResolver.resolve(text, player);
     }
 
     private void safeSetExecutor(String name, org.bukkit.command.CommandExecutor executor) {
