@@ -147,7 +147,12 @@ public class ConfigAdapter {
     public boolean isBirthdayEnabled() { return isModuleEnabled("birthday"); }
     public boolean isConsoleEnabled() { return isModuleEnabled("console"); }
     public boolean isSynchronizationEnabled() { return isModuleEnabled("synchronization"); }
-    public boolean isCountersEnabled() { return isModuleEnabled("counters"); }
+    public boolean isCountersEnabled() {
+        File countersFile = new File(plugin.getDataFolder(), "counters.yml");
+        if (!countersFile.exists()) return false;
+        return countersConfig.getConfigurationSection("counters") != null
+                && !countersConfig.getConfigurationSection("counters").getKeys(false).isEmpty();
+    }
     public boolean isProfileEnabled() { return isModuleEnabled("profile"); }
     public boolean isEventsEnabled() { return isModuleEnabled("events"); }
 

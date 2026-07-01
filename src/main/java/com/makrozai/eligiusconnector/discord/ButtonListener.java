@@ -58,339 +58,371 @@ public class ButtonListener extends ListenerAdapter {
     }
 
     private void handleVerify(ButtonInteractionEvent event) {
+        event.deferReply(true).queue();
         CompletableFuture.runAsync(() -> {
-            long discordId = Long.parseLong(event.getUser().getId());
-            UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
+            try {
+                long discordId = Long.parseLong(event.getUser().getId());
+                UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
-            if (uuid != null) {
-                event.reply(plugin.msg("keys.command.verify.already_linked")).setEphemeral(true).queue();
-                return;
+                if (uuid != null) {
+                    event.getHook().sendMessage(plugin.msg("keys.command.verify.already_linked")).setEphemeral(true).queue();
+                    return;
+                }
+
+                String code = plugin.generateVerifyCode(discordId);
+                Map<String, Object> embedConfig = plugin.getConfigAdapter().getVerifyWelcomeEmbed();
+
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle(getStringOrDefault(embedConfig, "title", "🔐 Verifica tu Cuenta"));
+                embed.setDescription(getStringOrDefault(embedConfig, "description", "Vincula tu cuenta de Minecraft"));
+                embed.setColor(getColorOrDefault(embedConfig, 0x5865F2));
+
+                String thumbnail = getStringOrDefault(embedConfig, "thumbnail", "");
+                if (!thumbnail.isEmpty()) {
+                    embed.setThumbnail(plugin.applyPlaceholders(null, thumbnail.replace("{player}", event.getUser().getName())));
+                }
+
+                String author = getStringOrDefault(embedConfig, "author", "");
+                if (!author.isEmpty()) {
+                    String authorIcon = getStringOrDefault(embedConfig, "author_icon", "");
+                    embed.setAuthor(author, null, authorIcon.isEmpty() ? null : authorIcon);
+                }
+
+                embed.addField(plugin.msg("keys.discord.verify.code_title"), "`" + code + "`", false);
+                embed.addBlankField(false);
+                embed.addField("📋 Pasos", plugin.msg("keys.discord.verify.code_steps").replace("{code}", code), false);
+
+                String footer = getStringOrDefault(embedConfig, "footer", "");
+                if (!footer.isEmpty()) {
+                    embed.setFooter(footer);
+                }
+
+                if (Boolean.TRUE.equals(embedConfig.get("timestamp"))) {
+                    embed.setTimestamp(java.time.Instant.now());
+                }
+
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Verify button error: " + e.getMessage());
+                event.getHook().sendMessage("❌ Error al generar el codigo. Intenta de nuevo.").setEphemeral(true).queue();
             }
-
-            String code = plugin.generateVerifyCode(discordId);
-            Map<String, Object> embedConfig = plugin.getConfigAdapter().getVerifyWelcomeEmbed();
-
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(getStringOrDefault(embedConfig, "title", "🔐 Verifica tu Cuenta"));
-            embed.setDescription(getStringOrDefault(embedConfig, "description", "Vincula tu cuenta de Minecraft"));
-            embed.setColor(getColorOrDefault(embedConfig, 0x5865F2));
-
-            String thumbnail = getStringOrDefault(embedConfig, "thumbnail", "");
-            if (!thumbnail.isEmpty()) {
-                embed.setThumbnail(plugin.applyPlaceholders(null, thumbnail.replace("{player}", event.getUser().getName())));
-            }
-
-            String author = getStringOrDefault(embedConfig, "author", "");
-            if (!author.isEmpty()) {
-                String authorIcon = getStringOrDefault(embedConfig, "author_icon", "");
-                embed.setAuthor(author, null, authorIcon.isEmpty() ? null : authorIcon);
-            }
-
-            embed.addField(plugin.msg("keys.discord.verify.code_title"), "`" + code + "`", false);
-            embed.addBlankField(false);
-            embed.addField("📋 Pasos", plugin.msg("keys.discord.verify.code_steps").replace("{code}", code), false);
-
-            String footer = getStringOrDefault(embedConfig, "footer", "");
-            if (!footer.isEmpty()) {
-                embed.setFooter(footer);
-            }
-
-            if (Boolean.TRUE.equals(embedConfig.get("timestamp"))) {
-                embed.setTimestamp(java.time.Instant.now());
-            }
-
-            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
         });
     }
 
     private void handleWhereAmI(ButtonInteractionEvent event) {
+        event.deferReply(true).queue();
         long discordId = Long.parseLong(event.getUser().getId());
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         if (uuid == null) {
-            event.reply(plugin.msg("keys.discord.whereami.not_linked")).setEphemeral(true).queue();
+            event.getHook().sendMessage(plugin.msg("keys.discord.whereami.not_linked")).setEphemeral(true).queue();
             return;
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-            Player player = Bukkit.getPlayer(uuid);
-            if (player == null || !player.isOnline()) {
-                event.reply(plugin.msg("keys.discord.whereami.not_online")).setEphemeral(true).queue();
-                return;
+            try {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player == null || !player.isOnline()) {
+                    event.getHook().sendMessage(plugin.msg("keys.discord.whereami.not_online")).setEphemeral(true).queue();
+                    return;
+                }
+
+                Location loc = player.getLocation();
+                Block block = loc.getBlock();
+                String direction = getCardinalDirection(player);
+                String biome = block.getBiome().name().toLowerCase().replace("_", " ");
+                String blockFace = getBlockFaceName(loc);
+
+                Map<String, Object> config = plugin.getConfigAdapter().getWhereamiEmbed();
+
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", "📍 Ubicación").replace("{player}", player.getName())));
+                embed.setColor(getColorOrDefault(config, 0x2ECC71));
+
+                String thumbnail = getStringOrDefault(config, "thumbnail", "");
+                if (!thumbnail.isEmpty()) {
+                    embed.setThumbnail(plugin.applyPlaceholders(player, thumbnail.replace("{player}", player.getName())));
+                }
+
+                String info = """
+                        %s      %s
+                        %s          %d
+                        %s          %d
+                        %s          %d
+                        %s  %s
+                        %s      %s
+                        %s     %s
+                        """.formatted(
+                        plugin.msg("keys.discord.whereami.world"), loc.getWorld().getName(),
+                        plugin.msg("keys.discord.whereami.x"), loc.getBlockX(),
+                        plugin.msg("keys.discord.whereami.y"), loc.getBlockY(),
+                        plugin.msg("keys.discord.whereami.z"), loc.getBlockZ(),
+                        plugin.msg("keys.discord.whereami.direction"), direction,
+                        plugin.msg("keys.discord.whereami.biome"), capitalizeWords(biome),
+                        plugin.msg("keys.discord.whereami.block"), blockFace
+                );
+
+                embed.addField("**" + plugin.msg("keys.discord.whereami.info") + "**", "```" + info + "```", false);
+
+                if (Boolean.TRUE.equals(config.getOrDefault("show_tp_command", true))) {
+                    embed.setFooter(plugin.msg("keys.discord.whereami.tp_footer")
+                            .replace("{x}", String.valueOf(loc.getBlockX()))
+                            .replace("{y}", String.valueOf(loc.getBlockY()))
+                            .replace("{z}", String.valueOf(loc.getBlockZ())));
+                }
+
+                embed.setTimestamp(java.time.Instant.now());
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            } catch (Exception e) {
+                plugin.getLogger().warning("WhereAmI button error: " + e.getMessage());
+                event.getHook().sendMessage("❌ Error al obtener ubicacion.").setEphemeral(true).queue();
             }
-
-            Location loc = player.getLocation();
-            Block block = loc.getBlock();
-            String direction = getCardinalDirection(player);
-            String biome = block.getBiome().name().toLowerCase().replace("_", " ");
-            String blockFace = getBlockFaceName(loc);
-
-            Map<String, Object> config = plugin.getConfigAdapter().getWhereamiEmbed();
-
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", "📍 Ubicación").replace("{player}", player.getName())));
-            embed.setColor(getColorOrDefault(config, 0x2ECC71));
-
-            String thumbnail = getStringOrDefault(config, "thumbnail", "");
-            if (!thumbnail.isEmpty()) {
-                embed.setThumbnail(plugin.applyPlaceholders(player, thumbnail.replace("{player}", player.getName())));
-            }
-
-            String info = """
-                    %s      %s
-                    %s          %d
-                    %s          %d
-                    %s          %d
-                    %s  %s
-                    %s      %s
-                    %s     %s
-                    """.formatted(
-                    plugin.msg("keys.discord.whereami.world"), loc.getWorld().getName(),
-                    plugin.msg("keys.discord.whereami.x"), loc.getBlockX(),
-                    plugin.msg("keys.discord.whereami.y"), loc.getBlockY(),
-                    plugin.msg("keys.discord.whereami.z"), loc.getBlockZ(),
-                    plugin.msg("keys.discord.whereami.direction"), direction,
-                    plugin.msg("keys.discord.whereami.biome"), capitalizeWords(biome),
-                    plugin.msg("keys.discord.whereami.block"), blockFace
-            );
-
-            embed.addField("**" + plugin.msg("keys.discord.whereami.info") + "**", "```" + info + "```", false);
-
-            if (Boolean.TRUE.equals(config.getOrDefault("show_tp_command", true))) {
-                embed.setFooter(plugin.msg("keys.discord.whereami.tp_footer")
-                        .replace("{x}", String.valueOf(loc.getBlockX()))
-                        .replace("{y}", String.valueOf(loc.getBlockY()))
-                        .replace("{z}", String.valueOf(loc.getBlockZ())));
-            }
-
-            embed.setTimestamp(java.time.Instant.now());
-            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
         });
     }
 
     private void handleInventory(ButtonInteractionEvent event) {
+        event.deferReply(true).queue();
         long discordId = Long.parseLong(event.getUser().getId());
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         if (uuid == null) {
-            event.reply(plugin.msg("keys.discord.verify.button_not_linked")).setEphemeral(true).queue();
+            event.getHook().sendMessage(plugin.msg("keys.discord.verify.button_not_linked")).setEphemeral(true).queue();
             return;
         }
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-            Player player = Bukkit.getPlayer(uuid);
-            if (player == null || !player.isOnline()) {
-                event.reply(plugin.msg("keys.discord.verify.button_not_online")).setEphemeral(true).queue();
-                return;
+            try {
+                Player player = Bukkit.getPlayer(uuid);
+                if (player == null || !player.isOnline()) {
+                    event.getHook().sendMessage(plugin.msg("keys.discord.verify.button_not_online")).setEphemeral(true).queue();
+                    return;
+                }
+
+                ItemStack[] contents = player.getInventory().getContents();
+                Map<String, List<String>> categorized = categorizeInventory(contents);
+
+                Map<String, Object> config = plugin.getConfigAdapter().getInventoryEmbed();
+                Map<String, String> categoryLabels = getCategoryLabels(config);
+
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", "🎒 Inventario").replace("{player}", player.getName())));
+                embed.setColor(getColorOrDefault(config, 0xF39C12));
+
+                String thumbnail = getStringOrDefault(config, "thumbnail", "");
+                if (!thumbnail.isEmpty()) {
+                    embed.setThumbnail(plugin.applyPlaceholders(player, thumbnail.replace("{player}", player.getName())));
+                }
+
+                int maxPerCategory = 10;
+                boolean hideEmpty = Boolean.TRUE.equals(config.getOrDefault("empty_category_hidden", true));
+
+                for (var entry : categorized.entrySet()) {
+                    List<String> items = entry.getValue();
+                    if (hideEmpty && items.isEmpty()) continue;
+
+                    String emoji = switch (entry.getKey()) {
+                        case "weapons" -> "⚔️";
+                        case "armor" -> "🛡️";
+                        case "tools" -> "⛏️";
+                        case "food" -> "🍎";
+                        case "potions" -> "🧪";
+                        case "blocks" -> "🧱";
+                        default -> "📦";
+                    };
+
+                    String label = categoryLabels.getOrDefault(entry.getKey(), entry.getKey());
+                    String displayItems = items.stream()
+                            .limit(maxPerCategory)
+                            .collect(Collectors.joining("\n"));
+
+                    String suffix = items.size() > maxPerCategory
+                            ? "\n" + plugin.msg("keys.discord.inventory.more").replace("{count}", String.valueOf(items.size() - maxPerCategory))
+                            : "";
+
+                    embed.addField(emoji + " " + label, displayItems.isEmpty() ? plugin.msg("keys.discord.inventory.empty") : displayItems + suffix, false);
+                }
+
+                int usedSlots = 0;
+                for (ItemStack item : contents) {
+                    if (item != null && item.getType() != Material.AIR) usedSlots++;
+                }
+
+                String footer = getStringOrDefault(config, "footer", plugin.msg("keys.discord.inventory.footer"));
+                embed.setFooter(footer.replace("{used}", String.valueOf(usedSlots)).replace("{total}", String.valueOf(contents.length)));
+                embed.setTimestamp(java.time.Instant.now());
+
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Inventory button error: " + e.getMessage());
+                event.getHook().sendMessage("❌ Error al obtener inventario.").setEphemeral(true).queue();
             }
-
-            ItemStack[] contents = player.getInventory().getContents();
-            Map<String, List<String>> categorized = categorizeInventory(contents);
-
-            Map<String, Object> config = plugin.getConfigAdapter().getInventoryEmbed();
-            Map<String, String> categoryLabels = getCategoryLabels(config);
-
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", "🎒 Inventario").replace("{player}", player.getName())));
-            embed.setColor(getColorOrDefault(config, 0xF39C12));
-
-            String thumbnail = getStringOrDefault(config, "thumbnail", "");
-            if (!thumbnail.isEmpty()) {
-                embed.setThumbnail(plugin.applyPlaceholders(player, thumbnail.replace("{player}", player.getName())));
-            }
-
-            int maxPerCategory = 10;
-            boolean hideEmpty = Boolean.TRUE.equals(config.getOrDefault("empty_category_hidden", true));
-
-            for (var entry : categorized.entrySet()) {
-                List<String> items = entry.getValue();
-                if (hideEmpty && items.isEmpty()) continue;
-
-                String emoji = switch (entry.getKey()) {
-                    case "weapons" -> "⚔️";
-                    case "armor" -> "🛡️";
-                    case "tools" -> "⛏️";
-                    case "food" -> "🍎";
-                    case "potions" -> "🧪";
-                    case "blocks" -> "🧱";
-                    default -> "📦";
-                };
-
-                String label = categoryLabels.getOrDefault(entry.getKey(), entry.getKey());
-                String displayItems = items.stream()
-                        .limit(maxPerCategory)
-                        .collect(Collectors.joining("\n"));
-
-                String suffix = items.size() > maxPerCategory
-                        ? "\n" + plugin.msg("keys.discord.inventory.more").replace("{count}", String.valueOf(items.size() - maxPerCategory))
-                        : "";
-
-                embed.addField(emoji + " " + label, displayItems.isEmpty() ? plugin.msg("keys.discord.inventory.empty") : displayItems + suffix, false);
-            }
-
-            int usedSlots = 0;
-            for (ItemStack item : contents) {
-                if (item != null && item.getType() != Material.AIR) usedSlots++;
-            }
-
-            String footer = getStringOrDefault(config, "footer", plugin.msg("keys.discord.inventory.footer"));
-            embed.setFooter(footer.replace("{used}", String.valueOf(usedSlots)).replace("{total}", String.valueOf(contents.length)));
-            embed.setTimestamp(java.time.Instant.now());
-
-            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
         });
     }
 
     private void handleProfile(ButtonInteractionEvent event) {
+        event.deferReply(true).queue();
         long discordId = Long.parseLong(event.getUser().getId());
         UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
 
         Bukkit.getScheduler().runTask(plugin, () -> {
-            Map<String, Object> config = plugin.getConfigAdapter().getProfileEmbed();
-            EmbedBuilder embed = new EmbedBuilder();
+            try {
+                Map<String, Object> config = plugin.getConfigAdapter().getProfileEmbed();
+                EmbedBuilder embed = new EmbedBuilder();
 
-            Player player = uuid != null ? Bukkit.getPlayer(uuid) : null;
-            PlayerStatsManager.PlayerStats stats = uuid != null ? plugin.getStatsManager().getStats(uuid) : null;
+                Player player = uuid != null ? Bukkit.getPlayer(uuid) : null;
+                PlayerStatsManager.PlayerStats stats = uuid != null ? plugin.getStatsManager().getStats(uuid) : null;
 
-            if (player != null && player.isOnline()) {
-                embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", player.getName())));
-                embed.setColor(getColorOrDefault(config, 0x5865F2));
-                embed.setThumbnail(plugin.applyPlaceholders(player, "https://minotar.net/avatar/" + player.getName() + "/128"));
+                if (player != null && player.isOnline()) {
+                    embed.setTitle(plugin.applyPlaceholders(player, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", player.getName())));
+                    embed.setColor(getColorOrDefault(config, 0x5865F2));
+                    embed.setThumbnail(plugin.applyPlaceholders(player, "https://minotar.net/avatar/" + player.getName() + "/128"));
 
-                Long linkedId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
+                    Long linkedId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
 
-                embed.addField(plugin.msg("keys.discord.profile.info_label"),
-                        "**Nombre:** " + player.getName() + "\n**UUID:** " + player.getUniqueId(), false);
-
-                embed.addField(plugin.msg("keys.discord.profile.linked_label"),
-                        linkedId != null ? plugin.msg("keys.discord.profile.linked_status").replace("{discord}", "<@" + linkedId + ">")
-                                : plugin.msg("keys.discord.profile.unlinked_status"),
-                        false);
-
-                int kills = stats != null ? stats.getKills() : 0;
-                int deaths = stats != null ? stats.getDeaths() : 0;
-                double kd = deaths == 0 ? kills : (double) kills / deaths;
-                embed.addField(plugin.msg("keys.discord.profile.combat_label"),
-                        "**Kills:** " + kills + "\n**Deaths:** " + deaths + "\n**K/D:** " + String.format("%.2f", kd),
-                        false);
-
-                String playtime = stats != null ? formatPlaytime(stats.getTotalPlaytime()) : "0h 0m";
-                embed.addField(plugin.msg("keys.discord.profile.playtime_label"), "**" + playtime + "**", false);
-
-                String healthBar = buildProgressBar((int) player.getHealth(), 20);
-                embed.addField(plugin.msg("keys.discord.profile.health_label"),
-                        healthBar + " " + (int) player.getHealth() + "/20",
-                        false);
-
-                String foodBar = buildProgressBar(player.getFoodLevel(), 20);
-                embed.addField(plugin.msg("keys.discord.profile.food_label"),
-                        foodBar + " " + player.getFoodLevel() + "/20",
-                        false);
-
-                int totalXp = player.getLevel() * 1000 + player.getExpToLevel();
-                String xpBar = buildProgressBar(totalXp - player.getExpToLevel(), totalXp);
-                embed.addField(plugin.msg("keys.discord.profile.xp_label"),
-                        xpBar + " " + player.getLevel() + " nivel(es)",
-                        false);
-
-                embed.addField(plugin.msg("keys.discord.profile.level_label"), "**" + player.getLevel() + "**", true);
-                embed.addField(plugin.msg("keys.discord.profile.world_label"), "**" + player.getWorld().getName() + "**", true);
-                embed.addField(plugin.msg("keys.discord.profile.direction_label"), "**" + getCardinalDirection(player) + "**", true);
-
-                Location loc = player.getLocation();
-                embed.addField(plugin.msg("keys.discord.profile.coords_label"),
-                        "**X:** " + loc.getBlockX() + " **Y:** " + loc.getBlockY() + " **Z:** " + loc.getBlockZ(),
-                        true);
-
-                String gamemode = switch (player.getGameMode()) {
-                    case SURVIVAL -> "Supervivencia";
-                    case CREATIVE -> "Creativo";
-                    case ADVENTURE -> "Aventura";
-                    case SPECTATOR -> "Espectador";
-                    default -> player.getGameMode().name();
-                };
-                embed.addField(plugin.msg("keys.discord.profile.gamemode_label"), "**" + gamemode + "**", true);
-                embed.addField(plugin.msg("keys.discord.profile.ping_label"), "**" + player.getPing() + " ms**", true);
-
-            } else {
-                embed.setTitle(plugin.applyPlaceholders(null, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular")));
-                embed.setColor(Color.GRAY);
-
-                if (stats != null) {
                     embed.addField(plugin.msg("keys.discord.profile.info_label"),
-                            "**Nombre:** " + stats.getPlayerName() + "\n**UUID:** " + stats.getUuid(), false);
+                            "**Nombre:** " + player.getName() + "\n**UUID:** " + player.getUniqueId(), false);
 
-                    String playtime = formatPlaytime(stats.getTotalPlaytime());
-                    embed.addField(plugin.msg("keys.discord.profile.playtime_label"), "**" + playtime + "**", false);
-                    embed.addField(plugin.msg("keys.discord.profile.combat_label"),
-                            "**Kills:** " + stats.getKills() + "\n**Deaths:** " + stats.getDeaths(),
+                    embed.addField(plugin.msg("keys.discord.profile.linked_label"),
+                            linkedId != null ? plugin.msg("keys.discord.profile.linked_status").replace("{discord}", "<@" + linkedId + ">")
+                                    : plugin.msg("keys.discord.profile.unlinked_status"),
                             false);
+
+                    int kills = stats != null ? stats.getKills() : 0;
+                    int deaths = stats != null ? stats.getDeaths() : 0;
+                    double kd = deaths == 0 ? kills : (double) kills / deaths;
+                    embed.addField(plugin.msg("keys.discord.profile.combat_label"),
+                            "**Kills:** " + kills + "\n**Deaths:** " + deaths + "\n**K/D:** " + String.format("%.2f", kd),
+                            false);
+
+                    String playtime = stats != null ? formatPlaytime(stats.getTotalPlaytime()) : "0h 0m";
+                    embed.addField(plugin.msg("keys.discord.profile.playtime_label"), "**" + playtime + "**", false);
+
+                    String healthBar = buildProgressBar((int) player.getHealth(), 20);
+                    embed.addField(plugin.msg("keys.discord.profile.health_label"),
+                            healthBar + " " + (int) player.getHealth() + "/20",
+                            false);
+
+                    String foodBar = buildProgressBar(player.getFoodLevel(), 20);
+                    embed.addField(plugin.msg("keys.discord.profile.food_label"),
+                            foodBar + " " + player.getFoodLevel() + "/20",
+                            false);
+
+                    embed.addField(plugin.msg("keys.discord.profile.xp_label"), "**" + player.getLevel() + " nivel(es)**", false);
+
+                    embed.addField(plugin.msg("keys.discord.profile.level_label"), "**" + player.getLevel() + "**", true);
+                    embed.addField(plugin.msg("keys.discord.profile.world_label"), "**" + player.getWorld().getName() + "**", true);
+                    embed.addField(plugin.msg("keys.discord.profile.direction_label"), "**" + getCardinalDirection(player) + "**", true);
+
+                    Location loc = player.getLocation();
+                    embed.addField(plugin.msg("keys.discord.profile.coords_label"),
+                            "**X:** " + loc.getBlockX() + " **Y:** " + loc.getBlockY() + " **Z:** " + loc.getBlockZ(),
+                            true);
+
+                    String gamemode = switch (player.getGameMode()) {
+                        case SURVIVAL -> "Supervivencia";
+                        case CREATIVE -> "Creativo";
+                        case ADVENTURE -> "Aventura";
+                        case SPECTATOR -> "Espectador";
+                        default -> player.getGameMode().name();
+                    };
+                    embed.addField(plugin.msg("keys.discord.profile.gamemode_label"), "**" + gamemode + "**", true);
+                    embed.addField(plugin.msg("keys.discord.profile.ping_label"), "**" + player.getPing() + " ms**", true);
+
                 } else {
-                    embed.setDescription(plugin.msg("keys.discord.profile.offline_desc"));
+                    embed.setTitle(plugin.applyPlaceholders(null, getStringOrDefault(config, "title", plugin.msg("keys.discord.profile.title")).replace("{player}", uuid != null ? "Jugador offline" : "Sin vincular")));
+                    embed.setColor(Color.GRAY);
+
+                    if (stats != null) {
+                        embed.addField(plugin.msg("keys.discord.profile.info_label"),
+                                "**Nombre:** " + stats.getPlayerName() + "\n**UUID:** " + stats.getUuid(), false);
+
+                        String playtime = formatPlaytime(stats.getTotalPlaytime());
+                        embed.addField(plugin.msg("keys.discord.profile.playtime_label"), "**" + playtime + "**", false);
+                        embed.addField(plugin.msg("keys.discord.profile.combat_label"),
+                                "**Kills:** " + stats.getKills() + "\n**Deaths:** " + stats.getDeaths(),
+                                false);
+                    } else {
+                        embed.setDescription(plugin.msg("keys.discord.profile.offline_desc"));
+                    }
                 }
+
+                String footer = getStringOrDefault(config, "footer", plugin.msg("keys.discord.profile.footer"));
+                embed.setFooter(footer);
+                embed.setTimestamp(java.time.Instant.now());
+
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Profile button error: " + e.getMessage());
+                event.getHook().sendMessage("❌ Error al obtener perfil.").setEphemeral(true).queue();
             }
-
-            String footer = getStringOrDefault(config, "footer", plugin.msg("keys.discord.profile.footer"));
-            embed.setFooter(footer);
-            embed.setTimestamp(java.time.Instant.now());
-
-            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
         });
     }
 
     private void handleMoney(ButtonInteractionEvent event) {
+        event.deferReply(true).queue();
         CompletableFuture.runAsync(() -> {
-            long discordId = Long.parseLong(event.getUser().getId());
-            UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
-
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle(plugin.msg("keys.discord.money.title"));
-            embed.setColor(Color.YELLOW);
-
-            if (uuid == null) {
-                embed.setDescription(plugin.msg("keys.discord.money.not_linked"));
-                event.replyEmbeds(embed.build()).setEphemeral(true).queue();
-                return;
-            }
-
             try {
-                Class.forName("net.milkbowl.vault.economy.Economy");
-                var rsp = plugin.getServer().getServicesManager().getRegistration(
-                        net.milkbowl.vault.economy.Economy.class);
-                if (rsp != null) {
-                    net.milkbowl.vault.economy.Economy econ = rsp.getProvider();
-                    Player player = Bukkit.getPlayer(uuid);
-                    if (player != null && player.isOnline()) {
-                        double balance = econ.getBalance(player);
-                        embed.setDescription(plugin.msg("keys.discord.money.balance") + String.format("%.2f", balance));
-                        embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
+                long discordId = Long.parseLong(event.getUser().getId());
+                UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
+
+                EmbedBuilder embed = new EmbedBuilder();
+                embed.setTitle(plugin.msg("keys.discord.money.title"));
+                embed.setColor(Color.YELLOW);
+
+                if (uuid == null) {
+                    embed.setDescription(plugin.msg("keys.discord.money.not_linked"));
+                    event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+                    return;
+                }
+
+                try {
+                    Class.forName("net.milkbowl.vault.economy.Economy");
+                    var rsp = plugin.getServer().getServicesManager().getRegistration(
+                            net.milkbowl.vault.economy.Economy.class);
+                    if (rsp != null) {
+                        net.milkbowl.vault.economy.Economy econ = rsp.getProvider();
+                        Player player = Bukkit.getPlayer(uuid);
+                        if (player != null && player.isOnline()) {
+                            double balance = econ.getBalance(player);
+                            embed.setDescription(plugin.msg("keys.discord.money.balance") + String.format("%.2f", balance));
+                            embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
+                        } else {
+                            embed.setDescription(plugin.msg("keys.discord.money.not_online"));
+                        }
                     } else {
-                        embed.setDescription(plugin.msg("keys.discord.money.not_online"));
+                        embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
                     }
-                } else {
+                } catch (ClassNotFoundException e) {
                     embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
                 }
-            } catch (ClassNotFoundException e) {
-                embed.setDescription(plugin.msg("keys.discord.money.economy_disabled"));
-            }
 
-            event.replyEmbeds(embed.build()).setEphemeral(true).queue();
+                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Money button error: " + e.getMessage());
+                event.getHook().sendMessage("❌ Error al consultar saldo.").setEphemeral(true).queue();
+            }
         });
     }
 
     private void handleSetBirthday(ButtonInteractionEvent event) {
+        event.deferReply(true).queue();
         CompletableFuture.runAsync(() -> {
-            long discordId = Long.parseLong(event.getUser().getId());
-            String existing = plugin.getDatabaseManager().getBirthday(discordId);
+            try {
+                long discordId = Long.parseLong(event.getUser().getId());
+                String existing = plugin.getDatabaseManager().getBirthday(discordId);
 
-            if (existing != null && !existing.isEmpty()) {
-                event.reply(plugin.msg("keys.discord.birthday.already_set").replace("{date}", existing))
+                if (existing != null && !existing.isEmpty()) {
+                    event.getHook().sendMessage(plugin.msg("keys.discord.birthday.already_set").replace("{date}", existing))
+                            .setEphemeral(true).queue();
+                    return;
+                }
+
+                event.getHook().sendMessage(plugin.msg("keys.discord.birthday.set_instruction"))
                         .setEphemeral(true).queue();
-                return;
+            } catch (Exception e) {
+                plugin.getLogger().warning("Birthday button error: " + e.getMessage());
+                event.getHook().sendMessage("❌ Error al configurar cumpleaños.").setEphemeral(true).queue();
             }
-
-            event.reply(plugin.msg("keys.discord.birthday.set_instruction"))
-                    .setEphemeral(true).queue();
         });
     }
 

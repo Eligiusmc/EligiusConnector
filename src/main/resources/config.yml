@@ -30,7 +30,6 @@ modules:
   birthday: true
   console: true
   synchronization: true
-  counters: true
   profile: true
   events: true
 
