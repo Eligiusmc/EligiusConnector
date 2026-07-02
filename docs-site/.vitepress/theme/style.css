@@ -1,0 +1,97 @@
+/**
+ * Advanced Dark/Pink Theme for VitePress
+ */
+
+ :root {
+  /* Vibrant Pink Light Mode */
+  --vp-c-brand-1: #ff2a85;
+  --vp-c-brand-2: #ff7eb3;
+  --vp-c-brand-3: #ffb8d6;
+  --vp-c-bg: #f9f9fb;
+  --vp-c-bg-soft: #f1f1f5;
+  --vp-c-bg-mute: #e8e8ed;
+}
+
+.dark {
+  /* Deep Dark Mode with Neon Pink */
+  --vp-c-brand-1: #ff2a85;
+  --vp-c-brand-2: #ff7eb3;
+  --vp-c-brand-3: #ffb8d6;
+  --vp-c-bg: #0a0a0a;
+  --vp-c-bg-soft: #141414;
+  --vp-c-bg-mute: #1f1f1f;
+  --vp-c-divider: #2a2a2a;
+}
+
+/* Base Adjustments */
+body {
+  font-family: 'Inter', sans-serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Animations */
+@keyframes floatGlow {
+  0% {
+    transform: translateY(0px);
+    filter: drop-shadow(0 0 5px rgba(157, 0, 255, 0.4));
+  }
+  50% {
+    transform: translateY(-15px);
+    filter: drop-shadow(0 0 15px rgba(157, 0, 255, 0.9));
+  }
+  100% {
+    transform: translateY(0px);
+    filter: drop-shadow(0 0 5px rgba(157, 0, 255, 0.4));
+  }
+}
+
+/* Hero Image Floating & Glowing */
+.VPHero .image-container {
+  animation: floatGlow 6s ease-in-out infinite;
+}
+
+/* Button Micro-Animations */
+.VPButton {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.VPButton.brand {
+  box-shadow: 0 4px 15px rgba(255, 42, 133, 0.3);
+  background-color: var(--vp-c-brand-1) !important;
+  color: #ffffff !important;
+}
+
+.VPButton:hover {
+  transform: scale(1.05);
+}
+
+.VPButton.brand:hover {
+  box-shadow: 0 6px 20px rgba(255, 42, 133, 0.5);
+  background: var(--vp-c-brand-2);
+}
+
+/* Card Hover Effects */
+.VPFeature {
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid var(--vp-c-bg-mute);
+  border-radius: 12px;
+  background-color: var(--vp-c-bg-soft);
+}
+
+.VPFeature:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(255, 42, 133, 0.15);
+  border-color: var(--vp-c-brand-2);
+}
+
+.dark .VPFeature:hover {
+  box-shadow: 0 8px 30px rgba(255, 42, 133, 0.25);
+}
+
+/* Sidebar Nav styling */
+.VPSidebarItem.level-0 .text {
+  font-weight: 700;
+  color: var(--vp-c-brand-1);
+}

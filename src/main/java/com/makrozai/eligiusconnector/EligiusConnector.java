@@ -23,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public final class EligiusConnector extends JavaPlugin {
 
@@ -147,7 +148,7 @@ public final class EligiusConnector extends JavaPlugin {
         String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         StringBuilder code = new StringBuilder(6);
         for (int i = 0; i < 6; i++) {
-            code.append(chars.charAt((int) (Math.random() * chars.length())));
+            code.append(chars.charAt(ThreadLocalRandom.current().nextInt(chars.length())));
         }
         String result = code.toString();
         verifyCodes.put(discordId, result);

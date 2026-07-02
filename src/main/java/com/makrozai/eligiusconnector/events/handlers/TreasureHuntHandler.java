@@ -5,6 +5,7 @@ import com.makrozai.eligiusconnector.events.EventCondition;
 import com.makrozai.eligiusconnector.events.EventResult;
 import com.makrozai.eligiusconnector.events.EventRewards;
 import com.makrozai.eligiusconnector.events.GameEvent;
+import com.makrozai.eligiusconnector.util.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -33,14 +34,14 @@ public class TreasureHuntHandler implements com.makrozai.eligiusconnector.events
         Map<String, Object> config = event.getConfig();
 
         String worldName = String.valueOf(config.getOrDefault("world", "world"));
-        double minX = parseDouble(config.getOrDefault("min_x", -100));
-        double maxX = parseDouble(config.getOrDefault("max_x", 100));
-        double minZ = parseDouble(config.getOrDefault("min_z", -100));
-        double maxZ = parseDouble(config.getOrDefault("max_z", 100));
-        double y = parseDouble(config.getOrDefault("y", 64));
+        double minX = NumberUtils.parseDouble(config.getOrDefault("min_x", -100));
+        double maxX = NumberUtils.parseDouble(config.getOrDefault("max_x", 100));
+        double minZ = NumberUtils.parseDouble(config.getOrDefault("min_z", -100));
+        double maxZ = NumberUtils.parseDouble(config.getOrDefault("max_z", 100));
+        double y = NumberUtils.parseDouble(config.getOrDefault("y", 64));
         int hintInterval = parseInt(config.getOrDefault("hint_interval", 60));
         int maxHints = parseInt(config.getOrDefault("max_hints", 5));
-        double findRadius = parseDouble(config.getOrDefault("find_radius", 3.0));
+        double findRadius = NumberUtils.parseDouble(config.getOrDefault("find_radius", 3.0));
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) return;
@@ -97,8 +98,8 @@ public class TreasureHuntHandler implements com.makrozai.eligiusconnector.events
         if (currentTreasure == null || finderUUID != null) return;
 
         Map<String, Object> config = event.getConfig();
-        double findRadius = parseDouble(config.getOrDefault("find_radius", 3.0));
-        double warnRadius = parseDouble(config.getOrDefault("warn_radius", 10.0));
+        double findRadius = NumberUtils.parseDouble(config.getOrDefault("find_radius", 3.0));
+        double warnRadius = NumberUtils.parseDouble(config.getOrDefault("warn_radius", 10.0));
 
         for (Player player : currentTreasure.getWorld().getPlayers()) {
             UUID playerId = player.getUniqueId();
@@ -289,14 +290,6 @@ public class TreasureHuntHandler implements com.makrozai.eligiusconnector.events
         return List.copyOf(participants);
     }
 
-    private double parseDouble(Object value) {
-        if (value instanceof Number num) return num.doubleValue();
-        try {
-            return Double.parseDouble(String.valueOf(value));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
 
     private int parseInt(Object value) {
         if (value instanceof Number num) return num.intValue();

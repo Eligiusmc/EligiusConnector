@@ -47,6 +47,7 @@ public class PlayerStatsManager {
             addColumnIfMissing(stmt, "connector_player_stats", "blocks_broken", "INT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "items_crafted", "INT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "distance_walked", "BIGINT DEFAULT 0");
+            addColumnIfMissing(stmt, "connector_player_stats", "total_playtime", "BIGINT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "jumps", "INT DEFAULT 0");
         } catch (SQLException e) {
             plugin.getLogger().warning("Failed to create player_stats table: " + e.getMessage());

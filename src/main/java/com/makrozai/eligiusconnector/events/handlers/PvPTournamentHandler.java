@@ -5,6 +5,7 @@ import com.makrozai.eligiusconnector.events.EventCondition;
 import com.makrozai.eligiusconnector.events.EventResult;
 import com.makrozai.eligiusconnector.events.EventRewards;
 import com.makrozai.eligiusconnector.events.GameEvent;
+import com.makrozai.eligiusconnector.util.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -84,10 +85,10 @@ public class PvPTournamentHandler implements com.makrozai.eligiusconnector.event
     private void teleportToArena(GameEvent event) {
         Map<String, Object> config = event.getConfig();
         String worldName = String.valueOf(config.getOrDefault("world", "world"));
-        double x = parseDouble(config.getOrDefault("arena_x", 0));
-        double y = parseDouble(config.getOrDefault("arena_y", 64));
-        double z = parseDouble(config.getOrDefault("arena_z", 0));
-        double spread = parseDouble(config.getOrDefault("spread", 10));
+        double x = NumberUtils.parseDouble(config.getOrDefault("arena_x", 0));
+        double y = NumberUtils.parseDouble(config.getOrDefault("arena_y", 64));
+        double z = NumberUtils.parseDouble(config.getOrDefault("arena_z", 0));
+        double spread = NumberUtils.parseDouble(config.getOrDefault("spread", 10));
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) return;
@@ -320,14 +321,6 @@ public class PvPTournamentHandler implements com.makrozai.eligiusconnector.event
         return List.copyOf(allParticipants);
     }
 
-    private double parseDouble(Object value) {
-        if (value instanceof Number num) return num.doubleValue();
-        try {
-            return Double.parseDouble(String.valueOf(value));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
 
     public static class Match {
         private final List<UUID> players;

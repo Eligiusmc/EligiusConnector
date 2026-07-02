@@ -1,14 +1,15 @@
 package com.makrozai.eligiusconnector.chat;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,7 @@ public class ChatFilterEngine {
         int maxMessages = plugin.getConfigAdapter().getSpamMaxMessages();
         long timeWindowMs = plugin.getConfigAdapter().getSpamTimeWindowSeconds() * 1000L;
 
-        List<Long> timestamps = messageTimestamps.computeIfAbsent(uuid, k -> new ArrayList<>());
+        List<Long> timestamps = messageTimestamps.computeIfAbsent(uuid, k -> new CopyOnWriteArrayList<>());
         timestamps.removeIf(t -> now - t > timeWindowMs);
         timestamps.add(now);
 
@@ -82,14 +83,18 @@ public class ChatFilterEngine {
 
     private boolean containsBlockedLinks(String message) {
         Matcher matcher = URL_PATTERN.matcher(message);
+        boolean blacklistMode = "blacklist".equalsIgnoreCase(plugin.getConfigAdapter().getLinksMode());
         while (matcher.find()) {
             String url = matcher.group().toLowerCase();
+            boolean found = false;
             for (String domain : plugin.getConfigAdapter().getLinksDomains()) {
                 if (url.contains(domain)) {
-                    return false;
+                    found = true;
+                    break;
                 }
             }
-            return true;
+            if (blacklistMode) return found;
+            if (!found) return true;
         }
         return false;
     }
@@ -150,7 +155,7 @@ public class ChatFilterEngine {
     }
 
     private void scheduleTask(Runnable task) {
-        Bukkit.getScheduler().runTask(plugin, task);
+        Scheduler.runAsync(plugin, task);
     }
 
     public void resetViolations(UUID uuid) {

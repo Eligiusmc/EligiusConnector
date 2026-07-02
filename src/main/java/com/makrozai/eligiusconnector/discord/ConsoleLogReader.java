@@ -31,11 +31,13 @@ public class ConsoleLogReader {
             return;
         }
 
+        // Skip existing content, only stream new lines
+        lastReadPosition = logFile.length();
+
         executor = Executors.newSingleThreadScheduledExecutor();
         int refreshRate = plugin.getConfigAdapter().getConsolePollInterval();
-        executor.scheduleAtFixedRate(this::readLogs, 0, refreshRate, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(this::readLogs, refreshRate, refreshRate, TimeUnit.SECONDS);
         StartupLogger.printStep("Console log reader started (" + refreshRate + "s interval)");
-        plugin.getLogger().info("Console log reader started (refresh: " + refreshRate + "s)");
     }
 
     public void stop() {
@@ -80,18 +82,22 @@ public class ConsoleLogReader {
     }
 
     private void sendToDiscord(String logs) {
+        if (!plugin.getDiscordManager().isConnected()) return;
         TextChannel channel = plugin.getDiscordManager().getChannel(consoleChannelId);
         if (channel == null) return;
 
-        String formatted = "```\n" + logs + "\n```";
+        String formatted = "```ansi\n" + logs + "\n```";
 
         if (formatted.length() > 2000) {
-            String[] parts = formatted.split("(?<=\\G.{1900})");
-            for (String part : parts) {
-                channel.sendMessage(part).queue(
+            int pos = 0;
+            while (pos < formatted.length()) {
+                int end = Math.min(pos + 1900, formatted.length());
+                String chunk = formatted.substring(pos, end);
+                channel.sendMessage(chunk).queue(
                     success -> {},
                     error -> plugin.getLogger().warning("Failed to send console log: " + error.getMessage())
                 );
+                pos = end;
             }
         } else {
             channel.sendMessage(formatted).queue(

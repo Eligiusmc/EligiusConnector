@@ -25,7 +25,7 @@ src/main/java/com/makrozai/eligiusconnector/
 ├── discord/DiscordManager.java  # JDA: conexion, embeds, channels, webhooks
 ├── discord/DiscordListener.java # Eventos de Discord (slash commands, mensajes)
 ├── discord/ButtonListener.java  # Botones interactivos (verify, panels)
-├── discord/PanelManager.java    # Paneles de perfil/birthday/verify
+├── discord/PanelManager.java    # Paneles de perfil/verify
 ├── discord/WebhookManager.java  # Webhooks para chat bridge (avatar+nombre)
 ├── discord/ConsoleLogReader.java # Lee logs del server → canal Discord
 ├── counters/                    # Sistema de contadores dinamicos (counters.yml)
@@ -124,7 +124,7 @@ para evitar dependencia compile-time.
 ### Build
 - `./gradlew build` debe pasar sin errores
 - `./gradlew shadowJar` para el JAR final
-- Dependencies: HikariCP, PacketEvents, Redis (si aplica)
+- Dependencies: HikariCP, JDA, Adventure (MiniMessage)
 
 ## Skills Obligatorios
 

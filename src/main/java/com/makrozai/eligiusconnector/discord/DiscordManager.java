@@ -13,7 +13,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
-import com.makrozai.eligiusconnector.util.StartupLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -367,7 +366,7 @@ public class DiscordManager {
     }
 
     public void sendLeaveEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
-        sendEmbed(plugin.getConfigAdapter().getJoinsChannelId(), plugin.getConfigAdapter().getLeaveEmbed(), replacements, player);
+        sendEmbed(plugin.getConfigAdapter().getLeaveChannelId(), plugin.getConfigAdapter().getLeaveEmbed(), replacements, player);
     }
 
     public void sendDeathEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {

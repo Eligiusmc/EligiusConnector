@@ -15,6 +15,7 @@ public class CounterManager {
     private final StateManager stateManager;
     private final Map<String, PeriodicCounter> periodicCounters = new LinkedHashMap<>();
     private final Map<String, StateCounter> stateCounters = new LinkedHashMap<>();
+    private volatile boolean stopping;
 
     public CounterManager(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -46,6 +47,7 @@ public class CounterManager {
     }
 
     public void stopAll() {
+        stopping = true;
         periodicCounters.values().forEach(PeriodicCounter::stop);
         stateCounters.values().forEach(StateCounter::stop);
         periodicCounters.clear();

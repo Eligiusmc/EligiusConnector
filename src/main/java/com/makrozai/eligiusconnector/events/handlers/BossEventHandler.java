@@ -5,6 +5,7 @@ import com.makrozai.eligiusconnector.events.EventCondition;
 import com.makrozai.eligiusconnector.events.EventResult;
 import com.makrozai.eligiusconnector.events.EventRewards;
 import com.makrozai.eligiusconnector.events.GameEvent;
+import com.makrozai.eligiusconnector.util.NumberUtils;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.boss.BarColor;
@@ -44,11 +45,11 @@ public class BossEventHandler implements com.makrozai.eligiusconnector.events.Ev
 
         String mobType = String.valueOf(spawnConfig.getOrDefault("mob", "WITHER"));
         String customName = String.valueOf(spawnConfig.getOrDefault("custom_name", "Boss"));
-        double health = parseDouble(spawnConfig.getOrDefault("health", 300));
+        double health = NumberUtils.parseDouble(spawnConfig.getOrDefault("health", 300));
         String worldName = String.valueOf(config.getOrDefault("world", "world"));
-        double x = parseDouble(config.getOrDefault("x", 0));
-        double y = parseDouble(config.getOrDefault("y", 64));
-        double z = parseDouble(config.getOrDefault("z", 0));
+        double x = NumberUtils.parseDouble(config.getOrDefault("x", 0));
+        double y = NumberUtils.parseDouble(config.getOrDefault("y", 64));
+        double z = NumberUtils.parseDouble(config.getOrDefault("z", 0));
 
         World world = Bukkit.getWorld(worldName);
         if (world == null) return;
@@ -264,12 +265,4 @@ public class BossEventHandler implements com.makrozai.eligiusconnector.events.Ev
         }
     }
 
-    private double parseDouble(Object value) {
-        if (value instanceof Number num) return num.doubleValue();
-        try {
-            return Double.parseDouble(String.valueOf(value));
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
 }

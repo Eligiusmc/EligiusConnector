@@ -15,6 +15,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import com.makrozai.eligiusconnector.util.ColorUtils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -511,7 +512,7 @@ public class ButtonListener extends ListenerAdapter {
         String desc = resolvePlaceholders(template.getString("description", ""), repl, player);
         if (!desc.isEmpty()) embed.setDescription(desc);
 
-        embed.setColor(parseColor(template.getString("color", ""), defaultColor.getRGB()));
+        embed.setColor(ColorUtils.parseColor(template.getString("color", ""), defaultColor.getRGB()));
 
         String thumbnail = resolvePlaceholders(template.getString("thumbnail", ""), repl, player);
         if (!thumbnail.isEmpty()) embed.setThumbnail(thumbnail);
@@ -558,20 +559,7 @@ public class ButtonListener extends ListenerAdapter {
         return plugin.applyPlaceholders(player, text);
     }
 
-    private Color parseColor(String colorStr, int defaultColor) {
-        if (colorStr == null || colorStr.isEmpty()) return new Color(defaultColor);
-        try {
-            if (colorStr.startsWith("0x") || colorStr.startsWith("0X")) {
-                return new Color(Integer.parseInt(colorStr.substring(2), 16));
-            } else if (colorStr.startsWith("#")) {
-                return new Color(Integer.parseInt(colorStr.substring(1), 16));
-            } else {
-                return new Color(Integer.parseInt(colorStr));
-            }
-        } catch (NumberFormatException e) {
-            return new Color(defaultColor);
-        }
-    }
+
 
     private String translateGamemode(org.bukkit.GameMode mode) {
         return switch (mode) {

@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.bukkit.configuration.ConfigurationSection;
 
+import com.makrozai.eligiusconnector.util.ColorUtils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -148,7 +149,7 @@ public class PanelManager {
         String description = embedCfg.getString("description", "");
         if (!description.isEmpty()) embed.setDescription(description);
 
-        embed.setColor(parseColor(embedCfg.getString("color", ""), 0x5865F2));
+        embed.setColor(ColorUtils.parseColor(embedCfg.getString("color", ""), 0x5865F2));
 
         String thumbnail = embedCfg.getString("thumbnail", "");
         if (!thumbnail.isEmpty()) embed.setThumbnail(thumbnail);
@@ -219,20 +220,5 @@ public class PanelManager {
         }
 
         return buttons;
-    }
-
-    private Color parseColor(String colorStr, int defaultColor) {
-        if (colorStr == null || colorStr.isEmpty()) return new Color(defaultColor);
-        try {
-            if (colorStr.startsWith("0x") || colorStr.startsWith("0X")) {
-                return new Color(Integer.parseInt(colorStr.substring(2), 16));
-            } else if (colorStr.startsWith("#")) {
-                return new Color(Integer.parseInt(colorStr.substring(1), 16));
-            } else {
-                return new Color(Integer.parseInt(colorStr));
-            }
-        } catch (NumberFormatException e) {
-            return new Color(defaultColor);
-        }
     }
 }

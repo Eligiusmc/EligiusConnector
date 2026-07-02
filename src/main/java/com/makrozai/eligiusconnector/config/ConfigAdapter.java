@@ -291,14 +291,27 @@ public class ConfigAdapter {
     public int getCapsMinLength() { return chatConfig.getInt("filter.caps.min_length", 10); }
 
     public boolean isPunishmentEnabled() { return chatConfig.getBoolean("filter.punishment.enabled", true); }
+
+    private Map<Integer, String> cachedPunishmentThresholds;
+    private long punishmentThresholdsCacheTime;
+
     public Map<Integer, String> getPunishmentThresholds() {
-        ConfigurationSection section = chatConfig.getConfigurationSection("filter.punishment.thresholds");
-        if (section == null) return Map.of(2, "mute:300", 5, "tempban:3600", 10, "banip");
-        Map<Integer, String> thresholds = new java.util.LinkedHashMap<>();
-        for (String key : section.getKeys(false)) {
-            thresholds.put(Integer.parseInt(key), section.getString(key));
+        long now = System.currentTimeMillis();
+        if (cachedPunishmentThresholds != null && now - punishmentThresholdsCacheTime < 60_000L) {
+            return cachedPunishmentThresholds;
         }
-        return thresholds;
+        ConfigurationSection section = chatConfig.getConfigurationSection("filter.punishment.thresholds");
+        if (section == null) {
+            cachedPunishmentThresholds = Map.of(2, "mute:300", 5, "tempban:3600", 10, "banip");
+        } else {
+            Map<Integer, String> thresholds = new java.util.LinkedHashMap<>();
+            for (String key : section.getKeys(false)) {
+                thresholds.put(Integer.parseInt(key), section.getString(key));
+            }
+            cachedPunishmentThresholds = thresholds;
+        }
+        punishmentThresholdsCacheTime = now;
+        return cachedPunishmentThresholds;
     }
 
     // ==========================================
@@ -409,10 +422,10 @@ public class ConfigAdapter {
     // ==========================================
 
     public FileConfiguration getProfileConfig() { return profileConfig; }
-    public Map<String, Object> getProfileEmbed() { return getEmbedFromConfig(profileConfig, "profile"); }
-    public Map<String, Object> getInventoryEmbed() { return getEmbedFromConfig(profileConfig, "inventory"); }
-    public Map<String, Object> getWhereamiEmbed() { return getEmbedFromConfig(profileConfig, "whereami"); }
-    public Map<String, Object> getMoneyEmbed() { return getEmbedFromConfig(profileConfig, "money"); }
+    public Map<String, Object> getProfileEmbed() { return getEmbedFromConfig(profileConfig, "profile.embed"); }
+    public Map<String, Object> getInventoryEmbed() { return getEmbedFromConfig(profileConfig, "inventory.embed"); }
+    public Map<String, Object> getWhereamiEmbed() { return getEmbedFromConfig(profileConfig, "whereami.embed"); }
+    public Map<String, Object> getMoneyEmbed() { return getEmbedFromConfig(profileConfig, "money.embed"); }
 
     // ==========================================
     //  EVENTS CONFIG

@@ -4,7 +4,7 @@ main: com.makrozai.eligiusconnector.EligiusConnector
 api-version: '1.21'
 authors: [ makrozai ]
 description: The ultimate Discord-Minecraft bridge plugin
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, Vault]
 libraries:
   - com.zaxxer:HikariCP:5.1.0
 
@@ -48,9 +48,6 @@ permissions:
   connector.events:
     description: Manage custom events
     default: op
-  connector.notifications.receive:
-    description: Receive notifications
-    default: true
   connector.reload:
     description: Reload plugin configuration
     default: op

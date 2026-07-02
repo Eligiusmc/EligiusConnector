@@ -10,7 +10,17 @@ poll_interval: 2
 
 # Commands that cannot be executed from Discord
 command_blacklist:
-  - "say"
-  - "gamemode"
+  - "stop"
+  - "restart"
+  - "reload"
+  - "ban"
+  - "ban-ip"
+  - "pardon"
+  - "pardon-ip"
   - "op"
   - "deop"
+  - "say"
+  - "gamemode"
+  - "whitelist"
+  - "kick"
+  - "plugins"
