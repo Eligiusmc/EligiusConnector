@@ -1,0 +1,37 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Dynamic Counters       ║
+# ║  Types: periodic (interval) | state (event)      ║
+# ║  Placeholders:                                   ║
+# ║    %server_online%      players connected        ║
+# ║    %server_max_players% max slots                ║
+# ║    %server_unique_joins% total unique players    ║
+# ║    %server_ram_used%    RAM used (MB)            ║
+# ║    %server_ram_free%    RAM free (MB)            ║
+# ║    %server_ram_total%   RAM total (MB)           ║
+# ║    %server_uptime%      server uptime            ║
+# ║    %server_members%     Discord member count     ║
+# ╚══════════════════════════════════════════════════╝
+
+counters:
+  online_players:
+    type: periodic
+    enabled: true
+    channel: "1521280346585305268"
+    format: "🟢 Online: %server_online%"
+    interval: 30
+
+  all_members:
+    type: periodic
+    enabled: true
+    channel: "1521280350343532654"
+    format: "👥 Members: %server_unique_joins%"
+    interval: 300
+
+  server_status:
+    type: state
+    enabled: true
+    channel: "1521276573033173204"
+    state_key: server_online
+    states:
+      online: "🟢 Online"
+      offline: "🔴 Offline"

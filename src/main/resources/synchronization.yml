@@ -1,29 +1,25 @@
-# Synchronization Configuration
-# https://eligiusmc.github.io/EligiusConnector/config/synchronization
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Synchronization        ║
+# ║  Bidirectional sync: MC groups ↔ Discord roles   ║
+# ║  Uses Vault/LuckPerms for group detection        ║
+# ╚══════════════════════════════════════════════════╝
 
-# Role Synchronization (LuckPerms)
-GroupRoleSynchronization:
-  Enabled: true
-  MinecraftIsAuthoritative: true
-  OneWay: false
-  PrimaryGroupOnly: false
-  OnLink: true
-  CycleTime: 5
-  CycleCompletely: false
+# Master switch — set to false to disable all sync
+enabled: true
 
-  GroupsAndRolesToSync:
-    "your-discord-role-id": "admin"      # LuckPerms group
-    "your-discord-role-id": "mod"
-    "your-discord-role-id": "vip"
-    "your-discord-role-id": "default"
+# Role sync: mirrors Minecraft LuckPerms groups to Discord roles
+# When a player has a mapped group in MC, they get the Discord role.
+# When the group is removed, the Discord role is removed too.
+roles:
+  enabled: true
+  interval: 30               # Sync interval (seconds)
+  mapping:
+    verified: "1521342858945101894"
+    # testing: "ROLE_ID_HERE"
+    # vip: "ROLE_ID_HERE"
 
-# Nickname Synchronization (supports PlaceholderAPI)
-NicknameSynchronization:
-  Enabled: true
-  CycleTime: 5
-  Format: "[%connector_clan_tag_%player_name%%] %player_displayname%"
-
-# Ban Synchronization
-BanSynchronization:
-  DiscordToMinecraft: true
-  MinecraftToDiscord: true
+# Sync Minecraft player name → Discord member nickname
+nickname:
+  enabled: true
+  interval: 30                # Sync interval (seconds)
+  format: "%player_name%"     # Nickname format (supports placeholders)

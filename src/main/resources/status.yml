@@ -1,0 +1,47 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Server Status          ║
+# ║  Posted on server start/stop to Discord channel  ║
+# ║  Also used by counters.yml server_status state   ║
+# ╚══════════════════════════════════════════════════╝
+
+channel: "1521276573033173204"
+
+online:
+  title: "🟢 Server Online"
+  description: "The Minecraft server is now **online** and ready to play!"
+  color: 5763719
+  thumbnail: "https://minotar.net/avatar/server/128"
+  author: "EligiusMC Status"
+  author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "Server started"
+  timestamp: true
+  fields:
+    - name: "📋 Server"
+      value: "EligiusMC"
+      inline: true
+    - name: "🎮 Gamemode"
+      value: "Survival"
+      inline: true
+    - name: "🌍 World"
+      value: "Overworld"
+      inline: true
+    - name: "📢 Info"
+      value: "Join us and start your adventure!"
+      inline: false
+
+offline:
+  title: "🔴 Server Offline"
+  description: "The Minecraft server is currently **offline** for maintenance."
+  color: 15548997
+  thumbnail: "https://minotar.net/avatar/server/128"
+  author: "EligiusMC Status"
+  author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "We'll be back soon"
+  timestamp: true
+  fields:
+    - name: "📋 Status"
+      value: "Under maintenance"
+      inline: true
+    - name: "⏰ ETA"
+      value: "Shortly"
+      inline: true

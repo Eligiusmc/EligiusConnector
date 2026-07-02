@@ -2,20 +2,17 @@ package com.makrozai.eligiusconnector.commands;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 public class VerifyCommand implements CommandExecutor {
 
     private final EligiusConnector plugin;
-    private final Map<String, Long> codeExpiration = new HashMap<>();
 
     public VerifyCommand(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -24,82 +21,111 @@ public class VerifyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "This command can only be executed by players.");
+            sender.sendMessage(plugin.msg(null, "general.not_online"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("connector.verify")) {
-            player.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+            player.sendMessage(plugin.msg(player, "general.no_permission"));
+            return true;
+        }
+
+        if (plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
+            player.sendMessage(plugin.msg(player, "verify.already_linked"));
+            playSound(player, false);
             return true;
         }
 
         if (args.length < 1) {
-            player.sendMessage(ChatColor.RED + "Usage: /verify <code>");
+            player.sendMessage(plugin.msg(player, "verify.code_instruction"));
             return true;
         }
 
         String code = args[0];
 
-        // Check if code is valid format
         if (code.length() != 6 || !code.matches("[A-Z0-9]+")) {
-            player.sendMessage(ChatColor.RED + "Invalid code format. Code must be 6 alphanumeric characters.");
+            player.sendMessage(plugin.msg(player, "verify.invalid_format"));
+            playSound(player, false);
             return true;
         }
 
-        // Check if code exists and is not expired
-        if (!codeExpiration.containsKey(code)) {
-            player.sendMessage(ChatColor.RED + "Invalid code. Please generate a new one on Discord.");
+        Long discordId = findDiscordIdByCode(code);
+        if (discordId == null) {
+            player.sendMessage(plugin.msg(player, "verify.invalid_code"));
+            playSound(player, false);
             return true;
         }
 
-        Long expiration = codeExpiration.get(code);
-        if (System.currentTimeMillis() > expiration) {
-            codeExpiration.remove(code);
-            player.sendMessage(ChatColor.RED + "Code expired. Please generate a new one on Discord.");
+        if (!plugin.verifyPlayer(discordId, code)) {
+            player.sendMessage(plugin.msg(player, "verify.invalid_code"));
+            playSound(player, false);
             return true;
         }
 
-        // Check if player is already linked
-        if (plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
-            player.sendMessage(ChatColor.RED + "Your account is already linked. Use /unlink first.");
-            return true;
-        }
-
-        // TODO: Get Discord ID from code (requires Discord bot integration)
-        // For now, simulate linking
-        long discordId = 123456789L; // This would come from Discord
-
-        // Link account
         if (plugin.getDatabaseManager().linkAccount(discordId, player.getUniqueId(), player.getName(), player.getName())) {
-            player.sendMessage(ChatColor.GREEN + "Account linked successfully!");
-            codeExpiration.remove(code);
+            player.sendMessage(plugin.msg(player, "verify.success_mc"));
+            playSound(player, true);
 
-            // Log to audit
-            plugin.getDatabaseManager().logAudit(
-                    "info",
-                    "account_linked",
-                    player.getName(),
-                    "minecraft",
-                    "Discord ID: " + discordId,
-                    null
-            );
+            plugin.getDatabaseManager().logAudit("info", "account_linked", player.getName(), "minecraft", "Discord ID: " + discordId, null);
 
-            // Send to Discord
-            plugin.getDiscordManager().sendGlobalMessage(":white_check_mark: **" + player.getName() + "** has linked their Minecraft account!");
+            plugin.getDiscordManager().sendDmEmbed(discordId,
+                    plugin.getConfigAdapter().getVerifyDmEmbed(),
+                    java.util.Map.of("player", player.getName()));
+
+            // Trigger immediate role sync
+            plugin.syncRolesForPlayer(player);
+
+            // Execute post-verify commands
+            executePostVerifyCommands(player);
         } else {
-            player.sendMessage(ChatColor.RED + "Failed to link account. Please try again.");
+            player.sendMessage(plugin.msg(player, "verify.link_failed"));
+            playSound(player, false);
         }
 
         return true;
     }
 
-    public void addCode(String code, long expirationMs) {
-        codeExpiration.put(code, System.currentTimeMillis() + expirationMs);
+    private void playSound(Player player, boolean success) {
+        if (!plugin.getConfigAdapter().isVerifySoundsEnabled()) return;
+
+        try {
+            String soundName = success
+                    ? plugin.getConfigAdapter().getVerifySuccessSound()
+                    : plugin.getConfigAdapter().getVerifyErrorSound();
+            float volume = success
+                    ? plugin.getConfigAdapter().getVerifySuccessVolume()
+                    : plugin.getConfigAdapter().getVerifyErrorVolume();
+            float pitch = success
+                    ? plugin.getConfigAdapter().getVerifySuccessPitch()
+                    : plugin.getConfigAdapter().getVerifyErrorPitch();
+
+            Sound sound = Sound.valueOf(soundName.toUpperCase().replace(".", "_"));
+            player.playSound(player.getLocation(), sound, volume, pitch);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Invalid sound name in verify config: " + e.getMessage());
+        }
     }
 
-    public void removeCode(String code) {
-        codeExpiration.remove(code);
+    private void executePostVerifyCommands(Player player) {
+        List<String> commands = plugin.getConfigAdapter().getPostVerifyCommands();
+        if (commands == null || commands.isEmpty()) return;
+
+        for (String cmd : commands) {
+            String resolved = plugin.applyPlaceholders(player,
+                    cmd.replace("{player}", player.getName())
+                            .replace("{uuid}", player.getUniqueId().toString()));
+            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), resolved);
+        }
+    }
+
+    private Long findDiscordIdByCode(String code) {
+        for (Long discordId : plugin.getVerifyCodes().keySet()) {
+            if (code.equals(plugin.getVerifyCode(discordId))) {
+                return discordId;
+            }
+        }
+        return null;
     }
 }

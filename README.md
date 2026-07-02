@@ -1,163 +1,102 @@
-# EligiusConnector
+<div align="center">
+  <img src="docs-site/src/public/assets/readme.png" alt="EligiusConnector Logo" width="100%" />
 
-*The ultimate Discord-Minecraft bridge plugin for Bukkit, Spigot, Paper, Purpur & Folia.*
+  # EligiusConnector
 
-[![Paper & Spigot API](https://img.shields.io/badge/Bukkit_%7C_Spigot_%7C_Paper_%7C_Purpur-1.21+-333333?style=flat-square&logo=paper)](https://papermc.io/) [![Folia Compatible](https://img.shields.io/badge/Folia-Compatible-ff5e00?style=flat-square&logo=fastapi)](https://papermc.io/software/folia) [![Java 21](https://img.shields.io/badge/Java-21_LTS-007396?style=flat-square&logo=openjdk)](https://adoptium.net/) [![License](https://img.shields.io/github/license/Eligiusmc/EligiusConnector?style=flat-square&color=blue)](/LICENSE) [![Release](https://img.shields.io/github/v/release/Eligiusmc/EligiusConnector?style=flat-square&color=success)](https://github.com/Eligiusmc/EligiusConnector/releases) [![Wiki](https://img.shields.io/badge/Wiki-Multi--Language-blueviolet?style=flat-square&logo=gitbook)](https://eligiusmc.github.io/EligiusConnector/)
+  *The ultimate Discord ↔ Minecraft bridge plugin for Bukkit, Spigot, Paper, Purpur, and Folia.*
 
-[📚 **Read the Official Wiki (EN/ES)**](https://eligiusmc.github.io/EligiusConnector/) • [🐛 **Report an Issue**](https://github.com/Eligiusmc/EligiusConnector/issues)
+  [![Paper & Spigot API](https://img.shields.io/badge/Bukkit_|_Spigot_|_Paper_|_Purpur-1.21+-333333?style=flat-square&logo=paper)](https://papermc.io/)
+  [![Folia Compatible](https://img.shields.io/badge/Folia-Compatible-ff5e00?style=flat-square&logo=fastapi)](https://papermc.io/software/folia)
+  [![Java 21](https://img.shields.io/badge/Java-21_LTS-007396?style=flat-square&logo=openjdk)](https://adoptium.net/)
+  [![License](https://img.shields.io/github/license/Eligiusmc/EligiusConnector?style=flat-square&color=blue)](LICENSE)
+  [![Release](https://img.shields.io/github/v/release/Eligiusmc/EligiusConnector?style=flat-square&color=success)](https://github.com/Eligiusmc/EligiusConnector/releases)
+
+  [🐛 **Report an Issue**](https://github.com/Eligiusmc/EligiusConnector/issues)
+
+</div>
 
 ---
 
 ## 🌟 Overview
 
-**EligiusConnector** is a next-generation Discord-Minecraft bridge plugin built for Minecraft 1.21 - 26.1.2+ servers running Bukkit, Spigot, Paper, Purpur or Folia. It connects your Discord server with your Minecraft server, allowing seamless communication and management.
+**EligiusConnector** is a comprehensive Discord ↔ Minecraft integration plugin that bridges chat, player events, verification, synchronization, dynamic counters, and more — all configurable via YAML with full i18n support.
 
 ### ✨ Key Features
 
-- ⚡ **True Folia Support:** Built from the ground up with asynchronous, thread-safe architecture.
-- 🔗 **Account Linking:** Secure code-based linking between Discord and Minecraft accounts.
-- 💬 **Chat Bridge:** Real-time chat between Minecraft and Discord.
-- 🖥️ **Console Remote:** Execute console commands from Discord.
-- 🔄 **Role Synchronization:** Bidirectional sync with LuckPerms.
-- 📊 **Player Queries:** View profiles, inventory, location from Discord.
-- 🎉 **Custom Events:** Configurable events with timer and command triggers.
-- 🛡️ **Chat Filters:** Escalating punishment system.
-- 📝 **Audit Logging:** Complete logging of all actions.
-- 🎯 **PlaceholderAPI:** Full integration with placeholders.
-- 🌐 **i18n:** Multi-language support (EN, ES).
-- 📊 **bStats:** Anonymous usage metrics.
+- 💬 **Chat Bridge:** Bi-directional MC ↔ Discord chat with webhook support, anti-spam, profanity filter, link filter, and caps filter
+- 👋 **Player Events:** Join, leave, death, and advancement announcements with fully customizable embeds
+- 🔐 **Account Verification:** Link Minecraft accounts to Discord with alphanumeric codes, DM confirmation, and post-verify commands
+- 🔄 **Role Sync:** Bi-directional group ↔ role synchronization via Vault and LuckPerms
+- 📊 **Dynamic Counters:** Periodic and state-based Discord channel name updates (online players, total members, server status)
+- 📱 **Profile Panels:** Interactive Discord buttons for player profile, inventory, location, and economy balance
+- 🌐 **Multi-language:** Full i18n with 6 built-in languages (en, es, de, fr, pt, ru)
+- 🔧 **Modular Architecture:** Enable/disable features per module via YAML configs
+- 🚀 **Native Folia & Paper Support:** Async scheduler with automatic platform detection
+- 💾 **Smart Persistence:** SQLite and MySQL support via HikariCP
+- 📊 **bStats Integration:** Anonymous metrics to help the plugin grow
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Installation
 
-1. Download the latest `EligiusConnector-x.x.x.jar` from the [Releases](https://github.com/Eligiusmc/EligiusConnector/releases) page.
-2. Drop it into your `plugins/` directory.
-3. Start your server!
-4. Visit the **[Wiki](https://eligiusmc.github.io/EligiusConnector/)** to learn how to configure.
+> [!WARNING]
+> **PlaceholderAPI is recommended** for full placeholder support. The plugin works without it, but `%placeholders%` in embeds will show as literal text.
 
-### ⚠️ Requirements
-
-- **Java 21 LTS** or higher
-- **Minecraft 1.21 - 26.1.2+**
-- **Paper, Spigot, Bukkit, Purpur, or Folia**
-- **Discord Bot** (with proper permissions)
+1. Download the latest `EligiusConnector-x.x.x.jar` from the [Releases page](https://github.com/Eligiusmc/EligiusConnector/releases)
+2. Drop it into your `plugins/` folder
+3. **Recommended plugins:** PlaceholderAPI, Vault, LuckPerms, EssentialsX
+4. Start your server and configure the YAML files in `plugins/EligiusConnector/`
+5. Set your Discord bot token in `config.yml`
 
 ---
 
-## 💻 Commands
+## 💻 Commands & Permissions
 
-### Minecraft Commands
-| Command | Description |
-|---------|-------------|
-| `/verify <code>` | Link your Minecraft account with Discord |
-| `/unlink [player]` | Unlink your account |
-| `/connector reload` | Reload configuration |
-| `/connector profile [player]` | View profile |
-| `/connector status` | View plugin status |
-| `/connector papi` | View placeholders |
-
-### Discord Commands
-| Command | Description |
-|---------|-------------|
-| `/verify` | Generate verification code |
-| `/unlink` | Unlink your account |
-| `/console <cmd>` | Execute console command |
-| `/player info <name>` | View player info |
-| `/player inventory <name>` | View player inventory |
-| `/player location <name>` | View player location |
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/verify <code>` | Link your Minecraft account | `connector.verify` |
+| `/unlink [player]` | Unlink accounts | `connector.unlink.self` / `.other` |
+| `/connector reload` | Reload configuration | `connector.reload` |
+| `/connector status` | View plugin status | `connector.admin` |
+| `/events list/start/stop` | Manage custom events | `connector.events` |
+| `/chat <message>` | Send message to Discord | `connector.chat` |
 
 ---
 
-## 🔐 Permissions
+## 📁 Configuration
 
-| Permission | Default | Description |
-|------------|---------|-------------|
-| `connector.verify` | true | Link account |
-| `connector.unlink.self` | true | Unlink own account |
-| `connector.unlink.other` | op | Unlink other players |
-| `connector.console` | false | Execute console commands |
-| `connector.chat.send` | true | Send chat messages |
-| `connector.profile.self` | true | View own profile |
-| `connector.profile.other` | op | View other profiles |
-| `connector.reload` | op | Reload configuration |
-| `connector.admin` | op | Admin commands |
+All modules are configured via individual YAML files in `plugins/EligiusConnector/`:
 
----
-
-## 🎯 PlaceholderAPI
-
-| Placeholder | Description |
-|-------------|-------------|
-| `%connector_linked_<player>%` | Is player linked |
-| `%connector_discord_id_<player>%` | Discord ID |
-| `%connector_discord_name_<player>%` | Discord name |
-| `%connector_minecraft_name_<player>%` | Minecraft name |
-| `%connector_health_<player>%` | Player health |
-| `%connector_food_<player>%` | Player food |
-| `%connector_level_<player>%` | Player level |
-| `%connector_world_<player>%` | Player world |
-| `%connector_x_<player>%` | Player X coordinate |
-| `%connector_y_<player>%` | Player Y coordinate |
-| `%connector_z_<player>%` | Player Z coordinate |
+| File | Module |
+|------|--------|
+| `config.yml` | Bot token, database, language |
+| `chat.yml` | Chat bridge + filters |
+| `player_events.yml` | Join/leave/death/advancement embeds |
+| `verify.yml` | Verification panel + DM embed |
+| `profile.yml` | Profile/inventory/whereami/money panels |
+| `status.yml` | Server online/offline embeds |
+| `counters.yml` | Dynamic channel name counters |
+| `synchronization.yml` | Role sync + nickname sync |
+| `console.yml` | Console log relay |
+| `lang/*.yml` | Translations (en, es, de, fr, pt, ru) |
 
 ---
 
-## 👨‍💻 For Developers & Contributors
+## 👨‍💻 For Developers
 
-We love open-source contributions! If you want to dive into the codebase, fix bugs, or understand our Hexagonal Architecture:
+We love Open Source code. If you wish to contribute:
 
-### Building from Source
+1. The project requires **Java 21 LTS** to compile
+2. Clone the repository and build with Gradle:
 
 ```bash
-# Clone the repository
 git clone https://github.com/Eligiusmc/EligiusConnector.git
 cd EligiusConnector
-
-# Build the jar using Gradle
-./gradlew build
+./gradlew build shadowJar
 ```
 
-The compiled `.jar` will be available in `build/libs/`.
-
-### Contributing Best Practices
-
-- **Branching:** Never push directly to `master`. All work should stem from `develop` into `feature/<name>` branches.
-- **Commits:** We strictly enforce [Conventional Commits](https://www.conventionalcommits.org/) (e.g., `feat:`, `fix:`, `docs:`).
-- **Documentation:** If you add a new feature, please update the multilingual Wiki.
-
----
-
-## 📦 Installation
-
-### Modrinth
-[![Modrinth](https://img.shields.io/modrinth/dt/eligiusconnector?label=modrinth&logo=modrinth)](https://modrinth.com/plugin/eligiusconnector)
-
-### Hangar
-[![Hangar](https://img.shields.io/hangar/dt/eligiusconnector?label=hangar&logo=paper)](https://hangar.papermc.io/eligius/EligiusConnector)
-
-### SpigotMC
-[![SpigotMC](https://img.shields.io/badge/SpigotMC-EligiusConnector-yellow?logo=spigotmc)](https://www.spigotmc.org/resources/eligiusconnector/)
-
-### GitHub Releases
-[![GitHub Releases](https://img.shields.io/github/v/release/Eligiusmc/EligiusConnector?label=github&logo=github)](https://github.com/Eligiusmc/EligiusConnector/releases)
-
----
-
-## 🤝 Community
-
-- [Discord Server](https://discord.gg/eligius)
-- [GitHub Issues](https://github.com/Eligiusmc/EligiusConnector/issues)
-- [Wiki](https://eligiusmc.github.io/EligiusConnector/)
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-## 🙏 Support
-
-If you need help, join our [Discord server](https://discord.gg/eligius) or open an [issue](https://github.com/Eligiusmc/EligiusConnector/issues).
+### Conventions
+- **Branching:** Work from `develop` towards `feature/<name>` branches
+- **Commits:** Use Conventional Commits (`feat:`, `fix:`, `refactor:`, etc.)
+- **Architecture:** Hexagonal Architecture (ports and adapters)
+- **i18n:** All user-facing text goes through language files

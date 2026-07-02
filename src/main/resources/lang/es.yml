@@ -1,0 +1,137 @@
+# ╔══════════════════════════════════════════════════╗
+# ║        EligiusConnector - Spanish               ║
+# ╚══════════════════════════════════════════════════╝
+
+error:
+  not_linked:
+    title: "🔗 Cuenta no vinculada"
+    description: "Necesitas vincular tu cuenta de Minecraft primero. Usa el boton **Verificar** en el panel."
+  not_online:
+    title: "🎮 No estas en linea"
+    description: "Debes estar conectado al servidor de Minecraft para usar esta funcion."
+  already_linked:
+    title: "✅ Ya vinculado"
+    description: "Tu cuenta ya esta vinculada. Usa `/unlink` si quieres cambiarla."
+  no_permission:
+    title: "🚫 Sin permisos"
+    description: "No tienes permiso para ejecutar este comando."
+  command_blacklisted:
+    title: "🚫 Comando bloqueado"
+    description: "Este comando esta en la lista negra de seguridad."
+  internal_error:
+    title: "⚠️ Error interno"
+    description: "Ocurrio un error inesperado. Intentalo de nuevo en unos segundos."
+  economy_disabled:
+    title: "💰 No disponible"
+    description: "El sistema de economia no esta configurado en este servidor."
+  unknown_action:
+    title: "❓ Accion desconocida"
+    description: "Este boton no tiene una accion valida asignada."
+
+general:
+  no_permission: "&cNo tienes permisos"
+  not_online: "&cNo estas en linea"
+  gamemode:
+    survival: "Supervivencia"
+    creative: "Creativo"
+    adventure: "Aventura"
+    spectator: "Espectador"
+    unknown: "Desconocido"
+
+verify:
+  already_linked: "&aTu cuenta ya esta vinculada"
+  code_instruction: "&aUsa &e/verify <codigo> &aen el chat del servidor Minecraft para vincular tu cuenta."
+  invalid_code: "&cCodigo invalido o expirado"
+  invalid_format: "&cFormato invalido. El codigo debe tener 6 caracteres alfanumericos."
+  link_failed: "&cError al vincular la cuenta. Intentalo de nuevo."
+  success_mc: "&a¡Cuenta vinculada exitosamente con Discord!"
+
+unlink:
+  no_permission: "&cNo tienes permiso para desvincular a otros"
+  target_not_found: "&cJugador no encontrado: {player}"
+  target_not_linked: "&cLa cuenta de {player} no esta vinculada"
+  success: "&aCuenta desvinculada"
+  unlinked_by: ":x: **{target}** ha sido desvinculado por **{player}**."
+  failed: "&cError al desvincular la cuenta"
+  not_linked: "&cTu cuenta no esta vinculada"
+  success_self: "&a¡Cuenta desvinculada exitosamente!"
+  unlinked_self: ":x: **{player}** ha desvinculado su cuenta de Minecraft."
+
+connector:
+  help_title: "&6=== EligiusConnector ==="
+  help_reload: "&e/connector reload &7- Recargar configuracion"
+  help_status: "&e/connector status &7- Ver estado del plugin"
+  no_permission_reload: "&cNo tienes permiso para recargar."
+  reload_success: "&aConfiguracion recargada"
+  no_permission_status: "&cNo tienes permiso para ver el estado."
+  status_title: "&6Estado del Plugin"
+  status_discord: "Discord: {status}"
+  status_database: "Base de datos: {type}"
+  status_linked: "Cuentas vinculadas: {count}"
+
+events:
+  disabled: "&cEl modulo de eventos esta deshabilitado."
+  list_title: "&6Eventos Disponibles"
+  started: "&aEvento {name} iniciado"
+  stopped: "&cEvento {name} detenido"
+  no_events: "No hay eventos activos"
+  not_found: "&cEvento no encontrado: {name}"
+  usage_start: "&cUso: /events start <id>"
+  usage_stop: "&cUso: /events stop <id>"
+
+chat:
+  disabled_module: "&cEl modulo de chat esta deshabilitado."
+  usage: "&cUso: /chat <mensaje>"
+  blocked: "&c&lChat Filter&7: &eTu mensaje ha sido bloqueado. ({reason})"
+
+filter:
+  spam: "spam"
+  profanity: "profanidad"
+  links: "enlaces no permitidos"
+  caps: "demasiadas mayusculas"
+
+panel:
+  verify:
+    buttons:
+      verify:
+        label: "Verificar"
+        emoji: "🔐"
+  profile:
+    buttons:
+      profile:
+        label: "Perfil"
+        emoji: "👤"
+      inventory:
+        label: "Inventario"
+        emoji: "🎒"
+      whereami:
+        label: "Ubicacion"
+        emoji: "📍"
+      money:
+        label: "Dinero"
+        emoji: "💰"
+
+directions:
+  n: "Norte"
+  ne: "Noreste"
+  e: "Este"
+  se: "Sureste"
+  s: "Sur"
+  sw: "Suroeste"
+  w: "Oeste"
+  nw: "Noroeste"
+
+blocks:
+  up: "Arriba"
+  down: "Abajo"
+  north: "Norte"
+  south: "Sur"
+  east: "Este"
+  west: "Oeste"
+  side: "Lado"
+
+profile:
+  linked_status: "**Estado:** ✅ Vinculado\n**Discord:** {discord}"
+  unlinked_status: "**Estado:** ❌ No vinculado"
+  inv_empty: "*Vacio*"
+  inv_more: "...+{count} mas"

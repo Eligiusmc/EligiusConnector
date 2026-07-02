@@ -26,9 +26,6 @@ dependencies {
         exclude(module = "opus-java")
     }
 
-    // LuckPerms
-    compileOnly("net.luckperms:api:5.4")
-
     // PlaceholderAPI
     compileOnly("me.clip:placeholderapi:2.11.6")
 

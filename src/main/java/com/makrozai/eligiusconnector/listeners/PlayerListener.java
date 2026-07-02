@@ -1,6 +1,8 @@
 package com.makrozai.eligiusconnector.listeners;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,6 +12,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class PlayerListener implements Listener {
@@ -25,16 +29,33 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         String message = event.getMessage();
 
-        // Send to Discord asynchronously
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String format = plugin.getConfigManager().getChatConfig().getString("MinecraftToDiscordFormat", "[MC] %player_displayname%: {message}");
-            String formattedMessage = format
-                    .replace("%player_displayname%", player.getDisplayName())
-                    .replace("%player_name%", player.getName())
-                    .replace("{message}", message);
+        Scheduler.runAsync(plugin, () -> {
+            if (!plugin.getConfigAdapter().isChatEnabled()) return;
 
-            plugin.getDiscordManager().sendGlobalMessage(formattedMessage);
+            String avatarUrl = getAvatarUrl(player);
+
+            plugin.getDiscordManager().sendChatMessage(player.getName(), message, avatarUrl);
         });
+    }
+
+    private String getAvatarUrl(Player player) {
+        Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
+        if (discordId != null && plugin.getDiscordManager().isConnected()) {
+            net.dv8tion.jda.api.entities.Guild guild = plugin.getDiscordManager().getGuild();
+            if (guild != null) {
+                net.dv8tion.jda.api.entities.Member member = guild.getMemberById(discordId);
+                if (member != null) {
+                    String discordAvatar = member.getUser().getAvatarUrl();
+                    if (discordAvatar != null && !discordAvatar.isEmpty()) {
+                        return discordAvatar;
+                    }
+                }
+            }
+        }
+        return plugin.applyPlaceholders(player,
+                plugin.getConfigAdapter().getWebhookAvatar()
+                        .replace("{player}", player.getName())
+                        .replace("{player_name}", player.getName()));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -42,33 +63,35 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        // Check if player is linked
-        Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
-        if (discordId != null) {
-            // Log to audit
-            plugin.getDatabaseManager().logAudit(
-                    "info",
-                    "player_join",
-                    player.getName(),
-                    "minecraft",
-                    "Discord ID: " + discordId,
-                    null
-            );
-        }
+        Scheduler.runAsync(plugin, () -> {
+            if (!plugin.getConfigAdapter().isJoinEnabled()) return;
 
-        // Send notification to Discord asynchronously
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String joinMessage = plugin.getConfigManager().getNotificationsConfig().getString("Events.PlayerJoin.Message", ":arrow_right: **%player_displayname%** se ha conectado.");
-            if (joinMessage != null && !joinMessage.isEmpty()) {
-                joinMessage = joinMessage
-                        .replace("%player_displayname%", player.getDisplayName())
-                        .replace("%player_name%", player.getName())
-                        .replace("%player_world%", player.getWorld().getName())
-                        .replace("%playerlist_online%", String.valueOf(org.bukkit.Bukkit.getOnlinePlayers().size()));
+            int online = Bukkit.getOnlinePlayers().size();
+            int max = Bukkit.getMaxPlayers();
+            boolean firstJoin = !plugin.getDatabaseManager().hasPlayedBefore(uuid);
 
-                String channelId = plugin.getConfigManager().getNotificationsConfig().getString("Events.PlayerJoin.ChannelId", "");
-                if (!channelId.isEmpty()) {
-                    plugin.getDiscordManager().sendMessage(channelId, joinMessage);
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("player", player.getName());
+            replacements.put("uuid", uuid.toString());
+            replacements.put("online", String.valueOf(online));
+            replacements.put("max", String.valueOf(max));
+            replacements.put("first_join", String.valueOf(firstJoin));
+
+            plugin.getDiscordManager().sendJoinEmbed(replacements, player);
+
+            // Update online counter
+            if (plugin.getCounterManager() != null) {
+                plugin.getCounterManager().updateOnlineNow();
+            }
+
+            // Log audit
+            Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
+            if (discordId != null) {
+                plugin.getDatabaseManager().logAudit("info", "player_join", player.getName(), "minecraft", "Discord: " + discordId, null);
+
+                // Sync nickname on join
+                if (plugin.getNicknameSyncTask() != null) {
+                    plugin.getNicknameSyncTask().syncPlayer(player);
                 }
             }
         });
@@ -79,31 +102,28 @@ public class PlayerListener implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        // Log to audit
-        Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
-        if (discordId != null) {
-            plugin.getDatabaseManager().logAudit(
-                    "info",
-                    "player_quit",
-                    player.getName(),
-                    "minecraft",
-                    "Discord ID: " + discordId,
-                    null
-            );
-        }
+        Scheduler.runAsync(plugin, () -> {
+            if (!plugin.getConfigAdapter().isLeaveEnabled()) return;
 
-        // Send notification to Discord asynchronously
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String quitMessage = plugin.getConfigManager().getNotificationsConfig().getString("Events.PlayerLeave.Message", ":arrow_left: **%player_displayname%** se ha desconectado.");
-            if (quitMessage != null && !quitMessage.isEmpty()) {
-                quitMessage = quitMessage
-                        .replace("%player_displayname%", player.getDisplayName())
-                        .replace("%player_name%", player.getName());
+            int online = Bukkit.getOnlinePlayers().size() - 1;
+            if (online < 0) online = 0;
+            int max = Bukkit.getMaxPlayers();
 
-                String channelId = plugin.getConfigManager().getNotificationsConfig().getString("Events.PlayerLeave.ChannelId", "");
-                if (!channelId.isEmpty()) {
-                    plugin.getDiscordManager().sendMessage(channelId, quitMessage);
-                }
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("player", player.getName());
+            replacements.put("online", String.valueOf(online));
+            replacements.put("max", String.valueOf(max));
+
+            plugin.getDiscordManager().sendLeaveEmbed(replacements, player);
+
+            // Update online counter
+            if (plugin.getCounterManager() != null) {
+                plugin.getCounterManager().updateOnlineNow();
+            }
+
+            Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
+            if (discordId != null) {
+                plugin.getDatabaseManager().logAudit("info", "player_quit", player.getName(), "minecraft", "Discord: " + discordId, null);
             }
         });
     }
@@ -112,21 +132,57 @@ public class PlayerListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
 
-        // Send notification to Discord asynchronously
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String discordMessage = plugin.getConfigManager().getNotificationsConfig().getString("Events.PlayerDeath.Message", ":skull: **%player_displayname%** ha muerto.");
-            if (discordMessage != null && !discordMessage.isEmpty()) {
-                discordMessage = discordMessage
-                        .replace("%player_displayname%", player.getDisplayName())
-                        .replace("%player_name%", player.getName())
-                        .replace("%player_health%", String.valueOf((int) player.getHealth()))
-                        .replace("%player_food%", String.valueOf(player.getFoodLevel()));
+        Scheduler.runAsync(plugin, () -> {
+            if (!plugin.getConfigAdapter().isDeathsEnabled()) return;
 
-                String channelId = plugin.getConfigManager().getNotificationsConfig().getString("Events.PlayerDeath.ChannelId", "");
-                if (!channelId.isEmpty()) {
-                    plugin.getDiscordManager().sendMessage(channelId, discordMessage);
-                }
-            }
+            String deathMsg = event.getDeathMessage();
+            if (deathMsg == null) deathMsg = player.getName() + " died";
+
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("player", player.getName());
+            replacements.put("death_message", deathMsg);
+            replacements.put("health", String.valueOf((int) player.getHealth()));
+            replacements.put("food", String.valueOf(player.getFoodLevel()));
+            replacements.put("world", player.getWorld().getName());
+
+            plugin.getDiscordManager().sendDeathEmbed(replacements, player);
         });
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onAdvancement(org.bukkit.event.player.PlayerAdvancementDoneEvent event) {
+        Player player = event.getPlayer();
+        String key = event.getAdvancement().getKey().getKey();
+
+        // ponytail: filter recipe advancements (spigot-safe, getDisplay() is Paper-only)
+        if (key.startsWith("recipes/")) return;
+        String finalName = capitalizeWords(key.replace("/", " > ").replace("_", " "));
+
+        Scheduler.runAsync(plugin, () -> {
+            if (!plugin.getConfigAdapter().isAdvancementsEnabled()) return;
+
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("player", player.getName());
+            replacements.put("advancement", finalName);
+
+            plugin.getDiscordManager().sendAdvancementEmbed(replacements, player);
+        });
+    }
+
+    private String capitalizeWords(String input) {
+        StringBuilder result = new StringBuilder();
+        boolean capitalizeNext = true;
+        for (char c : input.toCharArray()) {
+            if (c == ' ' || c == '>' || c == ':') {
+                capitalizeNext = true;
+                result.append(c);
+            } else if (capitalizeNext) {
+                result.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
     }
 }
