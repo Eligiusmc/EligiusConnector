@@ -50,7 +50,7 @@ src/main/resources/
 ├── status.yml          # Embeds online/offline (canal compartido con counters.yml)
 ├── counters.yml        # Contadores: online, all_members, server_status (state)
 ├── chat.yml            # Config del bridge de chat
-├── join_leave.yml      # Embeds de join/leave/death/advancement
+├── player_events.yml   # Embeds de join/leave/death/advancement
 ├── verify.yml          # Verificacion + sonidos + comandos post-verify
 ├── birthday.yml        # Sistema de cumpleanos
 ├── console.yml         # Log reader

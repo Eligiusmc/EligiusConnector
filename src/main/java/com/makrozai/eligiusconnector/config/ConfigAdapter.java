@@ -1,6 +1,8 @@
 package com.makrozai.eligiusconnector.config;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -20,7 +22,7 @@ public class ConfigAdapter {
     private FileConfiguration config;
     private FileConfiguration chatConfig;
     private FileConfiguration statusConfig;
-    private FileConfiguration joinLeaveConfig;
+    private FileConfiguration playerEventsConfig;
     private FileConfiguration verifyConfig;
     private FileConfiguration consoleConfig;
     private FileConfiguration synchronizationConfig;
@@ -36,7 +38,7 @@ public class ConfigAdapter {
         config = loadConfig("config.yml");
         chatConfig = loadConfig("chat.yml");
         statusConfig = loadConfig("status.yml");
-        joinLeaveConfig = loadConfig("join_leave.yml");
+        playerEventsConfig = loadConfig("player_events.yml");
         verifyConfig = loadConfig("verify.yml");
         consoleConfig = loadConfig("console.yml");
         synchronizationConfig = loadConfig("synchronization.yml");
@@ -49,7 +51,7 @@ public class ConfigAdapter {
         config = reloadConfig("config.yml");
         chatConfig = reloadConfig("chat.yml");
         statusConfig = reloadConfig("status.yml");
-        joinLeaveConfig = reloadConfig("join_leave.yml");
+        playerEventsConfig = reloadConfig("player_events.yml");
         verifyConfig = reloadConfig("verify.yml");
         consoleConfig = reloadConfig("console.yml");
         synchronizationConfig = reloadConfig("synchronization.yml");
@@ -139,9 +141,10 @@ public class ConfigAdapter {
     }
 
     private void log(String module, boolean enabled, String reason) {
-        String status = enabled ? "§aENABLED" : "§cDISABLED";
-        String extra = reason != null && !reason.isEmpty() ? " §7(" + reason + ")" : "";
-        plugin.getLogger().info(module + ": " + status + extra);
+        String status = enabled ? "&aENABLED" : "&cDISABLED";
+        String extra = reason != null && !reason.isEmpty() ? " &7(" + reason + ")" : "";
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
+                "&6[EC] &r" + module + ": " + status + extra));
     }
 
     public boolean isChatEnabled() {
@@ -159,36 +162,36 @@ public class ConfigAdapter {
     }
 
     public boolean isJoinEnabled() {
-        boolean enabled = joinLeaveConfig.getBoolean("join.enabled", true);
+        boolean enabled = playerEventsConfig.getBoolean("join.enabled", true);
         if (!enabled) log("Join", false, "join.enabled=false");
         return enabled;
     }
 
     public boolean isLeaveEnabled() {
-        boolean enabled = joinLeaveConfig.getBoolean("leave.enabled", true);
+        boolean enabled = playerEventsConfig.getBoolean("leave.enabled", true);
         if (!enabled) log("Leave", false, "leave.enabled=false");
         return enabled;
     }
 
     public boolean isDeathsEnabled() {
-        if (!joinLeaveConfig.getBoolean("death.enabled", true)) {
+        if (!playerEventsConfig.getBoolean("death.enabled", true)) {
             log("Deaths", false, "death.enabled=false");
             return false;
         }
-        if (!hasChannel(joinLeaveConfig, "death.channel")) {
-            log("Deaths", false, "no channel in join_leave.yml");
+        if (!hasChannel(playerEventsConfig, "death.channel")) {
+            log("Deaths", false, "no channel in player_events.yml");
             return false;
         }
         return true;
     }
 
     public boolean isAdvancementsEnabled() {
-        if (!joinLeaveConfig.getBoolean("advancement.enabled", true)) {
+        if (!playerEventsConfig.getBoolean("advancement.enabled", true)) {
             log("Advancements", false, "advancement.enabled=false");
             return false;
         }
-        if (!hasChannel(joinLeaveConfig, "advancement.channel")) {
-            log("Advancements", false, "no channel in join_leave.yml");
+        if (!hasChannel(playerEventsConfig, "advancement.channel")) {
+            log("Advancements", false, "no channel in player_events.yml");
             return false;
         }
         return true;
@@ -235,10 +238,10 @@ public class ConfigAdapter {
     }
 
     public void logModules() {
-        plugin.getLogger().info("§6=== Module Status ===");
+        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&6=== Module Status ==="));
         log("Chat", isChatEnabled(), null);
         log("Status", isStatusEnabled(), null);
-        log("Join/Leave", isJoinLeaveEnabled(), null);
+        log("Player Events", isJoinLeaveEnabled(), null);
         log("  - Join", isJoinEnabled(), null);
         log("  - Leave", isLeaveEnabled(), null);
         log("  - Deaths", isDeathsEnabled(), null);
@@ -301,22 +304,22 @@ public class ConfigAdapter {
     public Map<String, Object> getStatusOffEmbed() { return getEmbedFromConfig(statusConfig, "offline"); }
 
     // ==========================================
-    //  JOIN/LEAVE CONFIG GETTERS
+    //  PLAYER EVENTS CONFIG GETTERS
     // ==========================================
 
-    public FileConfiguration getJoinLeaveConfig() { return joinLeaveConfig; }
+    public FileConfiguration getPlayerEventsConfig() { return playerEventsConfig; }
 
-    public String getJoinChannelId() { return joinLeaveConfig.getString("join.channel", ""); }
-    public Map<String, Object> getJoinEmbed() { return getEmbedFromConfig(joinLeaveConfig, "join.embed"); }
+    public String getJoinChannelId() { return playerEventsConfig.getString("join.channel", ""); }
+    public Map<String, Object> getJoinEmbed() { return getEmbedFromConfig(playerEventsConfig, "join.embed"); }
 
-    public String getLeaveChannelId() { return joinLeaveConfig.getString("leave.channel", ""); }
-    public Map<String, Object> getLeaveEmbed() { return getEmbedFromConfig(joinLeaveConfig, "leave.embed"); }
+    public String getLeaveChannelId() { return playerEventsConfig.getString("leave.channel", ""); }
+    public Map<String, Object> getLeaveEmbed() { return getEmbedFromConfig(playerEventsConfig, "leave.embed"); }
 
-    public String getDeathChannelId() { return joinLeaveConfig.getString("death.channel", ""); }
-    public Map<String, Object> getDeathEmbed() { return getEmbedFromConfig(joinLeaveConfig, "death.embed"); }
+    public String getDeathChannelId() { return playerEventsConfig.getString("death.channel", ""); }
+    public Map<String, Object> getDeathEmbed() { return getEmbedFromConfig(playerEventsConfig, "death.embed"); }
 
-    public String getAdvancementChannelId() { return joinLeaveConfig.getString("advancement.channel", ""); }
-    public Map<String, Object> getAdvancementEmbed() { return getEmbedFromConfig(joinLeaveConfig, "advancement.embed"); }
+    public String getAdvancementChannelId() { return playerEventsConfig.getString("advancement.channel", ""); }
+    public Map<String, Object> getAdvancementEmbed() { return getEmbedFromConfig(playerEventsConfig, "advancement.embed"); }
 
     // Aliases for callers using old names
     public String getJoinsChannelId() { return getJoinChannelId(); }
