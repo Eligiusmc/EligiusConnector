@@ -7,14 +7,18 @@ join:
   channel: "1521276575889358960"
   embed:
     color: 5763719
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "%player_name% joined the server"
     author_icon: "https://minotar.net/avatar/%player_name%/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    title: "Welcome to EligiusMC!"
+    description: "Everyone say hello to **%player_name%**!"
+    footer: "EligiusMC"
     timestamp: true
     fields:
-      - name: "📊 En Linea"
+      - name: "Online"
         value: "**%server_online%** / **%server_max_players%**"
         inline: true
-      - name: "🆕 Primera Vez"
+      - name: "First Time"
         value: "%player_first_join%"
         inline: true
 
@@ -23,11 +27,15 @@ leave:
   channel: "1521276575889358960"
   embed:
     color: 15548997
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "%player_name% left the server"
     author_icon: "https://minotar.net/avatar/%player_name%/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    title: "See you soon!"
+    description: "**%player_name%** has left. Come back anytime!"
+    footer: "EligiusMC"
     timestamp: true
     fields:
-      - name: "📊 En Linea"
+      - name: "Online"
         value: "**%server_online%** / **%server_max_players%**"
         inline: true
 
@@ -36,18 +44,21 @@ death:
   channel: "1521276578708066578"
   embed:
     color: 15548997
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "%player_name% died"
     author_icon: "https://minotar.net/avatar/%player_name%/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    title: "{death_message}"
+    footer: "EligiusMC"
     timestamp: true
     fields:
-      - name: "❤️ Vida"
-        value: "%player_health%"
+      - name: "Health"
+        value: "❤️ %player_health% HP"
         inline: true
-      - name: "🍖 Hambre"
-        value: "%player_food%"
+      - name: "Hunger"
+        value: "🍖 %player_food% / 20"
         inline: true
-      - name: "🌍 Mundo"
-        value: "%player_world%"
+      - name: "World"
+        value: "🌍 %player_world%"
         inline: true
 
 advancement:
@@ -55,6 +66,10 @@ advancement:
   channel: "1521276581522444350"
   embed:
     color: 16766720
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "Advancement Made!"
     author_icon: "https://minotar.net/avatar/%player_name%/128"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    title: "{advancement}"
+    description: "**%player_name%** has earned this advancement!"
+    footer: "EligiusMC"
     timestamp: true
