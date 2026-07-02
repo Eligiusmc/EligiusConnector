@@ -18,21 +18,6 @@ bot:
   update_interval_minutes: 1
 
 # ==========================================
-#  MODULES (Enable/Disable)
-# ==========================================
-modules:
-  chat: true
-  status: true
-  join_leave: true
-  deaths: true
-  advancements: true
-  verify: true
-  console: true
-  synchronization: true
-  profile: true
-  events: true
-
-# ==========================================
 #  DATABASE
 # ==========================================
 database:

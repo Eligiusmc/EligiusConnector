@@ -64,7 +64,7 @@ public class PlayerListener implements Listener {
         UUID uuid = player.getUniqueId();
 
         Scheduler.runAsync(plugin, () -> {
-            if (!plugin.getConfigAdapter().isJoinLeaveEnabled()) return;
+            if (!plugin.getConfigAdapter().isJoinEnabled()) return;
 
             int online = Bukkit.getOnlinePlayers().size();
             int max = Bukkit.getMaxPlayers();
@@ -103,7 +103,7 @@ public class PlayerListener implements Listener {
         UUID uuid = player.getUniqueId();
 
         Scheduler.runAsync(plugin, () -> {
-            if (!plugin.getConfigAdapter().isJoinLeaveEnabled()) return;
+            if (!plugin.getConfigAdapter().isLeaveEnabled()) return;
 
             int online = Bukkit.getOnlinePlayers().size() - 1;
             if (online < 0) online = 0;

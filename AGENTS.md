@@ -177,6 +177,19 @@ para evitar dependencia compile-time.
 8. **bStats**: Metricas anonimas integradas
 9. **Release Please**: Automatizacion de releases con Conventional Commits
 
+## Deploy al Servidor de Pruebas
+
+Al terminar un update y generar nuevo JAR, SIEMPRE hacer deploy limpio:
+
+```bash
+rm -f server/plugins/EligiusConnector-1.0.0.jar
+rm -rf server/plugins/EligiusConnector
+cp build/libs/EligiusConnector-1.0.0.jar server/plugins/
+```
+
+Esto elimina el JAR anterior y TODA la carpeta de configuracion generada, forzando
+la regeneracion desde los resources del JAR. La DB se pierde tambien (server de pruebas).
+
 ## Testing
 
 - Unit tests para logica de dominio

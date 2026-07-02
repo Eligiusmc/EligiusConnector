@@ -2,6 +2,8 @@
 # ║        EligiusConnector - Synchronization        ║
 # ╚══════════════════════════════════════════════════╝
 
+enabled: true
+
 roles:
   enabled: true
   mc_is_authoritative: true

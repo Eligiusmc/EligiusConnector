@@ -128,29 +128,128 @@ public class ConfigAdapter {
     public int getMySQLMaxPoolSize() { return config.getInt("database.mysql.max_pool_size", 10); }
 
     // ==========================================
-    //  MODULE TOGGLES (from config.yml modules.*)
+    //  MODULE TOGGLES (file presence + channel validity)
+    //  Only synchronization.yml uses its own enabled: flag
+    //  Counters enabled only if counters section has entries
     // ==========================================
 
-    public boolean isModuleEnabled(String module) {
-        return config.getBoolean("modules." + module, true);
+    private boolean hasChannel(FileConfiguration cfg, String path) {
+        String channelId = cfg.getString(path, "");
+        return channelId != null && !channelId.isEmpty() && !channelId.equals("CHANNEL_ID");
     }
 
-    public boolean isChatEnabled() { return isModuleEnabled("chat"); }
-    public boolean isStatusEnabled() { return isModuleEnabled("status"); }
-    public boolean isJoinLeaveEnabled() { return isModuleEnabled("join_leave"); }
-    public boolean isDeathsEnabled() { return isModuleEnabled("deaths"); }
-    public boolean isAdvancementsEnabled() { return isModuleEnabled("advancements"); }
-    public boolean isVerifyEnabled() { return isModuleEnabled("verify"); }
-    public boolean isConsoleEnabled() { return isModuleEnabled("console"); }
-    public boolean isSynchronizationEnabled() { return isModuleEnabled("synchronization"); }
-    public boolean isCountersEnabled() {
-        File countersFile = new File(plugin.getDataFolder(), "counters.yml");
-        if (!countersFile.exists()) return false;
-        return countersConfig.getConfigurationSection("counters") != null
-                && !countersConfig.getConfigurationSection("counters").getKeys(false).isEmpty();
+    private void log(String module, boolean enabled, String reason) {
+        String status = enabled ? "§aENABLED" : "§cDISABLED";
+        String extra = reason != null && !reason.isEmpty() ? " §7(" + reason + ")" : "";
+        plugin.getLogger().info(module + ": " + status + extra);
     }
-    public boolean isProfileEnabled() { return isModuleEnabled("profile"); }
-    public boolean isEventsEnabled() { return isModuleEnabled("events"); }
+
+    public boolean isChatEnabled() {
+        boolean enabled = hasChannel(chatConfig, "channel");
+        if (!enabled) log("Chat", false, "no channel in chat.yml");
+        return enabled;
+    }
+
+    public boolean isStatusEnabled() {
+        return true;
+    }
+
+    public boolean isJoinLeaveEnabled() {
+        return true;
+    }
+
+    public boolean isJoinEnabled() {
+        boolean enabled = joinLeaveConfig.getBoolean("join.enabled", true);
+        if (!enabled) log("Join", false, "join.enabled=false");
+        return enabled;
+    }
+
+    public boolean isLeaveEnabled() {
+        boolean enabled = joinLeaveConfig.getBoolean("leave.enabled", true);
+        if (!enabled) log("Leave", false, "leave.enabled=false");
+        return enabled;
+    }
+
+    public boolean isDeathsEnabled() {
+        if (!joinLeaveConfig.getBoolean("death.enabled", true)) {
+            log("Deaths", false, "death.enabled=false");
+            return false;
+        }
+        if (!hasChannel(joinLeaveConfig, "death.channel")) {
+            log("Deaths", false, "no channel in join_leave.yml");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isAdvancementsEnabled() {
+        if (!joinLeaveConfig.getBoolean("advancement.enabled", true)) {
+            log("Advancements", false, "advancement.enabled=false");
+            return false;
+        }
+        if (!hasChannel(joinLeaveConfig, "advancement.channel")) {
+            log("Advancements", false, "no channel in join_leave.yml");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean isVerifyEnabled() {
+        boolean enabled = hasChannel(verifyConfig, "channel");
+        if (!enabled) log("Verify", false, "no channel in verify.yml");
+        return enabled;
+    }
+
+    public boolean isConsoleEnabled() {
+        boolean enabled = hasChannel(consoleConfig, "channel");
+        if (!enabled) log("Console relay", false, "no channel in console.yml");
+        return enabled;
+    }
+
+    public boolean isSynchronizationEnabled() {
+        boolean enabled = synchronizationConfig.getBoolean("enabled", true);
+        if (!enabled) log("Synchronization", false, "enabled=false");
+        return enabled;
+    }
+
+    public boolean isCountersEnabled() {
+        boolean hasEntries = countersConfig.getConfigurationSection("counters") != null
+                && !countersConfig.getConfigurationSection("counters").getKeys(false).isEmpty();
+        if (!hasEntries) log("Counters", false, "no counters defined");
+        return hasEntries;
+    }
+
+    public boolean isProfileEnabled() {
+        return true;
+    }
+
+    public boolean isEventsEnabled() {
+        File eventsDir = new File(plugin.getDataFolder(), "events");
+        if (!eventsDir.exists() || !eventsDir.isDirectory()) {
+            return false;
+        }
+        File[] eventFiles = eventsDir.listFiles((dir, name) -> name.endsWith(".yml"));
+        boolean enabled = eventFiles != null && eventFiles.length > 0;
+        if (!enabled) log("Events", false, "no event files in events/");
+        return enabled;
+    }
+
+    public void logModules() {
+        plugin.getLogger().info("§6=== Module Status ===");
+        log("Chat", isChatEnabled(), null);
+        log("Status", isStatusEnabled(), null);
+        log("Join/Leave", isJoinLeaveEnabled(), null);
+        log("  - Join", isJoinEnabled(), null);
+        log("  - Leave", isLeaveEnabled(), null);
+        log("  - Deaths", isDeathsEnabled(), null);
+        log("  - Advancements", isAdvancementsEnabled(), null);
+        log("Verify", isVerifyEnabled(), null);
+        log("Console relay", isConsoleEnabled(), null);
+        log("Synchronization", isSynchronizationEnabled(), null);
+        log("Counters", isCountersEnabled(), null);
+        log("Profile panels", isProfileEnabled(), null);
+        log("Events", isEventsEnabled(), null);
+    }
 
     // ==========================================
     //  CHAT CONFIG GETTERS
@@ -207,19 +306,15 @@ public class ConfigAdapter {
 
     public FileConfiguration getJoinLeaveConfig() { return joinLeaveConfig; }
 
-    public boolean isJoinEnabled() { return joinLeaveConfig.getBoolean("join.enabled", true); }
     public String getJoinChannelId() { return joinLeaveConfig.getString("join.channel", ""); }
     public Map<String, Object> getJoinEmbed() { return getEmbedFromConfig(joinLeaveConfig, "join.embed"); }
 
-    public boolean isLeaveEnabled() { return joinLeaveConfig.getBoolean("leave.enabled", true); }
     public String getLeaveChannelId() { return joinLeaveConfig.getString("leave.channel", ""); }
     public Map<String, Object> getLeaveEmbed() { return getEmbedFromConfig(joinLeaveConfig, "leave.embed"); }
 
-    public boolean isDeathEnabled() { return joinLeaveConfig.getBoolean("death.enabled", true); }
     public String getDeathChannelId() { return joinLeaveConfig.getString("death.channel", ""); }
     public Map<String, Object> getDeathEmbed() { return getEmbedFromConfig(joinLeaveConfig, "death.embed"); }
 
-    public boolean isAdvancementEnabled() { return joinLeaveConfig.getBoolean("advancement.enabled", true); }
     public String getAdvancementChannelId() { return joinLeaveConfig.getString("advancement.channel", ""); }
     public Map<String, Object> getAdvancementEmbed() { return getEmbedFromConfig(joinLeaveConfig, "advancement.embed"); }
 

@@ -54,6 +54,7 @@ public final class EligiusConnector extends JavaPlugin {
         // Load configurations
         configAdapter = new ConfigAdapter(this);
         configAdapter.loadAll();
+        configAdapter.logModules();
 
         languageManager = new LanguageManager(this);
         languageManager.load();
