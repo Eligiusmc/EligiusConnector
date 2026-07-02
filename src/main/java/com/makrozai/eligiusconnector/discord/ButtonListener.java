@@ -170,8 +170,21 @@ public class ButtonListener extends ListenerAdapter {
                     event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
                 } else {
                     ConfigurationSection offlineCfg = cfg.getConfigurationSection("offline");
-                    if (offlineCfg != null && stats != null) {
-                        Map<String, String> data = computeOfflineData(stats);
+                    if (offlineCfg != null) {
+                        Map<String, String> data;
+                        if (stats != null) {
+                            data = computeOfflineData(stats);
+                        } else {
+                            String name = plugin.getDatabaseManager().getMinecraftName(discordId);
+                            data = new HashMap<>();
+                            data.put("player_name", name != null ? name : "Unknown");
+                            data.put("player_uuid", uuid.toString());
+                            data.put("player_kills", "0");
+                            data.put("player_deaths", "0");
+                            data.put("player_kd", "0.00");
+                            data.put("player_playtime", "0h 0m");
+                            data.put("player_first_join", "");
+                        }
                         MessageEmbed embed = buildEmbedFromTemplate(null,
                                 offlineCfg, data, Color.GRAY);
                         event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
@@ -205,17 +218,20 @@ public class ButtonListener extends ListenerAdapter {
                     if (rsp != null) {
                         net.milkbowl.vault.economy.Economy econ = rsp.getProvider();
                         Player player = Bukkit.getPlayer(uuid);
-                        if (player != null && player.isOnline()) {
-                            double balance = econ.getBalance(player);
-                            EmbedBuilder embed = new EmbedBuilder();
-                            embed.setTitle(plugin.msg("keys.discord.money.title"));
-                            embed.setDescription(plugin.msg("keys.discord.money.balance") + String.format("%.2f", balance));
-                            embed.setThumbnail("https://minotar.net/avatar/" + player.getName() + "/128");
-                            embed.setColor(Color.YELLOW);
-                            embed.setTimestamp(java.time.Instant.now());
-                            event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
-                        } else {
-                            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
+                        String name = plugin.getDatabaseManager().getMinecraftName(discordId);
+                        if (name == null && player != null) name = player.getName();
+                        if (name == null) name = "Unknown";
+
+                        double balance = econ.getBalance(Bukkit.getOfflinePlayer(uuid));
+                        HashMap<String, String> data = new HashMap<>();
+                        data.put("player_name", name);
+                        data.put("balance", String.format("%.2f", balance));
+
+                        ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
+                                .getConfigurationSection("money.embed");
+                        MessageEmbed embed = buildEmbedFromTemplate(player, cfg, data, new Color(0xF1C40F));
+                        if (embed != null) {
+                            event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
                         }
                     } else {
                         plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");

@@ -153,3 +153,16 @@ whereami:
           **Biome:** {player_biome}
           **Block:** {player_block}
         inline: false
+
+# ── Money/Balance Embed ────────────────────────────
+# Placeholder: {balance} — formatted balance from economy plugin
+money:
+  embed:
+    title: "💰 {player_name}'s Balance"
+    color: "0xF1C40F"
+    thumbnail: "https://minotar.net/avatar/{player_name}/128"
+    timestamp: true
+    fields:
+      - name: "💰 Balance"
+        value: "**${balance}**"
+        inline: false

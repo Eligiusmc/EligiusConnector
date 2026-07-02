@@ -412,6 +412,7 @@ public class ConfigAdapter {
     public Map<String, Object> getProfileEmbed() { return getEmbedFromConfig(profileConfig, "profile"); }
     public Map<String, Object> getInventoryEmbed() { return getEmbedFromConfig(profileConfig, "inventory"); }
     public Map<String, Object> getWhereamiEmbed() { return getEmbedFromConfig(profileConfig, "whereami"); }
+    public Map<String, Object> getMoneyEmbed() { return getEmbedFromConfig(profileConfig, "money"); }
 
     // ==========================================
     //  EVENTS CONFIG
