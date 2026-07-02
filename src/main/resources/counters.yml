@@ -16,7 +16,7 @@ counters:
     type: periodic
     enabled: true
     channel: "1521280350343532654"
-    format: "👥 all-members: %server_members%"
+    format: "👥 Members: %server_unique_joins%"
     interval: 300
 
   # ── State: updates when state changes ─────────────
