@@ -2,24 +2,15 @@
 # ║        EligiusConnector - Console Relay           ║
 # ╚══════════════════════════════════════════════════╝
 
+# Discord channel where server logs are streamed and commands can be executed
 channel: "1521272226442383440"
-log_level: "info"
-refresh_rate_seconds: 2
 
-blacklist:
+# How often (seconds) to poll latest.log for new lines
+poll_interval: 2
+
+# Commands that cannot be executed from Discord
+command_blacklist:
   - "say"
   - "gamemode"
   - "op"
   - "deop"
-
-reverse:
-  enabled: true
-  prefix: "!"
-  permission_required: "connector.console"
-  blacklist:
-    - "stop"
-    - "restart"
-    - "ban"
-    - "op"
-    - "deop"
-

@@ -30,8 +30,8 @@ public class DiscordListener extends ListenerAdapter {
             return;
         }
 
-        String globalChannelId = plugin.getConfigAdapter().getGlobalChannelId();
-        if (event.getChannel().getId().equals(globalChannelId)) {
+        String channelId = plugin.getConfigAdapter().getChatChannelId();
+        if (event.getChannel().getId().equals(channelId)) {
             handleChatBridge(event);
         }
     }
@@ -70,7 +70,7 @@ public class DiscordListener extends ListenerAdapter {
 
         if (message == null || message.isBlank()) return;
         String command = message.split(" ")[0].toLowerCase();
-        java.util.List<String> blacklist = plugin.getConfigAdapter().getConsoleBlacklist();
+        java.util.List<String> blacklist = plugin.getConfigAdapter().getConsoleCommandBlacklist();
         if (blacklist.contains(command)) {
             sendErrorToChannel(event.getChannel().asTextChannel(), "command_blacklisted");
             return;

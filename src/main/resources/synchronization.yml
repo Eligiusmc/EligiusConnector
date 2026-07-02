@@ -1,23 +1,25 @@
 # ╔══════════════════════════════════════════════════╗
 # ║        EligiusConnector - Synchronization        ║
+# ║  Bidirectional sync: MC groups ↔ Discord roles   ║
+# ║  Uses Vault/LuckPerms for group detection        ║
 # ╚══════════════════════════════════════════════════╝
 
+# Master switch — set to false to disable all sync
 enabled: true
 
+# Role sync: mirrors Minecraft LuckPerms groups to Discord roles
+# When a player has a mapped group in MC, they get the Discord role.
+# When the group is removed, the Discord role is removed too.
 roles:
   enabled: true
-  mc_is_authoritative: true
-  one_way: false
-  on_link: true
-  cycle_time_seconds: 5
-  group_mapping:
+  interval: 30               # Sync interval (seconds)
+  mapping:
     verified: "1521342858945101894"
+    # testing: "ROLE_ID_HERE"
+    # vip: "ROLE_ID_HERE"
 
+# Sync Minecraft player name → Discord member nickname
 nickname:
   enabled: true
-  cycle_time_seconds: 30
-  format: "%player_name%"
-
-bans:
-  discord_to_mc: false
-  mc_to_discord: false
+  interval: 30                # Sync interval (seconds)
+  format: "%player_name%"     # Nickname format (supports placeholders)

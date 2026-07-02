@@ -46,6 +46,7 @@ class ChatFilterEngineTest {
 
         // Default: all filters disabled (passes everything)
         when(configMock.isFilterEnabled()).thenReturn(false);
+        when(configMock.isPunishmentEnabled()).thenReturn(false);
 
         engine = new ChatFilterEngine(pluginMock);
     }
@@ -63,9 +64,9 @@ class ChatFilterEngineTest {
     void filterPassesCleanMessage() {
         PlayerMock player = server.addPlayer();
         when(configMock.isFilterEnabled()).thenReturn(true);
-        when(configMock.isAntiSpamEnabled()).thenReturn(true);
-        when(configMock.getMaxMessages()).thenReturn(5);
-        when(configMock.getTimeWindowSeconds()).thenReturn(10);
+        when(configMock.isSpamFilterEnabled()).thenReturn(true);
+        when(configMock.getSpamMaxMessages()).thenReturn(5);
+        when(configMock.getSpamTimeWindowSeconds()).thenReturn(10);
 
         // No profanity, no links, no caps abuse
         when(configMock.getBlockedWords()).thenReturn(List.of("badword"));
@@ -95,7 +96,7 @@ class ChatFilterEngineTest {
         PlayerMock player = server.addPlayer();
         when(configMock.isFilterEnabled()).thenReturn(true);
         when(configMock.isCapsFilterEnabled()).thenReturn(true);
-        when(configMock.isAntiSpamEnabled()).thenReturn(false);
+        when(configMock.isSpamFilterEnabled()).thenReturn(false);
         when(configMock.getCapsMinLength()).thenReturn(10);
         when(configMock.getCapsMaxPercentage()).thenReturn(70);
 
@@ -111,7 +112,7 @@ class ChatFilterEngineTest {
         PlayerMock player = server.addPlayer();
         when(configMock.isFilterEnabled()).thenReturn(true);
         when(configMock.isCapsFilterEnabled()).thenReturn(true);
-        when(configMock.isAntiSpamEnabled()).thenReturn(false);
+        when(configMock.isSpamFilterEnabled()).thenReturn(false);
         when(configMock.getCapsMinLength()).thenReturn(10);
         when(configMock.getCapsMaxPercentage()).thenReturn(70);
 

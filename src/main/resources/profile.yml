@@ -1,26 +1,30 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Profile Commands        ║
+# ║        EligiusConnector - Profile & Panels       ║
 # ╚══════════════════════════════════════════════════╝
 
+# Discord channel for the profile panel
 channel: "1521391141436653668"
 
+# ── Main Panel ────────────────────────────────────
 panel:
   embed:
-    title: "👤 Perfil del Jugador"
-    description: "Consulta tu perfil, inventario y ubicación en el servidor"
+    title: "👤 Player Panel"
+    description: "Select an option below to view your stats, inventory, or location."
     color: "0x57F287"
+    footer: "EligiusMC"
+    timestamp: true
     fields:
-      - name: "👤 Perfil"
-        value: "Mira tu perfil completo con estadisticas, salud, ubicacion y mas"
+      - name: "👤 Profile"
+        value: "View your full profile — stats, health, location and more."
         inline: true
-      - name: "🎒 Inventario"
-        value: "Revisa todos los items en tu inventario organizados por categoria"
+      - name: "🎒 Inventory"
+        value: "Browse your inventory organized by category."
         inline: true
-      - name: "📍 Ubicacion"
-        value: "Descubre donde estas en el mundo con coordenadas exactas"
+      - name: "📍 Location"
+        value: "See your exact coordinates and biome."
         inline: true
-      - name: "💰 Dinero"
-        value: "Consulta tu saldo actual en el servidor"
+      - name: "💰 Balance"
+        value: "Check your current server balance."
         inline: true
   buttons:
     profile: true
@@ -28,32 +32,124 @@ panel:
     whereami: true
     money: true
 
+# ── Profile Embed ─────────────────────────────────
 profile:
-  color: 5814783
-  thumbnail: "https://minotar.net/avatar/%player_name%/128"
-  show_uuid: true
-  show_discord_link: true
-  show_kd: true
-  show_playtime: true
-  show_health_bar: true
-  show_food_bar: true
-  show_xp_bar: true
-  show_gamemode: true
-  show_ping: true
-  timestamp: true
+  embed:
+    title: "👤 %player_name%'s Profile"
+    color: "0x5865F2"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    timestamp: true
+    fields:
+      - name: "📋 Info"
+        value: |
+          **Name:** %player_name%
+          **UUID:** %player_uuid%
+        inline: false
+      - name: "🔗 Account"
+        value: "%player_linked_status%"
+        inline: false
+      - name: "☠️ Combat"
+        value: |
+          **Kills:** %player_kills%
+          **Deaths:** %player_deaths%
+          **K/D:** %player_kd%
+        inline: false
+      - name: "⏱️ Playtime"
+        value: "**%player_playtime%**"
+        inline: false
+      - name: "❤️ Health"
+        value: "%player_health_bar% %player_health%/%player_max_health%"
+        inline: false
+      - name: "🍖 Hunger"
+        value: "%player_food_bar% %player_food%/%player_max_food%"
+        inline: false
+      - name: "⭐ Experience"
+        value: "%player_xp_bar% Level %player_level%"
+        inline: false
+      - name: "🌍 World"
+        value: "**%player_world%**"
+        inline: true
+      - name: "🧭 Direction"
+        value: "**%player_direction%**"
+        inline: true
+      - name: "📍 Position"
+        value: "**X:** %player_x% **Y:** %player_y% **Z:** %player_z%"
+        inline: true
+      - name: "🎮 Gamemode"
+        value: "**%player_gamemode%**"
+        inline: true
+      - name: "📡 Ping"
+        value: "**%player_ping% ms**"
+        inline: true
+  offline:
+    title: "👤 %player_name% (Offline)"
+    color: "0x808080"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    timestamp: true
+    fields:
+      - name: "📋 Info"
+        value: |
+          **Name:** %player_name%
+          **UUID:** %player_uuid%
+        inline: false
+      - name: "⏱️ Playtime"
+        value: "**%player_playtime%**"
+        inline: false
+      - name: "☠️ Combat"
+        value: |
+          **Kills:** %player_kills%
+          **Deaths:** %player_deaths%
+        inline: false
 
+# ── Inventory Embed ───────────────────────────────
 inventory:
-  color: 16753920
-  thumbnail: "https://minotar.net/avatar/%player_name%/128"
-  empty_category_hidden: true
-  max_items_per_category: 10
+  embed:
+    title: "🎒 %player_name%'s Inventory"
+    color: "0xF39C12"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    footer: "Slots: %inv_used_slots%/%inv_total_slots%"
+    timestamp: true
+    fields:
+      - name: "⚔️ Weapons"
+        value: "%inv_weapons%"
+        inline: false
+      - name: "🛡️ Armor"
+        value: "%inv_armor%"
+        inline: false
+      - name: "⛏️ Tools"
+        value: "%inv_tools%"
+        inline: false
+      - name: "🧱 Blocks"
+        value: "%inv_blocks%"
+        inline: false
+      - name: "🍎 Food"
+        value: "%inv_food%"
+        inline: false
+      - name: "🧪 Potions"
+        value: "%inv_potions%"
+        inline: false
+      - name: "📦 Misc"
+        value: "%inv_misc%"
+        inline: false
+  options:
+    empty_category_hidden: true
+    max_items_per_category: 10
 
+# ── WhereAmI Embed ────────────────────────────────
 whereami:
-  color: 3066993
-  thumbnail: "https://minotar.net/avatar/%player_name%/128"
-  show_direction: true
-  direction_format: "full"
-  show_biome: true
-  show_block_face: true
-  show_tp_command: true
-  use_code_block: true
+  embed:
+    title: "📍 %player_name%'s Location"
+    color: "0x2ECC71"
+    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    timestamp: true
+    fields:
+      - name: "📍 Location"
+        value: |
+          **World:** %player_world%
+          **X:** %player_x%
+          **Y:** %player_y%
+          **Z:** %player_z%
+          **Direction:** %player_direction%
+          **Biome:** %player_biome%
+          **Block:** %player_block%
+        inline: false

@@ -385,7 +385,7 @@ public class DiscordManager {
     }
 
     public void sendChatMessage(String playerName, String message, String avatarUrl) {
-        String channelId = plugin.getConfigAdapter().getGlobalChannelId();
+        String channelId = plugin.getConfigAdapter().getChatChannelId();
         if (channelId == null || channelId.isEmpty()) return;
 
         if (plugin.getConfigAdapter().isWebhookEnabled() && plugin.getWebhookManager() != null) {

@@ -47,7 +47,7 @@ public class UnlinkCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.GREEN + plugin.msg(player, "keys.command.unlink.success").replace("{player}", targetName));
                 plugin.getDatabaseManager().logAudit("info", "account_unlinked", player.getName(), "minecraft", "Unlinked " + targetName, null);
                 plugin.getDiscordManager().sendMessage(
-                        plugin.getConfigAdapter().getGlobalChannelId(),
+                        plugin.getConfigAdapter().getChatChannelId(),
                         plugin.msg("keys.command.unlink.unlinked_by").replace("{target}", targetName).replace("{player}", player.getName()));
             } else {
                 player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.failed").replace("{player}", targetName));
@@ -67,7 +67,7 @@ public class UnlinkCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.GREEN + plugin.msg(player, "keys.command.unlink.success_self"));
                 plugin.getDatabaseManager().logAudit("info", "account_unlinked", player.getName(), "minecraft", "Self unlink", null);
                 plugin.getDiscordManager().sendMessage(
-                        plugin.getConfigAdapter().getGlobalChannelId(),
+                        plugin.getConfigAdapter().getChatChannelId(),
                         plugin.msg("keys.command.unlink.unlinked_self").replace("{player}", player.getName()));
             } else {
                 player.sendMessage(ChatColor.RED + plugin.msg(player, "keys.command.unlink.failed"));

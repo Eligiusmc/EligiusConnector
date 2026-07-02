@@ -123,11 +123,6 @@ public class ButtonListener extends ListenerAdapter {
                 data.put("player_biome", player.getLocation().getBlock().getBiome().name()
                         .toLowerCase().replace("_", " "));
                 data.put("player_block", getBlockFaceName(player.getLocation()));
-                data.put("whereami_tp_command", cfg.getBoolean("show_tp_command", true)
-                        ? "/tp @s " + player.getLocation().getBlockX() + " "
-                          + player.getLocation().getBlockY() + " "
-                          + player.getLocation().getBlockZ()
-                        : "");
 
                 MessageEmbed embed = buildEmbedFromTemplate(player,
                         cfg.getConfigurationSection("embed"), data,
@@ -160,7 +155,8 @@ public class ButtonListener extends ListenerAdapter {
 
                 ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
                         .getConfigurationSection("inventory");
-                Map<String, String> data = computeInventoryData(player, cfg);
+                ConfigurationSection opts = cfg != null ? cfg.getConfigurationSection("options") : null;
+                Map<String, String> data = computeInventoryData(player, opts);
                 MessageEmbed embed = buildEmbedFromTemplate(player,
                         cfg.getConfigurationSection("embed"), data,
                         new Color(0xF39C12));
@@ -476,14 +472,14 @@ public class ButtonListener extends ListenerAdapter {
         return data;
     }
 
-    private Map<String, String> computeInventoryData(Player player, ConfigurationSection cfg) {
+    private Map<String, String> computeInventoryData(Player player, ConfigurationSection opts) {
         Map<String, String> data = new HashMap<>();
         data.put("player_name", player.getName());
 
         ItemStack[] contents = player.getInventory().getContents();
         Map<String, List<String>> categorized = categorizeInventory(contents);
-        int maxPerCat = cfg.getInt("max_items_per_category", 10);
-        boolean hideEmpty = cfg.getBoolean("empty_category_hidden", true);
+        int maxPerCat = opts != null ? opts.getInt("max_items_per_category", 10) : 10;
+        boolean hideEmpty = opts != null ? opts.getBoolean("empty_category_hidden", true) : true;
 
         for (var entry : categorized.entrySet()) {
             List<String> items = entry.getValue();

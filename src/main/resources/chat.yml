@@ -1,33 +1,36 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Chat Bridge            ║
+# ║        EligiusConnector - Chat Bridge             ║
 # ╚══════════════════════════════════════════════════╝
 
+# Discord channel for MC ↔ DC messages
 channel: "1521272219223851028"
 
-mc_to_discord: true
-discord_to_mc: true
+# Direction control
+bridge:
+  mc_to_discord: true      # Minecraft chat → Discord
+  discord_to_mc: true      # Discord → Minecraft chat
 
+# Message format
+# Placeholders: %player_name%, %player_displayname%, %player_message%
 format:
   mc_to_discord: "%player_name%: %player_message%"
   discord_to_mc: "[DC] %player_name%: %player_message%"
 
-webhooks:
+# Webhook for MC → Discord (shows player head + nickname)
+webhook:
   enabled: true
   name: "Minecraft"
   avatar: "https://minotar.net/avatar/%player_name%/128"
 
-filters:
+# Chat filter — blocks spam, profanity, links, and caps abuse
+# Set filter.enabled: false to disable all filters at once
+filter:
+  enabled: true
+
   spam:
     enabled: true
-    max_messages: 5
-    time_window_seconds: 10
-    punishment:
-      enabled: true
-      levels:
-        1: "mute:60"
-        2: "mute:300"
-        3: "tempban:3600"
-        4: "banip"
+    max_messages: 5         # Messages allowed in time_window_seconds
+    time_window_seconds: 10 # Window to count messages before triggering
 
   profanity:
     enabled: true
@@ -47,16 +50,11 @@ filters:
       - "moron"
       - "suck"
       - "sucks"
-    replacement: "*"
-    punishment:
-      enabled: true
-      levels:
-        1: "warn"
-        2: "mute:300"
-        3: "tempban:7200"
 
   links:
     enabled: true
+    # whitelist = only listed domains allowed, rest blocked
+    # blacklist = listed domains blocked, rest pass
     mode: "whitelist"
     domains:
       - "youtube.com"
@@ -71,19 +69,18 @@ filters:
       - "papermc.io"
       - "spigotmc.org"
       - "bukkit.org"
-    punishment:
-      enabled: true
-      levels:
-        1: "delete"
-        2: "warn"
-        3: "mute:300"
 
   caps:
     enabled: true
-    max_percentage: 70
-    min_length: 10
-    punishment:
-      enabled: true
-      levels:
-        1: "delete"
-        2: "warn"
+    max_percentage: 70      # % of uppercase characters to trigger
+    min_length: 10          # Minimum message length to check
+
+  # Escalating punishments for repeat offenders
+  # Actions: warn | delete | mute:<seconds> | tempban:<seconds> | banip
+  # 1st violation always = warn (sends blocked message)
+  punishment:
+    enabled: true
+    thresholds:
+      2: "mute:300"         # 2+ violations → 5 min mute
+      5: "tempban:3600"     # 5+ violations → 1 hour ban
+      10: "banip"           # 10+ violations → IP ban

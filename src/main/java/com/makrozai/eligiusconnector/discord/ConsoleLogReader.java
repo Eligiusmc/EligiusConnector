@@ -31,7 +31,7 @@ public class ConsoleLogReader {
         }
 
         executor = Executors.newSingleThreadScheduledExecutor();
-        int refreshRate = plugin.getConfigAdapter().getConsoleRefreshRate();
+        int refreshRate = plugin.getConfigAdapter().getConsolePollInterval();
         executor.scheduleAtFixedRate(this::readLogs, 0, refreshRate, TimeUnit.SECONDS);
         plugin.getLogger().info("Console log reader started (refresh: " + refreshRate + "s)");
     }

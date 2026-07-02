@@ -35,7 +35,7 @@ public class ChatFilterEngine {
 
         UUID uuid = player.getUniqueId();
 
-        if (plugin.getConfigAdapter().isAntiSpamEnabled() && isSpam(uuid)) {
+        if (plugin.getConfigAdapter().isSpamFilterEnabled() && isSpam(uuid)) {
             String punishment = executePunishment(uuid, "spam");
             return FilterResult.blocked("spam", punishment);
         }
@@ -60,8 +60,8 @@ public class ChatFilterEngine {
 
     private boolean isSpam(UUID uuid) {
         long now = System.currentTimeMillis();
-        int maxMessages = plugin.getConfigAdapter().getMaxMessages();
-        long timeWindowMs = plugin.getConfigAdapter().getTimeWindowSeconds() * 1000L;
+        int maxMessages = plugin.getConfigAdapter().getSpamMaxMessages();
+        long timeWindowMs = plugin.getConfigAdapter().getSpamTimeWindowSeconds() * 1000L;
 
         List<Long> timestamps = messageTimestamps.computeIfAbsent(uuid, k -> new ArrayList<>());
         timestamps.removeIf(t -> now - t > timeWindowMs);
@@ -112,26 +112,41 @@ public class ChatFilterEngine {
         Player player = Bukkit.getPlayer(uuid);
         if (player == null) return "none";
 
-        if (warnings >= 10) {
-            scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    "banip " + player.getName() + " [ChatFilter] Too many violations"));
-            return "banip";
-        }
-
-        if (warnings >= 5) {
-            scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    "tempban " + player.getName() + " 1d [ChatFilter] Excessive violations"));
-            return "tempban";
-        }
-
-        if (warnings >= 2) {
-            scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    "mute " + player.getName() + " 5m [ChatFilter] Repeat offense"));
-            return "mute";
+        if (plugin.getConfigAdapter().isPunishmentEnabled()) {
+            java.util.Map<Integer, String> thresholds = plugin.getConfigAdapter().getPunishmentThresholds();
+            String action = null;
+            int matchedLevel = 0;
+            for (java.util.Map.Entry<Integer, String> entry : thresholds.entrySet()) {
+                if (warnings >= entry.getKey() && entry.getKey() > matchedLevel) {
+                    action = entry.getValue();
+                    matchedLevel = entry.getKey();
+                }
+            }
+            if (action != null) {
+                executePunishmentAction(player, action);
+                return action.contains(":") ? action.split(":")[0] : action;
+            }
         }
 
         player.sendMessage(plugin.msg(player, "keys.chat.blocked", java.util.Map.of("reason", filterType)));
         return "warn";
+    }
+
+    private void executePunishmentAction(Player player, String action) {
+        if (action.equals("warn") || action.equals("delete")) return;
+
+        String[] parts = action.split(":", 2);
+        String type = parts[0];
+        int duration = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+
+        switch (type) {
+            case "mute" -> scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                    "mute " + player.getName() + " " + duration + "s [ChatFilter]"));
+            case "tempban" -> scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                    "tempban " + player.getName() + " " + duration + "s [ChatFilter]"));
+            case "banip" -> scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
+                    "banip " + player.getName() + " [ChatFilter]"));
+        }
     }
 
     private void scheduleTask(Runnable task) {

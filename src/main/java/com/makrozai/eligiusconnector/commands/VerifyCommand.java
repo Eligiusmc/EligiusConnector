@@ -75,8 +75,8 @@ public class VerifyCommand implements CommandExecutor {
                     plugin.msg(null, "keys.command.verify.discord_linked").replace("{player}", player.getName()),
                     5);
 
-            // Assign verified role
-            plugin.assignVerifiedRole(discordId);
+            // Trigger immediate role sync
+            plugin.syncRolesForPlayer(player);
 
             // Execute post-verify commands
             executePostVerifyCommands(player);

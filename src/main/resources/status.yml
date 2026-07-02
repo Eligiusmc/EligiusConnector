@@ -1,5 +1,7 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Status                 ║
+# ║        EligiusConnector - Server Status          ║
+# ║  Posted on server start/stop to Discord channel  ║
+# ║  Also used by counters.yml server_status state   ║
 # ╚══════════════════════════════════════════════════╝
 
 channel: "1521276573033173204"
@@ -17,13 +19,13 @@ online:
     - name: "📋 Server"
       value: "EligiusMC"
       inline: true
-    - name: "🎮 Game Mode"
+    - name: "🎮 Gamemode"
       value: "Survival"
       inline: true
     - name: "🌍 World"
       value: "Overworld"
       inline: true
-    - name: "📢 Information"
+    - name: "📢 Info"
       value: "Join us and start your adventure!"
       inline: false
 
@@ -40,6 +42,6 @@ offline:
     - name: "📋 Status"
       value: "Under maintenance"
       inline: true
-    - name: "⏰ Expected"
+    - name: "⏰ ETA"
       value: "Shortly"
       inline: true

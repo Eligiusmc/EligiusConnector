@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -260,39 +261,44 @@ public class ConfigAdapter {
 
     public FileConfiguration getChatConfig() { return chatConfig; }
     public String getChatChannelId() { return chatConfig.getString("channel", ""); }
-    public String getGlobalChannelId() { return chatConfig.getString("channel", ""); }
-    public boolean isMcToDiscordEnabled() { return chatConfig.getBoolean("mc_to_discord", true); }
-    public boolean isDiscordToMcEnabled() { return chatConfig.getBoolean("discord_to_mc", true); }
-    public String getChatFormatMCToDC() { return chatConfig.getString("format.mc_to_discord", "{player}: {message}"); }
-    public String getChatFormatDiscordToMC() { return chatConfig.getString("format.discord_to_mc", "[DC] {player}: {message}"); }
-    public boolean isWebhookEnabled() { return chatConfig.getBoolean("webhooks.enabled", true); }
-    public String getWebhookName() { return chatConfig.getString("webhooks.name", "Minecraft"); }
-    public String getWebhookAvatar() { return chatConfig.getString("webhooks.avatar", "https://minotar.net/avatar/{player}/128"); }
 
-    public boolean isSpamFilterEnabled() { return chatConfig.getBoolean("filters.spam.enabled", true); }
-    public int getSpamMaxMessages() { return chatConfig.getInt("filters.spam.max_messages", 5); }
-    public int getSpamTimeWindowSeconds() { return chatConfig.getInt("filters.spam.time_window_seconds", 10); }
+    public boolean isMcToDiscordEnabled() { return chatConfig.getBoolean("bridge.mc_to_discord", true); }
+    public boolean isDiscordToMcEnabled() { return chatConfig.getBoolean("bridge.discord_to_mc", true); }
 
-    public boolean isProfanityFilterEnabled() { return chatConfig.getBoolean("filters.profanity.enabled", true); }
-    public List<String> getBlockedWords() { return chatConfig.getStringList("filters.profanity.words"); }
-    public String getProfanityReplacement() { return chatConfig.getString("filters.profanity.replacement", "*"); }
+    public String getChatFormatMCToDC() { return chatConfig.getString("format.mc_to_discord", "%player_name%: %player_message%"); }
+    public String getChatFormatDiscordToMC() { return chatConfig.getString("format.discord_to_mc", "[DC] %player_name%: %player_message%"); }
 
-    public boolean isLinksFilterEnabled() { return chatConfig.getBoolean("filters.links.enabled", true); }
-    public String getLinksMode() { return chatConfig.getString("filters.links.mode", "whitelist"); }
-    public List<String> getLinksDomains() { return chatConfig.getStringList("filters.links.domains"); }
+    public boolean isWebhookEnabled() { return chatConfig.getBoolean("webhook.enabled", true); }
+    public String getWebhookName() { return chatConfig.getString("webhook.name", "Minecraft"); }
+    public String getWebhookAvatar() { return chatConfig.getString("webhook.avatar", "https://minotar.net/avatar/%player_name%/128"); }
 
-    public boolean isCapsFilterEnabled() { return chatConfig.getBoolean("filters.caps.enabled", true); }
-    public int getCapsMaxPercentage() { return chatConfig.getInt("filters.caps.max_percentage", 70); }
-    public int getCapsMinLength() { return chatConfig.getInt("filters.caps.min_length", 10); }
+    public boolean isFilterEnabled() { return chatConfig.getBoolean("filter.enabled", true); }
 
-    // Convenience aliases for callers
-    public boolean isChatBridgeEnabled() { return isChatEnabled() && isMcToDiscordEnabled(); }
-    public boolean isFilterEnabled() { return isSpamFilterEnabled() || isProfanityFilterEnabled() || isLinksFilterEnabled() || isCapsFilterEnabled(); }
-    public boolean isAntiSpamEnabled() { return isSpamFilterEnabled(); }
-    public int getMaxMessages() { return getSpamMaxMessages(); }
-    public int getTimeWindowSeconds() { return getSpamTimeWindowSeconds(); }
-    public boolean isUseWebhooks() { return isWebhookEnabled(); }
-    public String getChatMcToDiscord() { return getChatFormatMCToDC(); }
+    public boolean isSpamFilterEnabled() { return chatConfig.getBoolean("filter.spam.enabled", true); }
+    public int getSpamMaxMessages() { return chatConfig.getInt("filter.spam.max_messages", 5); }
+    public int getSpamTimeWindowSeconds() { return chatConfig.getInt("filter.spam.time_window_seconds", 10); }
+
+    public boolean isProfanityFilterEnabled() { return chatConfig.getBoolean("filter.profanity.enabled", true); }
+    public List<String> getBlockedWords() { return chatConfig.getStringList("filter.profanity.words"); }
+
+    public boolean isLinksFilterEnabled() { return chatConfig.getBoolean("filter.links.enabled", true); }
+    public String getLinksMode() { return chatConfig.getString("filter.links.mode", "whitelist"); }
+    public List<String> getLinksDomains() { return chatConfig.getStringList("filter.links.domains"); }
+
+    public boolean isCapsFilterEnabled() { return chatConfig.getBoolean("filter.caps.enabled", true); }
+    public int getCapsMaxPercentage() { return chatConfig.getInt("filter.caps.max_percentage", 70); }
+    public int getCapsMinLength() { return chatConfig.getInt("filter.caps.min_length", 10); }
+
+    public boolean isPunishmentEnabled() { return chatConfig.getBoolean("filter.punishment.enabled", true); }
+    public Map<Integer, String> getPunishmentThresholds() {
+        ConfigurationSection section = chatConfig.getConfigurationSection("filter.punishment.thresholds");
+        if (section == null) return Map.of(2, "mute:300", 5, "tempban:3600", 10, "banip");
+        Map<Integer, String> thresholds = new java.util.LinkedHashMap<>();
+        for (String key : section.getKeys(false)) {
+            thresholds.put(Integer.parseInt(key), section.getString(key));
+        }
+        return thresholds;
+    }
 
     // ==========================================
     //  STATUS CONFIG GETTERS
@@ -325,9 +331,6 @@ public class ConfigAdapter {
     public String getJoinsChannelId() { return getJoinChannelId(); }
     public String getDeathsChannelId() { return getDeathChannelId(); }
     public String getMissionsChannelId() { return getAdvancementChannelId(); }
-    public String getBossEventsChannelId() { return chatConfig.getString("boss_events_channel", ""); }
-    public Map<String, Object> getBossSpawnEmbed() { return getEmbedFromConfig(chatConfig, "boss_spawn_embed"); }
-    public Map<String, Object> getBossDeathEmbed() { return getEmbedFromConfig(chatConfig, "boss_death_embed"); }
 
     // ==========================================
     //  VERIFY CONFIG GETTERS
@@ -359,13 +362,8 @@ public class ConfigAdapter {
 
     public FileConfiguration getConsoleConfig() { return consoleConfig; }
     public String getConsoleChannelId() { return consoleConfig.getString("channel", ""); }
-    public String getConsoleLogLevel() { return consoleConfig.getString("log_level", "info"); }
-    public int getConsoleRefreshRate() { return consoleConfig.getInt("refresh_rate_seconds", 2); }
-    public List<String> getConsoleBlacklist() { return consoleConfig.getStringList("blacklist"); }
-    public boolean isConsoleReverseEnabled() { return consoleConfig.getBoolean("reverse.enabled", true); }
-    public String getConsoleReversePrefix() { return consoleConfig.getString("reverse.prefix", "!"); }
-    public String getConsoleReversePermission() { return consoleConfig.getString("reverse.permission_required", "connector.console"); }
-    public List<String> getConsoleReverseBlacklist() { return consoleConfig.getStringList("reverse.blacklist"); }
+    public int getConsolePollInterval() { return consoleConfig.getInt("poll_interval", 2); }
+    public List<String> getConsoleCommandBlacklist() { return consoleConfig.getStringList("command_blacklist"); }
 
     // ==========================================
     //  COUNTERS CONFIG
@@ -378,31 +376,33 @@ public class ConfigAdapter {
     // ==========================================
 
     public boolean isRoleSyncEnabled() { return synchronizationConfig.getBoolean("roles.enabled", false); }
-    public boolean isRoleOnLinkEnabled() { return synchronizationConfig.getBoolean("roles.on_link", true); }
-    public String getVerifiedRoleId() { return synchronizationConfig.getString("roles.group_mapping.verified", ""); }
-    public void setVerifiedRoleId(String roleId) {
-        synchronizationConfig.set("roles.group_mapping.verified", roleId);
-        try {
-            File file = new File(plugin.getDataFolder(), "synchronization.yml");
-            synchronizationConfig.save(file);
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to save verified role ID: " + e.getMessage());
-        }
-    }
+    public int getRoleSyncInterval() { return synchronizationConfig.getInt("roles.interval", 30); }
+
     public Map<String, String> getRoleGroupMapping() {
-        Map<String, String> mapping = new HashMap<>();
-        var section = synchronizationConfig.getConfigurationSection("roles.group_mapping");
+        Map<String, String> mapping = new LinkedHashMap<>();
+        var section = synchronizationConfig.getConfigurationSection("roles.mapping");
         if (section != null) {
             for (String key : section.getKeys(false)) {
-                mapping.put(key, String.valueOf(section.get(key)));
+                String roleId = section.getString(key, "");
+                if (!roleId.isEmpty() && !roleId.startsWith("ROLE_ID")) {
+                    mapping.put(key, roleId);
+                }
             }
         }
         return mapping;
     }
 
-    // Nickname sync
+    public void setRoleMappingEntry(String name, String roleId) {
+        synchronizationConfig.set("roles.mapping." + name, roleId);
+        try {
+            synchronizationConfig.save(new File(plugin.getDataFolder(), "synchronization.yml"));
+        } catch (Exception e) {
+            plugin.getLogger().warning("Failed to save role mapping: " + e.getMessage());
+        }
+    }
+
     public boolean isNicknameSyncEnabled() { return synchronizationConfig.getBoolean("nickname.enabled", true); }
-    public int getNicknameCycleSeconds() { return synchronizationConfig.getInt("nickname.cycle_time_seconds", 30); }
+    public int getNicknameInterval() { return synchronizationConfig.getInt("nickname.interval", 30); }
     public String getNicknameFormat() { return synchronizationConfig.getString("nickname.format", "%player_name%"); }
 
     // ==========================================

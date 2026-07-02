@@ -21,7 +21,7 @@ public class NicknameSyncTask {
 
     public void start() {
         task = Scheduler.runTimerAsync(plugin, this::syncAll, 20L,
-                plugin.getConfigAdapter().getNicknameCycleSeconds() * 20L);
+                plugin.getConfigAdapter().getNicknameInterval() * 20L);
     }
 
     public void syncAll() {

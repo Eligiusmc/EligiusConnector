@@ -14,9 +14,8 @@ import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
 import com.makrozai.eligiusconnector.counters.CounterManager;
 import com.makrozai.eligiusconnector.placeholders.PlaceholderResolver;
 import com.makrozai.eligiusconnector.tasks.NicknameSyncTask;
+import com.makrozai.eligiusconnector.tasks.RoleSyncTask;
 import com.makrozai.eligiusconnector.util.StartupLogger;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -40,6 +39,7 @@ public final class EligiusConnector extends JavaPlugin {
     private CounterManager counterManager;
     private PlaceholderResolver placeholderResolver;
     private NicknameSyncTask nicknameSyncTask;
+    private RoleSyncTask roleSyncTask;
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
     private final Map<Long, Long> verifyExpiry = new ConcurrentHashMap<>();
@@ -80,9 +80,10 @@ public final class EligiusConnector extends JavaPlugin {
         panelManager = new PanelManager(this);
         panelManager.initializePanels();
 
-        // Create verified role if needed
+        // Start role sync
         if (configAdapter.isRoleSyncEnabled()) {
-            createVerifiedRoleIfNeeded();
+            roleSyncTask = new RoleSyncTask(this);
+            roleSyncTask.start();
         }
 
         // Register listeners
@@ -105,7 +106,7 @@ public final class EligiusConnector extends JavaPlugin {
         if (configAdapter.isSynchronizationEnabled() && configAdapter.isNicknameSyncEnabled()) {
             nicknameSyncTask = new NicknameSyncTask(this);
             nicknameSyncTask.start();
-            getLogger().info("Nickname sync task started (interval: " + configAdapter.getNicknameCycleSeconds() + "s)");
+            getLogger().info("Nickname sync task started (interval: " + configAdapter.getNicknameInterval() + "s)");
         }
 
         // Start console log reader
@@ -141,48 +142,15 @@ public final class EligiusConnector extends JavaPlugin {
             discordManager.sendStatusOffEmbedSync();
         }
         if (nicknameSyncTask != null) nicknameSyncTask.stop();
+        if (roleSyncTask != null) roleSyncTask.stop();
         if (consoleLogReader != null) consoleLogReader.stop();
         if (discordManager != null) discordManager.shutdown();
         if (databaseManager != null) databaseManager.close();
         getLogger().info("EligiusConnector disabled!");
     }
 
-    private void createVerifiedRoleIfNeeded() {
-        String roleId = configAdapter.getVerifiedRoleId();
-        if (roleId == null || roleId.isEmpty()) {
-            // Create role and save ID
-            Guild guild = discordManager.getGuild();
-            if (guild == null) return;
-
-            guild.createRole()
-                    .setName("Verificado")
-                    .setColor(0x2ECC71)
-                    .setMentionable(false)
-                    .queue(role -> {
-                        getLogger().info("Created 'Verificado' role: " + role.getId());
-                        // Save role ID to config
-                        configAdapter.setVerifiedRoleId(role.getId());
-                    }, error -> getLogger().warning("Failed to create verified role: " + error.getMessage()));
-        }
-    }
-
-    public void assignVerifiedRole(long discordId) {
-        if (!configAdapter.isRoleSyncEnabled() || !configAdapter.isRoleOnLinkEnabled()) return;
-        String roleId = configAdapter.getVerifiedRoleId();
-        if (roleId == null || roleId.isEmpty()) return;
-
-        Guild guild = discordManager.getGuild();
-        if (guild == null) return;
-
-        guild.retrieveMemberById(discordId).queue(member -> {
-            Role role = guild.getRoleById(roleId);
-            if (role != null && !member.getRoles().contains(role)) {
-                guild.addRoleToMember(member, role).queue(
-                        success -> getLogger().info("Assigned 'Verificado' role to " + member.getUser().getName()),
-                        error -> getLogger().warning("Failed to assign role: " + error.getMessage())
-                );
-            }
-        }, error -> getLogger().warning("Failed to retrieve member for role assignment: " + error.getMessage()));
+    public void syncRolesForPlayer(Player player) {
+        if (roleSyncTask != null) roleSyncTask.syncPlayer(player);
     }
 
     public String generateVerifyCode(long discordId) {

@@ -1,5 +1,11 @@
 # ╔══════════════════════════════════════════════════╗
 # ║        EligiusConnector - Player Events          ║
+# ║  Placeholders: %player_name%, %player_display%   ║
+# ║    %server_online%, %server_max_players%         ║
+# ║    %player_first_join%, %player_health%          ║
+# ║    %player_food%, %player_world%                 ║
+# ║  Death: {death_message}                          ║
+# ║  Advancement: {advancement}                      ║
 # ╚══════════════════════════════════════════════════╝
 
 join:
