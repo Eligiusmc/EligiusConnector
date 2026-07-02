@@ -42,6 +42,13 @@ keys:
     server_online: "Servidor En Linea"
     server_offline: "Servidor Apagado"
 
+    gamemode:
+      survival: "Supervivencia"
+      creative: "Creativo"
+      adventure: "Aventura"
+      spectator: "Espectador"
+      unknown: "Desconocido"
+
   command:
     verify:
       description: "Verificar tu cuenta de Minecraft"
@@ -57,6 +64,8 @@ keys:
       already_linked: "&aTu cuenta ya esta vinculada"
       invalid_format: "&cFormato invalido. El codigo debe tener 6 digitos."
       link_failed: "&cError al vincular la cuenta. Intentalo de nuevo."
+      code_instruction: "&aUsa &e/verify <codigo> &aen el chat del servidor Minecraft para vincular tu cuenta."
+      success_mc: "&a¡Cuenta vinculada exitosamente con Discord!"
       discord_linked: "✅ **{player}** ha vinculado su cuenta de Minecraft!"
 
     unlink:
@@ -104,7 +113,7 @@ keys:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge habilitado"
       disabled: "&cChat bridge deshabilitado"
-      blocked: "&cTu mensaje ha sido bloqueado. ({reason})"
+      blocked: "&c&lChat Filter&7: &eTu mensaje ha sido bloqueado. ({reason})"
       disabled_module: "&cEl modulo de chat esta deshabilitado."
       usage: "&cUso: /chat <mensaje>"
 
@@ -150,6 +159,7 @@ keys:
       footer: "Sigue los pasos"
       code_title: "🔐 Codigo de Verificacion"
       code_steps: "1. Entra al servidor de Minecraft\n2. Escribe `/verify {code}` en el chat"
+      steps_label: "📋 Pasos"
 
     profile:
       title: "👤 Perfil de {player}"
@@ -195,6 +205,23 @@ keys:
       biome: "Bioma"
       block: "Bloque"
       tp_footer: "/tp @s {x} {y} {z}"
+      directions:
+        n: "Norte"
+        ne: "Noreste"
+        e: "Este"
+        se: "Sureste"
+        s: "Sur"
+        sw: "Suroeste"
+        w: "Oeste"
+        nw: "Noroeste"
+      block_face:
+        north: "Norte"
+        south: "Sur"
+        east: "Este"
+        west: "Oeste"
+        up: "Arriba"
+        down: "Abajo"
+        side: "Lado"
       not_linked: "❌ Tu cuenta no esta vinculada"
       not_online: "❌ No estas en linea"
 

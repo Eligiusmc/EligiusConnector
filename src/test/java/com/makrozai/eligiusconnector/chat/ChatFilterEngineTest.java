@@ -42,6 +42,7 @@ class ChatFilterEngineTest {
         dbMock = mock(DatabaseManager.class);
         when(pluginMock.getConfigAdapter()).thenReturn(configMock);
         when(pluginMock.getDatabaseManager()).thenReturn(dbMock);
+        when(pluginMock.msg(any(org.bukkit.entity.Player.class), anyString(), anyMap())).thenReturn("blocked");
 
         // Default: all filters disabled (passes everything)
         when(configMock.isFilterEnabled()).thenReturn(false);

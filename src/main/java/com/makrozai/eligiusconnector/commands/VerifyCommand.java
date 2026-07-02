@@ -33,13 +33,13 @@ public class VerifyCommand implements CommandExecutor {
         }
 
         if (plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
-            player.sendMessage(plugin.getConfigAdapter().getVerifyAlreadyLinked());
+            player.sendMessage(plugin.msg(player, "keys.command.verify.already_linked"));
             playSound(player, false);
             return true;
         }
 
         if (args.length < 1) {
-            player.sendMessage(plugin.getConfigAdapter().getVerifyCodeMessage());
+            player.sendMessage(plugin.msg(player, "keys.command.verify.code_instruction"));
             return true;
         }
 
@@ -53,19 +53,19 @@ public class VerifyCommand implements CommandExecutor {
 
         Long discordId = findDiscordIdByCode(code);
         if (discordId == null) {
-            player.sendMessage(plugin.getConfigAdapter().getVerifyInvalidCode());
+            player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_code"));
             playSound(player, false);
             return true;
         }
 
         if (!plugin.verifyPlayer(discordId, code)) {
-            player.sendMessage(plugin.getConfigAdapter().getVerifyInvalidCode());
+            player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_code"));
             playSound(player, false);
             return true;
         }
 
         if (plugin.getDatabaseManager().linkAccount(discordId, player.getUniqueId(), player.getName(), player.getName())) {
-            player.sendMessage(plugin.getConfigAdapter().getVerifySuccessMc());
+            player.sendMessage(plugin.msg(player, "keys.command.verify.success_mc"));
             playSound(player, true);
 
             plugin.getDatabaseManager().logAudit("info", "account_linked", player.getName(), "minecraft", "Discord ID: " + discordId, null);

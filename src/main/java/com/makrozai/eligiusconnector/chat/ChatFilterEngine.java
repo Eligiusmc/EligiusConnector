@@ -130,7 +130,7 @@ public class ChatFilterEngine {
             return "mute";
         }
 
-        player.sendMessage("§c§lChat Filter§7: §eTu mensaje ha sido bloqueado. Reason: " + filterType);
+        player.sendMessage(plugin.msg(player, "keys.chat.blocked", java.util.Map.of("reason", filterType)));
         return "warn";
     }
 

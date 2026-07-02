@@ -239,11 +239,6 @@ public class ConfigAdapter {
     public String getVerifyChannelId() { return verifyConfig.getString("channel", ""); }
     public int getVerifyCodeLength() { return verifyConfig.getInt("code.length", 6); }
     public int getVerifyCodeExpiryMinutes() { return verifyConfig.getInt("code.expiry_minutes", 5); }
-    public String getVerifyCodeMessage() { return verifyConfig.getString("messages.code_message", ""); }
-    public String getVerifySuccessMc() { return verifyConfig.getString("messages.success_mc", ""); }
-    public String getVerifySuccessDiscord() { return verifyConfig.getString("messages.success_discord", ""); }
-    public String getVerifyAlreadyLinked() { return verifyConfig.getString("messages.already_linked", ""); }
-    public String getVerifyInvalidCode() { return verifyConfig.getString("messages.invalid_code", ""); }
     public Map<String, Object> getVerifyWelcomeEmbed() { return getEmbedFromConfig(verifyConfig, "welcome_embed"); }
 
     // Verify sounds
@@ -273,8 +268,6 @@ public class ConfigAdapter {
     public String getConsoleReversePrefix() { return consoleConfig.getString("reverse.prefix", "!"); }
     public String getConsoleReversePermission() { return consoleConfig.getString("reverse.permission_required", "connector.console"); }
     public List<String> getConsoleReverseBlacklist() { return consoleConfig.getStringList("reverse.blacklist"); }
-    public String getConsolePermissionDenied() { return consoleConfig.getString("messages.permission_denied", ""); }
-    public String getConsoleCommandBlacklisted() { return consoleConfig.getString("messages.command_blacklisted", ""); }
 
     // ==========================================
     //  COUNTERS CONFIG

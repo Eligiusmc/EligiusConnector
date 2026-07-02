@@ -42,6 +42,13 @@ keys:
     server_online: "Server Online"
     server_offline: "Server Offline"
 
+    gamemode:
+      survival: "Survival"
+      creative: "Creative"
+      adventure: "Adventure"
+      spectator: "Spectator"
+      unknown: "Unknown"
+
   command:
     verify:
       description: "Verify your Minecraft account"
@@ -57,6 +64,8 @@ keys:
       already_linked: "&aYour account is already linked"
       invalid_format: "&cInvalid format. Code must be 6 digits."
       link_failed: "&cFailed to link account. Please try again."
+      code_instruction: "&aUse &e/verify <code> &ain the Minecraft server chat to link your account."
+      success_mc: "&aAccount linked successfully with Discord!"
       discord_linked: "✅ **{player}** has linked their Minecraft account!"
 
     unlink:
@@ -104,7 +113,7 @@ keys:
       description: "Toggle chat bridge"
       enabled: "&aChat bridge enabled"
       disabled: "&cChat bridge disabled"
-      blocked: "&cYour message has been blocked. ({reason})"
+      blocked: "&c&lChat Filter&7: &eYour message has been blocked. ({reason})"
       disabled_module: "&cChat module is disabled."
       usage: "&cUsage: /chat <message>"
 
@@ -150,6 +159,7 @@ keys:
       footer: "Follow the steps"
       code_title: "🔐 Verification Code"
       code_steps: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat"
+      steps_label: "📋 Steps"
 
     profile:
       title: "👤 Profile of {player}"
@@ -195,6 +205,23 @@ keys:
       biome: "Biome"
       block: "Block"
       tp_footer: "/tp @s {x} {y} {z}"
+      directions:
+        n: "North"
+        ne: "Northeast"
+        e: "East"
+        se: "Southeast"
+        s: "South"
+        sw: "Southwest"
+        w: "West"
+        nw: "Northwest"
+      block_face:
+        north: "North"
+        south: "South"
+        east: "East"
+        west: "West"
+        up: "Up"
+        down: "Down"
+        side: "Side"
 
     money:
       title: "💰 Balance"
