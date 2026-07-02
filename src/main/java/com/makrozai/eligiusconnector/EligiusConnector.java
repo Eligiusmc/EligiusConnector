@@ -154,10 +154,15 @@ public final class EligiusConnector extends JavaPlugin {
     }
 
     public String generateVerifyCode(long discordId) {
-        String code = String.valueOf((int) (Math.random() * 900000) + 100000);
-        verifyCodes.put(discordId, code);
+        String chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        StringBuilder code = new StringBuilder(6);
+        for (int i = 0; i < 6; i++) {
+            code.append(chars.charAt((int) (Math.random() * chars.length())));
+        }
+        String result = code.toString();
+        verifyCodes.put(discordId, result);
         verifyExpiry.put(discordId, System.currentTimeMillis() + (configAdapter.getCodeExpiryMinutes() * 60000L));
-        return code;
+        return result;
     }
 
     public String getVerifyCode(long discordId) {

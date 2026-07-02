@@ -60,38 +60,15 @@ public class ButtonListener extends ListenerAdapter {
                 }
 
                 String code = plugin.generateVerifyCode(discordId);
-                Map<String, Object> embedConfig = plugin.getConfigAdapter().getVerifyWelcomeEmbed();
+                Map<String, Object> embedConfig = plugin.getConfigAdapter().getVerifyCodeEmbed();
+                Map<String, String> replacements = java.util.Map.of("code", code);
 
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setTitle(getStringOrDefault(embedConfig, "title", "🔐 Verifica tu Cuenta"));
-                embed.setDescription(getStringOrDefault(embedConfig, "description", "Vincula tu cuenta de Minecraft"));
-                embed.setColor(getColorOrDefault(embedConfig, 0x5865F2));
-
-                String thumbnail = getStringOrDefault(embedConfig, "thumbnail", "");
-                if (!thumbnail.isEmpty()) {
-                    embed.setThumbnail(plugin.applyPlaceholders(null, thumbnail.replace("{player}", event.getUser().getName())));
+                MessageEmbed embed = plugin.getDiscordManager().buildEmbed(embedConfig, replacements, null);
+                if (embed == null) {
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                    return;
                 }
-
-                String author = getStringOrDefault(embedConfig, "author", "");
-                if (!author.isEmpty()) {
-                    String authorIcon = getStringOrDefault(embedConfig, "author_icon", "");
-                    embed.setAuthor(author, null, authorIcon.isEmpty() ? null : authorIcon);
-                }
-
-                embed.addField(plugin.msg("keys.discord.verify.code_title"), "`" + code + "`", false);
-                embed.addBlankField(false);
-                embed.addField(plugin.msg("keys.discord.verify.steps_label"), plugin.msg("keys.discord.verify.code_steps").replace("{code}", code), false);
-
-                String footer = getStringOrDefault(embedConfig, "footer", "");
-                if (!footer.isEmpty()) {
-                    embed.setFooter(footer);
-                }
-
-                if (Boolean.TRUE.equals(embedConfig.get("timestamp"))) {
-                    embed.setTimestamp(java.time.Instant.now());
-                }
-
-                event.getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
+                event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
             } catch (Exception e) {
                 plugin.getLogger().warning("Verify button error: " + e.getMessage());
                 plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");

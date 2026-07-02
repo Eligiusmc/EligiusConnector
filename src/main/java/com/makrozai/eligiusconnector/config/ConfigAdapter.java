@@ -338,9 +338,8 @@ public class ConfigAdapter {
 
     public FileConfiguration getVerifyConfig() { return verifyConfig; }
     public String getVerifyChannelId() { return verifyConfig.getString("channel", ""); }
-    public int getVerifyCodeLength() { return verifyConfig.getInt("code.length", 6); }
-    public int getVerifyCodeExpiryMinutes() { return verifyConfig.getInt("code.expiry_minutes", 5); }
-    public Map<String, Object> getVerifyWelcomeEmbed() { return getEmbedFromConfig(verifyConfig, "welcome_embed"); }
+    public int getCodeExpiryMinutes() { return verifyConfig.getInt("code.expiry", 5); }
+    public Map<String, Object> getVerifyCodeEmbed() { return getEmbedFromConfig(verifyConfig, "code_embed"); }
 
     // Verify sounds
     public boolean isVerifySoundsEnabled() { return verifyConfig.getBoolean("sounds.enabled", true); }
@@ -352,9 +351,7 @@ public class ConfigAdapter {
     public float getVerifyErrorPitch() { return (float) verifyConfig.getDouble("sounds.error.pitch", 1.0); }
 
     // Post-verify commands
-    public java.util.List<String> getPostVerifyCommands() { return verifyConfig.getStringList("post_verify_commands"); }
-
-    public int getCodeExpiryMinutes() { return getVerifyCodeExpiryMinutes(); }
+    public java.util.List<String> getPostVerifyCommands() { return verifyConfig.getStringList("post_verify"); }
 
     // ==========================================
     //  CONSOLE CONFIG GETTERS

@@ -2,30 +2,40 @@
 # ║        EligiusConnector - Verification           ║
 # ╚══════════════════════════════════════════════════╝
 
+# Discord channel for the verify panel
 channel: "1521272231068700702"
 
+# Static panel shown in the verify channel
 panel:
   embed:
-    title: "🔐 Verifica tu Cuenta"
-    description: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
+    title: "🔐 Account Verification"
+    description: "Link your Minecraft account to unlock all features."
     color: "0x5865F2"
     author: "EligiusMC"
-    footer: "Sigue los pasos"
+    footer: "EligiusMC"
+    timestamp: true
     fields:
-      - name: "📋 Como verificar"
-        value: "1. Entra al servidor de Minecraft\n2. Escribe /verify en el chat\n3. Haz clic en Verificar abajo\n4. Ingresa el codigo"
+      - name: "📋 How to verify"
+        value: |
+          1. Join the Minecraft server
+          2. Type `/verify` in chat
+          3. Click **Verify** below
+          4. Enter the code from Discord in-game
         inline: false
-      - name: "✨ Beneficios"
-        value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario"
+      - name: "✨ Benefits"
+        value: |
+          • Chat bridge MC ↔ Discord
+          • View your profile, inventory and location
+          • Sync groups to Discord roles
         inline: false
   buttons:
     verify: true
 
+# Verification code — always 6 alphanumeric characters
 code:
-  length: 6
-  expiry_minutes: 5
-  character_set: "numeric"
+  expiry: 5                  # Minutes before code expires
 
+# Sound effects played on /verify success or error
 sounds:
   enabled: true
   success:
@@ -37,22 +47,28 @@ sounds:
     volume: 1.0
     pitch: 1.0
 
-post_verify_commands:
+# Commands executed after successful verification
+# Placeholders: %player_name%, {player}, {uuid}
+post_verify:
   - "give %player_name% minecraft:diamond 1"
-  - "say ¡%player_name% se ha verificado!"
-  - "lp user %player_name% parent set default"
+  - "say %player_name% has verified their account!"
+  - "lp user %player_name% parent add verified"
 
-welcome_embed:
-  enabled: true
+# Embed shown when clicking the Verify button
+# Placeholder: {code} — the generated verification code
+code_embed:
+  title: "🔐 Verification Code"
+  description: "Use the code below to link your Minecraft account."
   color: 5814783
   thumbnail: "https://minotar.net/avatar/server/128"
   author: "EligiusMC"
   author_icon: "https://minotar.net/avatar/EligiusMC/128"
+  footer: "EligiusMC"
   timestamp: true
   fields:
-    - name: "📋 Como verificar"
-      value: "1. Entra al servidor de Minecraft\n2. Escribe /verify en el chat\n3. Haz clic en Verificar abajo\n4. Ingresa el codigo"
+    - name: "🔑 Your Code"
+      value: "`{code}`"
       inline: false
-    - name: "✨ Beneficios"
-      value: "• Chat bridge MC ↔ Discord\n• Ver perfil e inventario"
+    - name: "📋 How to verify"
+      value: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat\n3. You're linked!"
       inline: false
