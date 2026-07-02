@@ -153,6 +153,9 @@ public class PlayerListener implements Listener {
     public void onAdvancement(org.bukkit.event.player.PlayerAdvancementDoneEvent event) {
         Player player = event.getPlayer();
         String key = event.getAdvancement().getKey().getKey();
+
+        // ponytail: filter recipe advancements (spigot-safe, getDisplay() is Paper-only)
+        if (key.startsWith("recipes/")) return;
         String finalName = capitalizeWords(key.replace("/", " > ").replace("_", " "));
 
         Scheduler.runAsync(plugin, () -> {

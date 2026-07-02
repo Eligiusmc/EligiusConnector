@@ -44,6 +44,8 @@ public class PlaceholderResolver {
         register("player_name", player -> player != null ? player.getName() : "");
         register("player_displayname", player -> player != null ? player.getDisplayName() : "");
         register("player_world", player -> player != null ? player.getWorld().getName() : "");
+        register("player_health", player -> player != null ? String.valueOf((int) player.getHealth()) : "0");
+        register("player_food", player -> player != null ? String.valueOf(player.getFoodLevel()) : "0");
     }
 
     public void register(String key, Function<Player, String> resolver) {
