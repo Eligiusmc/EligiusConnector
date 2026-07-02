@@ -8,7 +8,9 @@ public class PeriodicCounter {
 
     private final EligiusConnector plugin;
     private final CounterConfig config;
-    private BukkitTask task;
+    private BukkitTask timerTask;
+    private BukkitTask debounceTask;
+    private long lastUpdateMs;
 
     public PeriodicCounter(EligiusConnector plugin, CounterConfig config) {
         this.plugin = plugin;
@@ -17,18 +19,36 @@ public class PeriodicCounter {
 
     public void start() {
         long ticks = Math.max(config.intervalSeconds(), 1) * 20L;
-        task = Scheduler.runTimerAsync(plugin, this::update, 60L, ticks);
+        timerTask = Scheduler.runTimerAsync(plugin, this::doUpdate, 60L, ticks);
     }
 
     public void stop() {
-        if (task != null) {
-            task.cancel();
-            task = null;
+        if (timerTask != null) {
+            timerTask.cancel();
+            timerTask = null;
+        }
+        if (debounceTask != null) {
+            debounceTask.cancel();
+            debounceTask = null;
         }
     }
 
+    // Debounced manual update — aggregates rapid join/leave events into 1 call
     public void update() {
+        if (debounceTask != null) debounceTask.cancel();
+        debounceTask = Scheduler.runLaterAsync(plugin, () -> {
+            debounceTask = null;
+            doUpdate();
+        }, 40L);
+    }
+
+    private void doUpdate() {
         if (!plugin.getDiscordManager().isConnected()) return;
+        // Cooldown: max 1 PATCH per 120s per counter (Discord allows 2 per 10min)
+        long now = System.currentTimeMillis();
+        if (now - lastUpdateMs < 120_000L) return;
+        lastUpdateMs = now;
+
         String resolved = plugin.getPlaceholderResolver().resolve(config.format());
         plugin.getDiscordManager().updateChannelName(config.channelId(), resolved);
     }

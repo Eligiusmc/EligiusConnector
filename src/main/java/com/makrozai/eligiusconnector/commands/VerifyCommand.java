@@ -70,10 +70,9 @@ public class VerifyCommand implements CommandExecutor {
 
             plugin.getDatabaseManager().logAudit("info", "account_linked", player.getName(), "minecraft", "Discord ID: " + discordId, null);
 
-            plugin.getDiscordManager().sendTempMessage(
-                    plugin.getConfigAdapter().getVerifyChannelId(),
-                    plugin.msg(null, "verify.discord_linked").replace("{player}", player.getName()),
-                    5);
+            plugin.getDiscordManager().sendDmEmbed(discordId,
+                    plugin.getConfigAdapter().getVerifyDmEmbed(),
+                    java.util.Map.of("player", player.getName()));
 
             // Trigger immediate role sync
             plugin.syncRolesForPlayer(player);

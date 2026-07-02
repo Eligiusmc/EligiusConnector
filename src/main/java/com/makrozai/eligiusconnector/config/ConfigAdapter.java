@@ -1,8 +1,7 @@
 package com.makrozai.eligiusconnector.config;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
+import com.makrozai.eligiusconnector.util.StartupLogger;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -144,10 +143,10 @@ public class ConfigAdapter {
     }
 
     private void log(String module, boolean enabled, String reason) {
-        String status = enabled ? "&aENABLED" : "&cDISABLED";
-        String extra = reason != null && !reason.isEmpty() ? " &7(" + reason + ")" : "";
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&',
-                "&6[EC] &r" + module + ": " + status + extra));
+        String status = enabled ? "ENABLED" : "DISABLED";
+        String color = enabled ? "<green>" : "<red>";
+        String extra = reason != null && !reason.isEmpty() ? "<dark_gray> (" + reason + ")" : "";
+        StartupLogger.printStep("<dark_gray>  " + module + ": " + color + status + extra);
     }
 
     public boolean isChatEnabled() {
@@ -241,7 +240,7 @@ public class ConfigAdapter {
     }
 
     public void logModules() {
-        Bukkit.getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&6=== Module Status ==="));
+        StartupLogger.printStep("<gold>Module Status</gold>");
         log("Chat", isChatEnabled(), null);
         log("Status", isStatusEnabled(), null);
         log("Player Events", isJoinLeaveEnabled(), null);
@@ -342,6 +341,7 @@ public class ConfigAdapter {
     public String getVerifyChannelId() { return verifyConfig.getString("channel", ""); }
     public int getCodeExpiryMinutes() { return verifyConfig.getInt("code.expiry", 5); }
     public Map<String, Object> getVerifyCodeEmbed() { return getEmbedFromConfig(verifyConfig, "code_embed"); }
+    public Map<String, Object> getVerifyDmEmbed() { return getEmbedFromConfig(verifyConfig, "dm_embed"); }
 
     // Verify sounds
     public boolean isVerifySoundsEnabled() { return verifyConfig.getBoolean("sounds.enabled", true); }

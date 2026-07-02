@@ -37,6 +37,7 @@ public class PlayerStatsManager {
              Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             // Add missing columns for existing tables
+            addColumnIfMissing(stmt, "connector_player_stats", "first_join", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
             addColumnIfMissing(stmt, "connector_player_stats", "last_join", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
             addColumnIfMissing(stmt, "connector_player_stats", "kills_player", "INT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "deaths_player", "INT DEFAULT 0");

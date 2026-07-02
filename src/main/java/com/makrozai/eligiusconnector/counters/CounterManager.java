@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.counters;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -53,6 +54,8 @@ public class CounterManager {
 
     public void onServerStart() {
         stateManager.setState("server_online", "online");
+        // ponytail: slight delay so state counter update finishes before status embed
+        stateCounters.values().forEach(c -> Scheduler.runLaterAsync(plugin, c::update, 20L));
     }
 
     public void onServerStop() {

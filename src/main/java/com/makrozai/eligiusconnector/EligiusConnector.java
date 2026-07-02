@@ -51,53 +51,48 @@ public final class EligiusConnector extends JavaPlugin {
         instance = this;
         startTime = System.currentTimeMillis();
 
-        // Load configurations
         configAdapter = new ConfigAdapter(this);
         configAdapter.loadAll();
+
+        StartupLogger.printLogo(getDescription().getVersion(),
+                "Spigot/Paper", configAdapter.getDatabaseType().toUpperCase());
+
         configAdapter.logModules();
 
         languageManager = new LanguageManager(this);
         languageManager.load();
 
-        // Initialize database
+        StartupLogger.printStep("Initializing database...");
         databaseManager = new DatabaseManager(this);
         databaseManager.initialize();
 
-        // Initialize stats
         statsManager = new PlayerStatsManager(this);
         statsManager.createTable();
 
-        // Initialize Discord
+        StartupLogger.printStep("Connecting to Discord...");
         discordManager = new DiscordManager(this);
         discordManager.initialize();
 
-        // Initialize placeholder resolver
         placeholderResolver = new PlaceholderResolver(this);
-
         webhookManager = new WebhookManager(this);
 
-        // Initialize panels
         panelManager = new PanelManager(this);
         panelManager.initializePanels();
 
-        // Start role sync
         if (configAdapter.isRoleSyncEnabled()) {
             roleSyncTask = new RoleSyncTask(this);
             roleSyncTask.start();
         }
 
-        // Register listeners
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new StatsListener(this), this);
 
-        // Register commands
         safeSetExecutor("verify", new com.makrozai.eligiusconnector.commands.VerifyCommand(this));
         safeSetExecutor("unlink", new com.makrozai.eligiusconnector.commands.UnlinkCommand(this));
         safeSetExecutor("connector", new com.makrozai.eligiusconnector.commands.ConnectorCommand(this));
         safeSetExecutor("events", new com.makrozai.eligiusconnector.commands.EventsCommand(this));
         safeSetExecutor("chat", new com.makrozai.eligiusconnector.commands.ChatCommand(this));
 
-        // Initialize counters
         if (configAdapter.isCountersEnabled()) {
             counterManager = new CounterManager(this);
             counterManager.loadAll(configAdapter.getCountersConfig());
@@ -106,28 +101,23 @@ public final class EligiusConnector extends JavaPlugin {
         if (configAdapter.isSynchronizationEnabled() && configAdapter.isNicknameSyncEnabled()) {
             nicknameSyncTask = new NicknameSyncTask(this);
             nicknameSyncTask.start();
-            getLogger().info("Nickname sync task started (interval: " + configAdapter.getNicknameInterval() + "s)");
         }
 
-        // Start console log reader
         if (configAdapter.isConsoleEnabled()) {
             consoleLogReader = new ConsoleLogReader(this);
             consoleLogReader.start();
         }
 
-        // Load events
         if (configAdapter.isEventsEnabled()) {
             eventManager = new EventManager(this);
             eventManager.loadEvents();
         }
 
-        // Send server status
         if (counterManager != null) counterManager.onServerStart();
         if (configAdapter.isStatusEnabled() && discordManager != null && discordManager.isConnected()) {
             discordManager.sendStatusEmbed(new java.util.HashMap<>(), null);
         }
 
-        // Print success
         long elapsed = System.currentTimeMillis() - startTime;
         StartupLogger.printSuccess(elapsed);
     }

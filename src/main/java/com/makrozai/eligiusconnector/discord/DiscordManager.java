@@ -69,9 +69,9 @@ public class DiscordManager {
             jda.addEventListener(new DiscordListener(plugin));
             jda.addEventListener(new ButtonListener(plugin));
 
-            StartupLogger.printStep("Discord bot connected:", jda.getSelfUser().getName());
+            StartupLogger.printStep("Discord bot connected — " + jda.getSelfUser().getName());
             if (getGuild() != null) {
-                StartupLogger.printStep("Guild:", getGuild().getName());
+                StartupLogger.printStep("Guild — " + getGuild().getName());
             }
 
             // Start periodic status rotation
@@ -141,6 +141,22 @@ public class DiscordManager {
         }
     }
 
+    // Send DM embed to a Discord user
+    public void sendDmEmbed(long discordId, Map<String, Object> embedConfig, Map<String, String> replacements) {
+        if (!isConnected() || jda == null) return;
+        jda.retrieveUserById(discordId).queue(user ->
+            user.openPrivateChannel().queue(channel -> {
+                MessageEmbed embed = buildEmbed(embedConfig, replacements, null);
+                if (embed != null) {
+                    channel.sendMessageEmbeds(embed).queue(
+                            success -> {},
+                            error -> plugin.getLogger().warning("Failed to send DM: " + error.getMessage())
+                    );
+                }
+            }, error -> {})
+        , error -> {});
+    }
+
     // Clear all bot messages in a channel
     public void clearChannel(String channelId) {
         clearChannel(channelId, null);
@@ -171,23 +187,10 @@ public class DiscordManager {
                 return;
             }
 
-            // ponytail: individual deletes via RestAction.allOf, works for messages > 14 days
-            List<net.dv8tion.jda.api.requests.RestAction<Void>> deletes = botMessages.stream()
-                    .<net.dv8tion.jda.api.requests.RestAction<Void>>map(msg -> msg.delete())
-                    .toList();
-
-            if (deletes.isEmpty()) {
-                if (onComplete != null) onComplete.run();
-                return;
-            }
-
-            net.dv8tion.jda.api.requests.RestAction.allOf(deletes).queue(
-                    success -> { if (onComplete != null) onComplete.run(); },
-                    error -> {
-                        plugin.getLogger().warning("Failed to clear some messages in channel " + channelId + ": " + error.getMessage());
-                        if (onComplete != null) onComplete.run();
-                    }
-            );
+            // ponytail: bulk delete via purgeMessages (1 API call), fallback to individual
+            // purgeMessages only works for messages < 14 days, but status/panels are always recent
+            channel.purgeMessages(botMessages);
+            if (onComplete != null) onComplete.run();
         }, error -> {
             if (onComplete != null) onComplete.run();
         });

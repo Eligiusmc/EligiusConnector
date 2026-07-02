@@ -1,7 +1,6 @@
 package com.makrozai.eligiusconnector.counters;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
-import com.makrozai.eligiusconnector.util.Scheduler;
 
 public class StateCounter implements StateManager.StateListener {
 
@@ -17,7 +16,6 @@ public class StateCounter implements StateManager.StateListener {
 
     public void start() {
         stateManager.subscribe(config.stateKey(), this);
-        Scheduler.runLaterAsync(plugin, this::update, 60L);
     }
 
     public void stop() {

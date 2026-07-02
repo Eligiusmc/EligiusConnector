@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.discord;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.StartupLogger;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.io.File;
@@ -33,6 +34,7 @@ public class ConsoleLogReader {
         executor = Executors.newSingleThreadScheduledExecutor();
         int refreshRate = plugin.getConfigAdapter().getConsolePollInterval();
         executor.scheduleAtFixedRate(this::readLogs, 0, refreshRate, TimeUnit.SECONDS);
+        StartupLogger.printStep("Console log reader started (" + refreshRate + "s interval)");
         plugin.getLogger().info("Console log reader started (refresh: " + refreshRate + "s)");
     }
 
