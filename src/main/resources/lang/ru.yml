@@ -1,110 +1,137 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Русский               ║
+# ║        EligiusConnector - Russian            ║
 # ╚══════════════════════════════════════════════════╝
 
-keys:
-  error:
-    not_linked:
-      title: "🔗 Аккаунт не привязан"
-      description: "Сначала привяжите аккаунт Minecraft. Используйте кнопку **Verificar**."
-    not_online:
-      title: "🎮 Не в сети"
-      description: "Подключитесь к серверу Minecraft."
-    already_linked:
-      title: "✅ Уже привязан"
-      description: "Ваш аккаунт уже привязан."
-    no_permission:
-      title: "🚫 Нет прав"
-      description: "У вас нет прав на выполнение этой команды."
-    command_blacklisted:
-      title: "🚫 Команда заблокирована"
-      description: "Эта команда в черном списке безопасности."
-    internal_error:
-      title: "⚠️ Внутренняя ошибка"
-      description: "Произошла непредвиденная ошибка."
-    economy_disabled:
-      title: "💰 Недоступно"
-      description: "Экономическая система не настроена."
-    unknown_action:
-      title: "❓ Неизвестное действие"
-      description: "Эта кнопка не имеет действия."
+error:
+  not_linked:
+    title: "🔗 Account not linked"
+    description: "You need to link your Minecraft account first. Use the **Verify** button in the panel."
+  not_online:
+    title: "🎮 Not online"
+    description: "You must be connected to the Minecraft server to use this feature."
+  already_linked:
+    title: "✅ Already linked"
+    description: "Your account is already linked. Use `/unlink` if you want to change it."
+  no_permission:
+    title: "🚫 No permission"
+    description: "You don't have permission to execute this command."
+  command_blacklisted:
+    title: "🚫 Command blacklisted"
+    description: "This command is on the security blacklist."
+  internal_error:
+    title: "⚠️ Internal error"
+    description: "An unexpected error occurred. Try again in a few seconds."
+  economy_disabled:
+    title: "💰 Not available"
+    description: "The economy system is not configured on this server."
+  unknown_action:
+    title: "❓ Unknown action"
+    description: "This button has no valid action assigned."
 
-  general:
-    prefix: "&7[&6EC&7] "
-    enabled: "Включено"
-    disabled: "Выключено"
-    reload: "Конфигурация перезагружена"
-    error: "Ошибка"
-    no_permission: "У вас нет прав"
-    not_online: "Вы не в сети"
-    player_not_found: "Игрок не найден: {player}"
-    database_error: "Ошибка базы данных"
+general:
+  no_permission: "&cYou don't have permission"
+  not_online: "&cYou are not online"
+  gamemode:
+    survival: "Survival"
+    creative: "Creative"
+    adventure: "Adventure"
+    spectator: "Spectator"
+    unknown: "Unknown"
 
-  command:
-    verify:
-      description: "Подтвердить аккаунт Minecraft"
-      usage: "/verify <код>"
-      success: "&aАккаунт успешно подтвержден"
-      invalid: "&cНеверный код"
-      expired: "&cКод истёк"
-      already: "&aВаш аккаунт уже подтвержден"
-      code_message: "Ваш код: &e{code}"
-      not_linked: "&cВам нужно привязать аккаунт. Используйте /verify"
+verify:
+  already_linked: "&aYour account is already linked"
+  code_instruction: "&aUse &e/verify <code> &ain the Minecraft server chat to link your account."
+  invalid_code: "&cInvalid code or expired"
+  invalid_format: "&cInvalid format. Code must be 6 alphanumeric characters."
+  link_failed: "&cFailed to link account. Please try again."
+  success_mc: "&aAccount linked successfully with Discord!"
 
-    unlink:
-      description: "Отвязать аккаунт"
-      success: "&aАккаунт отвязан"
-      not_linked: "&cВаш аккаунт не привязан"
-      no_permission: "&cНет прав для отвязки других"
+unlink:
+  no_permission: "&cNo permission to unlink others"
+  target_not_found: "&cPlayer not found: {player}"
+  target_not_linked: "&c{player}'s account is not linked"
+  success: "&aAccount unlinked"
+  unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
+  failed: "&cFailed to unlink account"
+  not_linked: "&cYour account is not linked"
+  success_self: "&aAccount unlinked successfully!"
+  unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
 
-    connector:
-      description: "Административные команды"
-      reload_success: "&aКонфигурация перезагружена"
-      status_title: "&6Статус плагина"
-      status_discord: "Discord: {status}"
-      status_database: "База данных: {type}"
-      status_linked: "Привязанные аккаунты: {count}"
+connector:
+  help_title: "&6=== EligiusConnector ==="
+  help_reload: "&e/connector reload &7- Reload configuration"
+  help_status: "&e/connector status &7- View plugin status"
+  no_permission_reload: "&cYou don't have permission to reload."
+  reload_success: "&aConfiguration reloaded"
+  no_permission_status: "&cYou don't have permission to view status."
+  status_title: "&6Plugin Status"
+  status_discord: "Discord: {status}"
+  status_database: "Database: {type}"
+  status_linked: "Linked accounts: {count}"
 
-    events:
-      description: "Управление событиями"
-      list_title: "&6Доступные события"
-      no_events: "Нет настроенных событий"
-      started: "&aСобытие {name} начато"
-      stopped: "&cСобытие {name} остановлено"
-      not_found: "&cСобытие не найдено: {name}"
+events:
+  disabled: "&cEvents module is disabled."
+  list_title: "&6Available Events"
+  started: "&aEvent {name} started"
+  stopped: "&cEvent {name} stopped"
+  no_events: "No active events"
+  not_found: "&cEvent not found: {name}"
+  usage_start: "&cUsage: /events start <id>"
+  usage_stop: "&cUsage: /events stop <id>"
 
-    chat:
-      description: "Переключить мост чата"
-      enabled: "&aМост чата включён"
-      disabled: "&cМост чата выключен"
+chat:
+  disabled_module: "&cChat module is disabled."
+  usage: "&cUsage: /chat <message>"
+  blocked: "&c&lChat Filter&7: &eYour message has been blocked. ({reason})"
 
-  event:
-    boss:
-      start_title: "⚔️ Босс появился"
-      start_desc: "**{boss}** появился!"
-      end_title: "🎯 Босс побеждён"
-      end_desc: "**{boss}** побеждён **{player}**!"
-      health: "❤️ Здоровье"
-      first_killer: "Вы победили {boss}! Получите {reward}"
-      participant: "Вы участвовали в поражении {boss}"
+filter:
+  spam: "spam"
+  profanity: "profanity"
+  links: "disallowed links"
+  caps: "too many caps"
 
-    pvp:
-      tournament_started: "⚔️ PvP турнир начат"
-      round_start: "Раунд {round}"
-      match_start: "{player1} vs {player2}"
-      winner: "🏆 {player} выиграл турнир!"
-      runner_up: "🥈 Второй: {player}"
-      eliminated: "❌ {player} выбыл"
-      grace_period: "Милость: {seconds}s"
-      winner_reward: "Вы чемпион!"
-      runner_up_reward: "Второе место"
-      participation_reward: "Спасибо за участие"
+panel:
+  verify:
+    buttons:
+      verify:
+        label: "Verify"
+        emoji: "🔐"
+  profile:
+    buttons:
+      profile:
+        label: "Profile"
+        emoji: "👤"
+      inventory:
+        label: "Inventory"
+        emoji: "🎒"
+      whereami:
+        label: "Location"
+        emoji: "📍"
+      money:
+        label: "Money"
+        emoji: "💰"
 
-    treasure:
-      hunt_started: "🗺️ Охота за сокровищами"
-      hint: "Подсказка: {message}"
-      found: "💎 {player} нашёл сокровище!"
-      finder_reward: "Сокровище найдено!"
-      top_searcher_reward: "Хорошая работа по поиску"
-      proximity_warm: "Близко!"
-      proximity_hot: "Очень близко!"
+directions:
+  n: "North"
+  ne: "Northeast"
+  e: "East"
+  se: "Southeast"
+  s: "South"
+  sw: "Southwest"
+  w: "West"
+  nw: "Northwest"
+
+blocks:
+  up: "Up"
+  down: "Down"
+  north: "North"
+  south: "South"
+  east: "East"
+  west: "West"
+  side: "Side"
+
+profile:
+  linked_status: "**Status:** ✅ Linked\n**Discord:** {discord}"
+  unlinked_status: "**Status:** ❌ Not linked"
+  inv_empty: "*Empty*"
+  inv_more: "...+{count} more"

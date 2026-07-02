@@ -1,303 +1,137 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Español               ║
+# ║        EligiusConnector - Spanish               ║
 # ╚══════════════════════════════════════════════════╝
 
-keys:
-  error:
-    not_linked:
-      title: "🔗 Cuenta no vinculada"
-      description: "Necesitas vincular tu cuenta de Minecraft. Usa el boton **Verificar** en el panel."
-    not_online:
-      title: "🎮 No estas en linea"
-      description: "Conectate al servidor de Minecraft para usar esta funcion."
-    already_linked:
-      title: "✅ Ya vinculada"
-      description: "Tu cuenta ya esta vinculada. Usa `/unlink` si quieres cambiarla."
-    no_permission:
-      title: "🚫 Sin permisos"
-      description: "No tienes permisos para ejecutar este comando."
-    command_blacklisted:
-      title: "🚫 Comando bloqueado"
-      description: "Este comando esta en la lista negra de seguridad."
-    internal_error:
-      title: "⚠️ Error interno"
-      description: "Ocurrio un error inesperado. Intenta de nuevo en unos segundos."
-    economy_disabled:
-      title: "💰 No disponible"
-      description: "El sistema de economia no esta configurado en el servidor."
-    unknown_action:
-      title: "❓ Accion desconocida"
-      description: "Este boton no tiene una accion valida asignada."
+error:
+  not_linked:
+    title: "🔗 Cuenta no vinculada"
+    description: "Necesitas vincular tu cuenta de Minecraft primero. Usa el boton **Verificar** en el panel."
+  not_online:
+    title: "🎮 No estas en linea"
+    description: "Debes estar conectado al servidor de Minecraft para usar esta funcion."
+  already_linked:
+    title: "✅ Ya vinculado"
+    description: "Tu cuenta ya esta vinculada. Usa `/unlink` si quieres cambiarla."
+  no_permission:
+    title: "🚫 Sin permisos"
+    description: "No tienes permiso para ejecutar este comando."
+  command_blacklisted:
+    title: "🚫 Comando bloqueado"
+    description: "Este comando esta en la lista negra de seguridad."
+  internal_error:
+    title: "⚠️ Error interno"
+    description: "Ocurrio un error inesperado. Intentalo de nuevo en unos segundos."
+  economy_disabled:
+    title: "💰 No disponible"
+    description: "El sistema de economia no esta configurado en este servidor."
+  unknown_action:
+    title: "❓ Accion desconocida"
+    description: "Este boton no tiene una accion valida asignada."
 
-  general:
-    prefix: "&7[&6EC&7] "
-    enabled: "Habilitado"
-    disabled: "Deshabilitado"
-    reload: "Configuracion recargada"
-    error: "Error"
-    no_permission: "No tienes permisos"
-    not_online: "No estas en linea"
-    player_not_found: "Jugador no encontrado: {player}"
-    database_error: "Error de base de datos"
-    server_online: "Servidor En Linea"
-    server_offline: "Servidor Apagado"
+general:
+  no_permission: "&cNo tienes permisos"
+  not_online: "&cNo estas en linea"
+  gamemode:
+    survival: "Supervivencia"
+    creative: "Creativo"
+    adventure: "Aventura"
+    spectator: "Espectador"
+    unknown: "Desconocido"
 
-    gamemode:
-      survival: "Supervivencia"
-      creative: "Creativo"
-      adventure: "Aventura"
-      spectator: "Espectador"
-      unknown: "Desconocido"
+verify:
+  already_linked: "&aTu cuenta ya esta vinculada"
+  code_instruction: "&aUsa &e/verify <codigo> &aen el chat del servidor Minecraft para vincular tu cuenta."
+  invalid_code: "&cCodigo invalido o expirado"
+  invalid_format: "&cFormato invalido. El codigo debe tener 6 caracteres alfanumericos."
+  link_failed: "&cError al vincular la cuenta. Intentalo de nuevo."
+  success_mc: "&a¡Cuenta vinculada exitosamente con Discord!"
 
-  command:
-    verify:
-      description: "Verificar tu cuenta de Minecraft"
-      usage: "/verify <codigo>"
-      success: "&aCuenta verificada correctamente"
-      invalid: "&cCodigo invalido"
-      expired: "&cCodigo expirado"
-      already: "&aTu cuenta ya esta verificada"
-      code_message: "Tu codigo: &e{code}"
-      not_linked: "&cNecesitas vincular tu cuenta. Usa /verify"
-      success_discord: "&aTu cuenta ha sido vinculada correctamente"
-      invalid_code: "&cCodigo invalido o expirado"
-      already_linked: "&aTu cuenta ya esta vinculada"
-      invalid_format: "&cFormato invalido. El codigo debe tener 6 digitos."
-      link_failed: "&cError al vincular la cuenta. Intentalo de nuevo."
-      code_instruction: "&aUsa &e/verify <codigo> &aen el chat del servidor Minecraft para vincular tu cuenta."
-      success_mc: "&a¡Cuenta vinculada exitosamente con Discord!"
-      discord_linked: "✅ **{player}** ha vinculado su cuenta de Minecraft!"
+unlink:
+  no_permission: "&cNo tienes permiso para desvincular a otros"
+  target_not_found: "&cJugador no encontrado: {player}"
+  target_not_linked: "&cLa cuenta de {player} no esta vinculada"
+  success: "&aCuenta desvinculada"
+  unlinked_by: ":x: **{target}** ha sido desvinculado por **{player}**."
+  failed: "&cError al desvincular la cuenta"
+  not_linked: "&cTu cuenta no esta vinculada"
+  success_self: "&a¡Cuenta desvinculada exitosamente!"
+  unlinked_self: ":x: **{player}** ha desvinculado su cuenta de Minecraft."
 
-    unlink:
-      description: "Desvincular tu cuenta"
-      success: "&aCuenta desvinculada"
-      not_linked: "&cTu cuenta no esta vinculada"
-      no_permission: "&cNo permisos para desvincular otros"
-      unlinked_by: ":x: La cuenta de **{target}** fue desvinculada por **{player}**."
-      unlinked_self: ":x: **{player}** desvinculo su cuenta de Minecraft."
-      failed: "&cError al desvincular cuenta"
-      target_not_found: "&cJugador no encontrado: {player}"
-      target_not_linked: "&cLa cuenta de {player} no esta vinculada"
-      no_permission_self: "&cNo tienes permisos para desvincular tu cuenta."
-      success_self: "&aCuenta desvinculada correctamente!"
+connector:
+  help_title: "&6=== EligiusConnector ==="
+  help_reload: "&e/connector reload &7- Recargar configuracion"
+  help_status: "&e/connector status &7- Ver estado del plugin"
+  no_permission_reload: "&cNo tienes permiso para recargar."
+  reload_success: "&aConfiguracion recargada"
+  no_permission_status: "&cNo tienes permiso para ver el estado."
+  status_title: "&6Estado del Plugin"
+  status_discord: "Discord: {status}"
+  status_database: "Base de datos: {type}"
+  status_linked: "Cuentas vinculadas: {count}"
 
-    connector:
-      description: "Comandos administrativos"
-      reload_success: "&aConfiguracion recargada"
-      status_title: "&6Estado del Plugin"
-      status_discord: "Discord: {status}"
-      status_database: "Base de datos: {type}"
-      status_linked: "Cuentas vinculadas: {count}"
-      help_title: "=== EligiusConnector ==="
-      help_reload: "/connector reload - Recargar configuracion"
-      help_profile: "/connector profile [jugador] - Ver perfil"
-      help_status: "/connector status - Ver estado del plugin"
-      help_papi: "/connector papi - Ver placeholders"
-      no_permission_reload: "&cNo tienes permisos para recargar."
-      no_permission_profile: "&cNo tienes permisos para ver perfiles de otros jugadores."
-      no_permission_status: "&cNo tienes permisos para ver el estado."
-      no_permission_papi: "&cNo tienes permisos para ver los placeholders."
+events:
+  disabled: "&cEl modulo de eventos esta deshabilitado."
+  list_title: "&6Eventos Disponibles"
+  started: "&aEvento {name} iniciado"
+  stopped: "&cEvento {name} detenido"
+  no_events: "No hay eventos activos"
+  not_found: "&cEvento no encontrado: {name}"
+  usage_start: "&cUso: /events start <id>"
+  usage_stop: "&cUso: /events stop <id>"
 
-    events:
-      description: "Gestionar eventos"
-      list_title: "&6Eventos Disponibles"
-      no_events: "No hay eventos activos"
-      started: "&aEvento {name} iniciado"
-      stopped: "&cEvento {name} finalizado"
-      not_found: "&cEvento no encontrado: {name}"
-      disabled: "&cEl modulo de eventos esta deshabilitado."
-      usage_start: "&cUso: /events start <id>"
-      usage_stop: "&cUso: /events stop <id>"
+chat:
+  disabled_module: "&cEl modulo de chat esta deshabilitado."
+  usage: "&cUso: /chat <mensaje>"
+  blocked: "&c&lChat Filter&7: &eTu mensaje ha sido bloqueado. ({reason})"
 
-    chat:
-      description: "Toggle chat bridge"
-      enabled: "&aChat bridge habilitado"
-      disabled: "&cChat bridge deshabilitado"
-      blocked: "&c&lChat Filter&7: &eTu mensaje ha sido bloqueado. ({reason})"
-      disabled_module: "&cEl modulo de chat esta deshabilitado."
-      usage: "&cUso: /chat <mensaje>"
+filter:
+  spam: "spam"
+  profanity: "profanidad"
+  links: "enlaces no permitidos"
+  caps: "demasiadas mayusculas"
 
-  discord:
-    status:
-      online_title: "🟢 Servidor En Linea"
-      online_desc: "El servidor esta **listo** para jugar"
-      offline_title: "🔴 Servidor Apagado"
-      offline_desc: "El servidor se ha **apagado** temporalmente"
-      author: "EligiusMC Status"
-      footer: "Ultima actualizacion"
-      offline_footer: "Volveremos pronto"
-
-    join:
-      title: "👋 Jugador Entro"
-      desc: "**{player}** se unio al servidor"
-      author: "Bienvenido"
-      footer: "Jugadores en linea"
-      first_time: "Si"
-
-    leave:
-      title: "👋 Jugador Salio"
-      desc: "**{player}** se fue del servidor"
-      author: "Hasta Luego"
-      footer: "Jugadores en linea"
-
-    death:
-      title: "💀 Muerte"
-      desc: "**{player}** murio"
-      author: "Fin del Camino"
-      footer: "F en el chat"
-
-    advancement:
-      title: "🏆 Logro Completado"
-      desc: "**{player}** desbloqueo **{advancement}**"
-      author: "Progreso"
-      footer: "Sigue asi!"
-
-    verify:
-      title: "🔐 Verifica tu Cuenta"
-      desc: "Vincula tu cuenta de Minecraft para desbloquear todas las funciones"
-      author: "EligiusMC"
-      footer: "Sigue los pasos"
-      code_title: "🔐 Codigo de Verificacion"
-      code_steps: "1. Entra al servidor de Minecraft\n2. Escribe `/verify {code}` en el chat"
-      steps_label: "📋 Pasos"
-
-    profile:
-      title: "👤 Perfil de {player}"
-      footer: "Datos en tiempo real"
-      info_label: "📋 Informacion"
-      linked_label: "🔗 Vinculacion"
-      linked_status: "**Estado:** ✅ Vinculado\n**Discord:** {discord}"
-      unlinked_status: "**Estado:** ❌ No vinculado"
-      combat_label: "☠️ Combate"
-      playtime_label: "⏱️ Playtime"
-      health_label: "❤️ Vida"
-      food_label: "🍖 Hambre"
-      xp_label: "⭐ Experiencia"
-      level_label: "🎯 Nivel"
-      world_label: "🌍 Mundo"
-      direction_label: "🧭 Direccion"
-      coords_label: "📍 Coordenadas"
-      gamemode_label: "🎮 Gamemode"
-      ping_label: "📡 Ping"
-      offline_desc: "Jugador no encontrado o sin datos disponibles"
-
-    inventory:
-      title: "🎒 Inventario de {player}"
-      footer: "Espacios: {used}/{total}"
-      empty: "*Vacio*"
-      more: "... +{count} mas"
-      weapons: "⚔️ Armas"
-      armor: "🛡️ Armadura"
-      tools: "⛏️ Herramientas"
-      blocks: "🧱 Bloques"
-      food: "🍎 Comida"
-      potions: "🧪 Pociones"
-      misc: "📦 Otros"
-
-    whereami:
-      title: "📍 Ubicacion de {player}"
-      info: "Tu Ubicacion"
-      world: "Mundo"
-      x: "X"
-      y: "Y"
-      z: "Z"
-      direction: "Direccion"
-      biome: "Bioma"
-      block: "Bloque"
-      tp_footer: "/tp @s {x} {y} {z}"
-      directions:
-        n: "Norte"
-        ne: "Noreste"
-        e: "Este"
-        se: "Sureste"
-        s: "Sur"
-        sw: "Suroeste"
-        w: "Oeste"
-        nw: "Noroeste"
-      block_face:
-        north: "Norte"
-        south: "Sur"
-        east: "Este"
-        west: "Oeste"
-        up: "Arriba"
-        down: "Abajo"
-        side: "Lado"
-      not_linked: "❌ Tu cuenta no esta vinculada"
-      not_online: "❌ No estas en linea"
-
-    money:
-      title: "💰 Balance"
-      balance: "**Balance:** $"
-
-    console:
-      no_permission: "No tienes permisos para ejecutar comandos de consola."
-      command_blacklisted: "Comando bloqueado: `{command}`"
-
-    panel:
+panel:
+  verify:
+    buttons:
       verify:
-        buttons:
-          verify:
-            label: "Verificar"
-            emoji: "🔐"
+        label: "Verificar"
+        emoji: "🔐"
+  profile:
+    buttons:
       profile:
-        buttons:
-          profile:
-            label: "Perfil"
-            emoji: "👤"
-          inventory:
-            label: "Inventario"
-            emoji: "🎒"
-          whereami:
-            label: "Ubicación"
-            emoji: "📍"
-          money:
-            label: "Dinero"
-            emoji: "💰"
+        label: "Perfil"
+        emoji: "👤"
+      inventory:
+        label: "Inventario"
+        emoji: "🎒"
+      whereami:
+        label: "Ubicacion"
+        emoji: "📍"
+      money:
+        label: "Dinero"
+        emoji: "💰"
 
-  chat:
-    format:
-      mc_to_discord: "{player}: {message}"
-      discord_to_mc: "[DC] {player}: {message}"
+directions:
+  n: "Norte"
+  ne: "Noreste"
+  e: "Este"
+  se: "Sureste"
+  s: "Sur"
+  sw: "Suroeste"
+  w: "Oeste"
+  nw: "Noroeste"
 
-  filter:
-    spam: "spam"
-    profanity: "profanity"
-    links: "enlaces no permitidos"
-    caps: "demasiadas mayusculas"
+blocks:
+  up: "Arriba"
+  down: "Abajo"
+  north: "Norte"
+  south: "Sur"
+  east: "Este"
+  west: "Oeste"
+  side: "Lado"
 
-  event:
-    boss:
-      start_title: "⚔️ Boss Spawned"
-      start_desc: "**{boss}** ha aparecido!"
-      end_title: "🎯 Boss Derrotado"
-      end_desc: "**{boss}** derrotado por **{player}**!"
-      health: "❤️ Vida"
-      first_killer: "Derrotaste al {boss}! Recibe {reward}"
-      participant: "Participaste en la derrota del {boss}"
-
-    pvp:
-      tournament_started: "⚔️ Torneo PvP Iniciado"
-      round_start: "Ronda {round}"
-      match_start: "{player1} vs {player2}"
-      winner: "🏆 {player} gano el torneo!"
-      runner_up: "🥈 Segundo: {player}"
-      eliminated: "❌ {player} eliminado"
-      grace_period: "Gracia: {seconds}s"
-      winner_reward: "Eres el campeon!"
-      runner_up_reward: "Segundo lugar"
-      participation_reward: "Gracias por participar"
-
-    treasure:
-      hunt_started: "🗺️ Busqueda del Tesoro"
-      hint: "Pista: {message}"
-      found: "💎 ¡{player} encontro el tesoro!"
-      finder_reward: "¡Tesoro encontrado!"
-      top_searcher_reward: "Buen trabajo buscando"
-      proximity_warm: "¡Cerca!"
-      proximity_hot: "¡Muy cerca!"
-      world_hint: "El tesoro esta en algun lugar del mundo..."
-      east: "¡El tesoro esta al ESTE!"
-      west: "¡El tesoro esta al OESTE!"
-      south: "¡El tesoro esta al SUR!"
-      north: "¡El tesoro esta al NORTE!"
-      hint_broadcast: "[TESORO] {direction} ({hints_given}/{max_hints} pistas)"
+profile:
+  linked_status: "**Estado:** ✅ Vinculado\n**Discord:** {discord}"
+  unlinked_status: "**Estado:** ❌ No vinculado"
+  inv_empty: "*Vacio*"
+  inv_more: "...+{count} mas"

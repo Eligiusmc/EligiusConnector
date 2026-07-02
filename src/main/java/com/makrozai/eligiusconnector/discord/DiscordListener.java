@@ -82,8 +82,8 @@ public class DiscordListener extends ListenerAdapter {
 
     private void sendErrorToChannel(TextChannel channel, String errorKey) {
         MessageEmbed embed = new EmbedBuilder()
-                .setTitle(plugin.msg("keys.error." + errorKey + ".title"))
-                .setDescription(plugin.msg("keys.error." + errorKey + ".description"))
+                .setTitle(plugin.msg("error." + errorKey + ".title"))
+                .setDescription(plugin.msg("error." + errorKey + ".description"))
                 .setColor(errorKey.equals("no_permission") || errorKey.equals("command_blacklisted") ? 0xED4245 : 0xFEE75C)
                 .setTimestamp(java.time.Instant.now())
                 .build();

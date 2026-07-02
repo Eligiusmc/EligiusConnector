@@ -1,55 +1,32 @@
 # ╔══════════════════════════════════════════════════╗
 # ║        EligiusConnector - Configuration          ║
-# ║        Config Version: 3                         ║
 # ╚══════════════════════════════════════════════════╝
 
-config_version: 3
+# Internal config version — do not modify
+config_version: 1
 
-# ==========================================
-#  BOT CONFIGURATION
-# ==========================================
+# ── Discord Bot ───────────────────────────────────
 bot:
   token: "${DISCORD_BOT_TOKEN}"
-  server_id: "508152650978820096"
-  status: "ONLINE"
+  guild_id: "508152650978820096"
+  status_rotation_minutes: 15
   game_status:
     - "🎮 EligiusMC"
-    - "🟢 {online} jugadores"
-  update_interval_minutes: 1
+    - "🟢 {online} players"
 
-# ==========================================
-#  DATABASE
-# ==========================================
+# ── Database ──────────────────────────────────────
 database:
   type: "sqlite"
   mysql:
     host: "localhost"
     port: 3306
-    database: "eligiusconnector"
+    name: "eligiusconnector"
     username: "root"
     password: ""
-    max_pool_size: 10
-  redis:
-    enabled: false
-    host: "localhost"
-    port: 6379
-    password: ""
-    database: 0
+    pool_size: 10
 
-# ==========================================
-#  LANGUAGE
-# ==========================================
-language: "es"
+# ── Language ──────────────────────────────────────
+language: "en"
 
-# ==========================================
-#  AUDIT
-# ==========================================
-audit:
-  enabled: true
-  level: "info"
-  retention_days: 30
-
-# ==========================================
-#  DEBUG
-# ==========================================
+# ── Debug ─────────────────────────────────────────
 debug: false

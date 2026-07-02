@@ -22,12 +22,12 @@ public class EventsCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!sender.hasPermission("connector.events")) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.general.no_permission"));
+            sender.sendMessage(ChatColor.RED + plugin.msg("general.no_permission"));
             return true;
         }
 
         if (plugin.getEventManager() == null) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.events.disabled"));
+            sender.sendMessage(ChatColor.RED + plugin.msg("events.disabled"));
             return true;
         }
 
@@ -52,20 +52,20 @@ public class EventsCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + plugin.msg("keys.command.events.list_title"));
-        sender.sendMessage(ChatColor.YELLOW + "/events list - " + plugin.msg("keys.command.events.list_title"));
-        sender.sendMessage(ChatColor.YELLOW + "/events start <id> - " + plugin.msg("keys.command.events.started").replace("{event}", ""));
-        sender.sendMessage(ChatColor.YELLOW + "/events stop <id> - " + plugin.msg("keys.command.events.stopped").replace("{event}", ""));
+        sender.sendMessage(ChatColor.GOLD + plugin.msg("events.list_title"));
+        sender.sendMessage(ChatColor.YELLOW + "/events list - " + plugin.msg("events.list_title"));
+        sender.sendMessage(ChatColor.YELLOW + "/events start <id> - " + plugin.msg("events.started").replace("{event}", ""));
+        sender.sendMessage(ChatColor.YELLOW + "/events stop <id> - " + plugin.msg("events.stopped").replace("{event}", ""));
     }
 
     private boolean handleList(CommandSender sender) {
         var activeEvents = plugin.getEventManager().getActiveEvents();
         if (activeEvents.isEmpty()) {
-            sender.sendMessage(ChatColor.YELLOW + plugin.msg("keys.command.events.no_events"));
+            sender.sendMessage(ChatColor.YELLOW + plugin.msg("events.no_events"));
             return true;
         }
 
-        sender.sendMessage(ChatColor.GOLD + plugin.msg("keys.command.events.list_title"));
+        sender.sendMessage(ChatColor.GOLD + plugin.msg("events.list_title"));
         for (var entry : activeEvents.entrySet()) {
             GameEvent event = entry.getValue();
             sender.sendMessage(ChatColor.YELLOW + event.getId() + ChatColor.WHITE + " - " + event.getName());
@@ -75,7 +75,7 @@ public class EventsCommand implements CommandExecutor, TabCompleter {
 
     private boolean handleStart(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.events.usage_start"));
+            sender.sendMessage(ChatColor.RED + plugin.msg("events.usage_start"));
             return true;
         }
 
@@ -83,18 +83,18 @@ public class EventsCommand implements CommandExecutor, TabCompleter {
         GameEvent event = plugin.getEventManager().getEvent(eventId);
 
         if (event == null) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.events.not_found").replace("{name}", eventId));
+            sender.sendMessage(ChatColor.RED + plugin.msg("events.not_found").replace("{name}", eventId));
             return true;
         }
 
         plugin.getEventManager().startEvent(eventId);
-        sender.sendMessage(ChatColor.GREEN + plugin.msg("keys.command.events.started").replace("{name}", event.getName()));
+        sender.sendMessage(ChatColor.GREEN + plugin.msg("events.started").replace("{name}", event.getName()));
         return true;
     }
 
     private boolean handleStop(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.events.usage_stop"));
+            sender.sendMessage(ChatColor.RED + plugin.msg("events.usage_stop"));
             return true;
         }
 
@@ -102,12 +102,12 @@ public class EventsCommand implements CommandExecutor, TabCompleter {
         GameEvent event = plugin.getEventManager().getEvent(eventId);
 
         if (event == null) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.events.not_found").replace("{name}", eventId));
+            sender.sendMessage(ChatColor.RED + plugin.msg("events.not_found").replace("{name}", eventId));
             return true;
         }
 
         plugin.getEventManager().stopEvent(eventId);
-        sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.events.stopped").replace("{name}", event.getName()));
+        sender.sendMessage(ChatColor.RED + plugin.msg("events.stopped").replace("{name}", event.getName()));
         return true;
     }
 

@@ -72,3 +72,13 @@ code_embed:
     - name: "📋 How to verify"
       value: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat\n3. You're linked!"
       inline: false
+
+# DM sent to the Discord user after successful verification
+# Placeholder: {player} — the Minecraft username
+dm_embed:
+  title: "✅ Account Linked"
+  description: "Your Discord account has been linked to **{player}**!"
+  color: 5814783
+  thumbnail: "https://minotar.net/avatar/{player}/128"
+  footer: "EligiusMC"
+  timestamp: true

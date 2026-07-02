@@ -41,14 +41,14 @@ public class ConnectorCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage(ChatColor.GOLD + plugin.msg("keys.command.connector.help_title"));
-        sender.sendMessage(ChatColor.YELLOW + plugin.msg("keys.command.connector.help_reload"));
-        sender.sendMessage(ChatColor.YELLOW + plugin.msg("keys.command.connector.help_status"));
+        sender.sendMessage(ChatColor.GOLD + plugin.msg("connector.help_title"));
+        sender.sendMessage(ChatColor.YELLOW + plugin.msg("connector.help_reload"));
+        sender.sendMessage(ChatColor.YELLOW + plugin.msg("connector.help_status"));
     }
 
     private boolean handleReload(CommandSender sender) {
         if (!sender.hasPermission("connector.reload")) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.connector.no_permission_reload"));
+            sender.sendMessage(ChatColor.RED + plugin.msg("connector.no_permission_reload"));
             return true;
         }
 
@@ -56,23 +56,23 @@ public class ConnectorCommand implements CommandExecutor, TabCompleter {
         plugin.getLanguageManager().reload();
         plugin.getPanelManager().reloadPanels();
         plugin.getConfigAdapter().logModules();
-        sender.sendMessage(ChatColor.GREEN + plugin.msg("keys.command.connector.reload_success"));
+        sender.sendMessage(ChatColor.GREEN + plugin.msg("connector.reload_success"));
         return true;
     }
 
     private boolean handleStatus(CommandSender sender) {
         if (!sender.hasPermission("connector.admin")) {
-            sender.sendMessage(ChatColor.RED + plugin.msg("keys.command.connector.no_permission_status"));
+            sender.sendMessage(ChatColor.RED + plugin.msg("connector.no_permission_status"));
             return true;
         }
 
-        sender.sendMessage(ChatColor.GOLD + plugin.msg("keys.command.connector.status_title"));
+        sender.sendMessage(ChatColor.GOLD + plugin.msg("connector.status_title"));
         sender.sendMessage(ChatColor.YELLOW + "Version: " + ChatColor.WHITE + plugin.getDescription().getVersion());
-        sender.sendMessage(ChatColor.YELLOW + plugin.msg("keys.command.connector.status_discord")
+        sender.sendMessage(ChatColor.YELLOW + plugin.msg("connector.status_discord")
                 .replace("{status}", plugin.getDiscordManager().isConnected() ? "Connected" : "Disconnected"));
-        sender.sendMessage(ChatColor.YELLOW + plugin.msg("keys.command.connector.status_database")
+        sender.sendMessage(ChatColor.YELLOW + plugin.msg("connector.status_database")
                 .replace("{type}", plugin.getDatabaseManager().getType()));
-        sender.sendMessage(ChatColor.YELLOW + plugin.msg("keys.command.connector.status_linked")
+        sender.sendMessage(ChatColor.YELLOW + plugin.msg("connector.status_linked")
                 .replace("{count}", String.valueOf(plugin.getDatabaseManager().getLinkedCount())));
         return true;
     }

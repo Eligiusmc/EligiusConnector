@@ -326,19 +326,19 @@ public class ButtonListener extends ListenerAdapter {
     }
 
     private String getDirectionName(String dir) {
-        return plugin.msg("keys.discord.whereami.directions." + dir.toLowerCase());
+        return plugin.msg("directions." + dir.toLowerCase());
     }
 
     private String getBlockFaceName(Location loc) {
         BlockFace face = loc.getBlock().getFace(loc.getBlock());
         return switch (face) {
-            case UP -> plugin.msg("keys.discord.whereami.block_face.up");
-            case DOWN -> plugin.msg("keys.discord.whereami.block_face.down");
-            case NORTH -> plugin.msg("keys.discord.whereami.block_face.north");
-            case SOUTH -> plugin.msg("keys.discord.whereami.block_face.south");
-            case EAST -> plugin.msg("keys.discord.whereami.block_face.east");
-            case WEST -> plugin.msg("keys.discord.whereami.block_face.west");
-            default -> plugin.msg("keys.discord.whereami.block_face.side");
+            case UP -> plugin.msg("blocks.up");
+            case DOWN -> plugin.msg("blocks.down");
+            case NORTH -> plugin.msg("blocks.north");
+            case SOUTH -> plugin.msg("blocks.south");
+            case EAST -> plugin.msg("blocks.east");
+            case WEST -> plugin.msg("blocks.west");
+            default -> plugin.msg("blocks.side");
         };
     }
 
@@ -439,11 +439,11 @@ public class ButtonListener extends ListenerAdapter {
 
         Long linkedId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
         if (linkedId != null) {
-            data.put("player_linked_status", plugin.msg("keys.discord.profile.linked_status")
+            data.put("player_linked_status", plugin.msg("profile.linked_status")
                     .replace("{discord}", "<@" + linkedId + ">"));
             data.put("player_linked_discord", "<@" + linkedId + ">");
         } else {
-            data.put("player_linked_status", plugin.msg("keys.discord.profile.unlinked_status"));
+            data.put("player_linked_status", plugin.msg("profile.unlinked_status"));
             data.put("player_linked_discord", "");
         }
 
@@ -477,17 +477,17 @@ public class ButtonListener extends ListenerAdapter {
         for (var entry : categorized.entrySet()) {
             List<String> items = entry.getValue();
             if (hideEmpty && items.isEmpty()) {
-                data.put("inv_" + entry.getKey(), plugin.msg("keys.discord.inventory.empty"));
+                data.put("inv_" + entry.getKey(), plugin.msg("profile.inv_empty"));
                 continue;
             }
             String display = items.stream().limit(maxPerCat)
                     .collect(Collectors.joining("\n"));
             if (items.size() > maxPerCat) {
-                display += "\n" + plugin.msg("keys.discord.inventory.more")
+                display += "\n" + plugin.msg("profile.inv_more")
                         .replace("{count}", String.valueOf(items.size() - maxPerCat));
             }
             data.put("inv_" + entry.getKey(), display.isEmpty()
-                    ? plugin.msg("keys.discord.inventory.empty") : display);
+                    ? plugin.msg("profile.inv_empty") : display);
         }
 
         int usedSlots = 0;
@@ -575,11 +575,11 @@ public class ButtonListener extends ListenerAdapter {
 
     private String translateGamemode(org.bukkit.GameMode mode) {
         return switch (mode) {
-            case SURVIVAL -> plugin.msg("keys.general.gamemode.survival");
-            case CREATIVE -> plugin.msg("keys.general.gamemode.creative");
-            case ADVENTURE -> plugin.msg("keys.general.gamemode.adventure");
-            case SPECTATOR -> plugin.msg("keys.general.gamemode.spectator");
-            default -> plugin.msg("keys.general.gamemode.unknown");
+            case SURVIVAL -> plugin.msg("general.gamemode.survival");
+            case CREATIVE -> plugin.msg("general.gamemode.creative");
+            case ADVENTURE -> plugin.msg("general.gamemode.adventure");
+            case SPECTATOR -> plugin.msg("general.gamemode.spectator");
+            default -> plugin.msg("general.gamemode.unknown");
         };
     }
 

@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LanguageManager {
 
     private static final List<String> AVAILABLE_LANGUAGES = List.of("es", "en", "fr", "de", "pt", "ru");
-    private static final String DEFAULT_LANGUAGE = "es";
+    private static final String DEFAULT_LANGUAGE = "en";
 
     private final EligiusConnector plugin;
     private final Map<String, FileConfiguration> languages = new ConcurrentHashMap<>();

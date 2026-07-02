@@ -128,7 +128,7 @@ public class ChatFilterEngine {
             }
         }
 
-        player.sendMessage(plugin.msg(player, "keys.chat.blocked", java.util.Map.of("reason", filterType)));
+        player.sendMessage(plugin.msg(player, "chat.blocked", java.util.Map.of("reason", filterType)));
         return "warn";
     }
 

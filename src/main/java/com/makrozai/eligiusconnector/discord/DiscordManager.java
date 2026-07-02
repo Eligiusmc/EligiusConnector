@@ -376,8 +376,8 @@ public class DiscordManager {
     }
 
     public void sendErrorEmbed(InteractionHook hook, String errorKey) {
-        String title = plugin.msg("keys.error." + errorKey + ".title");
-        String desc = plugin.msg("keys.error." + errorKey + ".description");
+        String title = plugin.msg("error." + errorKey + ".title");
+        String desc = plugin.msg("error." + errorKey + ".description");
         int color = getErrorColor(errorKey);
         MessageEmbed embed = new EmbedBuilder()
                 .setTitle(title)

@@ -110,15 +110,15 @@ public class ConfigAdapter {
         return token;
     }
 
-    public String getServerId() { return config.getString("bot.server_id", ""); }
-    public String getLanguageCode() { return config.getString("language", "es"); }
+    public String getServerId() { return config.getString("bot.guild_id", ""); }
+    public String getLanguageCode() { return config.getString("language", "en"); }
     public boolean isDebug() { return config.getBoolean("debug", false); }
 
     public List<String> getGameStatus() {
         return config.getStringList("bot.game_status");
     }
 
-    public int getStatusUpdateIntervalMinutes() { return config.getInt("bot.update_interval_minutes", 15); }
+    public int getStatusUpdateIntervalMinutes() { return config.getInt("bot.status_rotation_minutes", 15); }
 
     // ==========================================
     //  DATABASE CONFIG GETTERS
@@ -127,10 +127,10 @@ public class ConfigAdapter {
     public String getDatabaseType() { return config.getString("database.type", "sqlite"); }
     public String getMySQLHost() { return config.getString("database.mysql.host", "localhost"); }
     public String getMySQLPort() { return String.valueOf(config.getInt("database.mysql.port", 3306)); }
-    public String getMySQLDatabase() { return config.getString("database.mysql.database", "eligiusconnector"); }
+    public String getMySQLDatabase() { return config.getString("database.mysql.name", "eligiusconnector"); }
     public String getMySQLUsername() { return config.getString("database.mysql.username", "root"); }
     public String getMySQLPassword() { return config.getString("database.mysql.password", ""); }
-    public int getMySQLMaxPoolSize() { return config.getInt("database.mysql.max_pool_size", 10); }
+    public int getMySQLMaxPoolSize() { return config.getInt("database.mysql.pool_size", 10); }
 
     // ==========================================
     //  MODULE TOGGLES (file presence + channel validity)

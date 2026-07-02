@@ -207,8 +207,8 @@ public class PanelManager {
         for (String buttonId : buttonCfg.getKeys(false)) {
             if (!buttonCfg.getBoolean(buttonId)) continue;
 
-            String label = plugin.msg("keys.discord.panel." + panelType + ".buttons." + buttonId + ".label");
-            String emojiStr = plugin.msg("keys.discord.panel." + panelType + ".buttons." + buttonId + ".emoji");
+            String label = plugin.msg("panel." + panelType + ".buttons." + buttonId + ".label");
+            String emojiStr = plugin.msg("panel." + panelType + ".buttons." + buttonId + ".emoji");
             ButtonStyle style = DEFAULT_STYLES.getOrDefault(buttonId, ButtonStyle.SECONDARY);
 
             Button button = Button.of(style, buttonId, label);

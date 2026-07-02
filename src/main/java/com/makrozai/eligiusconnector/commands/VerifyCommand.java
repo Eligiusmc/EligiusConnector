@@ -21,58 +21,58 @@ public class VerifyCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(plugin.msg(null, "keys.general.not_online"));
+            sender.sendMessage(plugin.msg(null, "general.not_online"));
             return true;
         }
 
         Player player = (Player) sender;
 
         if (!player.hasPermission("connector.verify")) {
-            player.sendMessage(plugin.msg(player, "keys.general.no_permission"));
+            player.sendMessage(plugin.msg(player, "general.no_permission"));
             return true;
         }
 
         if (plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.already_linked"));
+            player.sendMessage(plugin.msg(player, "verify.already_linked"));
             playSound(player, false);
             return true;
         }
 
         if (args.length < 1) {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.code_instruction"));
+            player.sendMessage(plugin.msg(player, "verify.code_instruction"));
             return true;
         }
 
         String code = args[0];
 
         if (code.length() != 6 || !code.matches("[A-Z0-9]+")) {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_format"));
+            player.sendMessage(plugin.msg(player, "verify.invalid_format"));
             playSound(player, false);
             return true;
         }
 
         Long discordId = findDiscordIdByCode(code);
         if (discordId == null) {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_code"));
+            player.sendMessage(plugin.msg(player, "verify.invalid_code"));
             playSound(player, false);
             return true;
         }
 
         if (!plugin.verifyPlayer(discordId, code)) {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.invalid_code"));
+            player.sendMessage(plugin.msg(player, "verify.invalid_code"));
             playSound(player, false);
             return true;
         }
 
         if (plugin.getDatabaseManager().linkAccount(discordId, player.getUniqueId(), player.getName(), player.getName())) {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.success_mc"));
+            player.sendMessage(plugin.msg(player, "verify.success_mc"));
             playSound(player, true);
 
             plugin.getDatabaseManager().logAudit("info", "account_linked", player.getName(), "minecraft", "Discord ID: " + discordId, null);
 
             plugin.getDiscordManager().sendTempMessage(
                     plugin.getConfigAdapter().getVerifyChannelId(),
-                    plugin.msg(null, "keys.command.verify.discord_linked").replace("{player}", player.getName()),
+                    plugin.msg(null, "verify.discord_linked").replace("{player}", player.getName()),
                     5);
 
             // Trigger immediate role sync
@@ -81,7 +81,7 @@ public class VerifyCommand implements CommandExecutor {
             // Execute post-verify commands
             executePostVerifyCommands(player);
         } else {
-            player.sendMessage(plugin.msg(player, "keys.command.verify.link_failed"));
+            player.sendMessage(plugin.msg(player, "verify.link_failed"));
             playSound(player, false);
         }
 

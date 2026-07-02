@@ -2,300 +2,136 @@
 # ║        EligiusConnector - English               ║
 # ╚══════════════════════════════════════════════════╝
 
-keys:
-  error:
-    not_linked:
-      title: "🔗 Account not linked"
-      description: "You need to link your Minecraft account first. Use the **Verify** button in the panel."
-    not_online:
-      title: "🎮 Not online"
-      description: "You must be connected to the Minecraft server to use this feature."
-    already_linked:
-      title: "✅ Already linked"
-      description: "Your account is already linked. Use `/unlink` if you want to change it."
-    no_permission:
-      title: "🚫 No permission"
-      description: "You don't have permission to execute this command."
-    command_blacklisted:
-      title: "🚫 Command blacklisted"
-      description: "This command is on the security blacklist."
-    internal_error:
-      title: "⚠️ Internal error"
-      description: "An unexpected error occurred. Try again in a few seconds."
-    economy_disabled:
-      title: "💰 Not available"
-      description: "The economy system is not configured on this server."
-    unknown_action:
-      title: "❓ Unknown action"
-      description: "This button has no valid action assigned."
+error:
+  not_linked:
+    title: "🔗 Account not linked"
+    description: "You need to link your Minecraft account first. Use the **Verify** button in the panel."
+  not_online:
+    title: "🎮 Not online"
+    description: "You must be connected to the Minecraft server to use this feature."
+  already_linked:
+    title: "✅ Already linked"
+    description: "Your account is already linked. Use `/unlink` if you want to change it."
+  no_permission:
+    title: "🚫 No permission"
+    description: "You don't have permission to execute this command."
+  command_blacklisted:
+    title: "🚫 Command blacklisted"
+    description: "This command is on the security blacklist."
+  internal_error:
+    title: "⚠️ Internal error"
+    description: "An unexpected error occurred. Try again in a few seconds."
+  economy_disabled:
+    title: "💰 Not available"
+    description: "The economy system is not configured on this server."
+  unknown_action:
+    title: "❓ Unknown action"
+    description: "This button has no valid action assigned."
 
-  general:
-    prefix: "&7[&6EC&7] "
-    enabled: "Enabled"
-    disabled: "Disabled"
-    reload: "Configuration reloaded"
-    error: "Error"
-    no_permission: "You don't have permission"
-    not_online: "You are not online"
-    player_not_found: "Player not found: {player}"
-    database_error: "Database error"
-    server_online: "Server Online"
-    server_offline: "Server Offline"
+general:
+  no_permission: "&cYou don't have permission"
+  not_online: "&cYou are not online"
+  gamemode:
+    survival: "Survival"
+    creative: "Creative"
+    adventure: "Adventure"
+    spectator: "Spectator"
+    unknown: "Unknown"
 
-    gamemode:
-      survival: "Survival"
-      creative: "Creative"
-      adventure: "Adventure"
-      spectator: "Spectator"
-      unknown: "Unknown"
+verify:
+  already_linked: "&aYour account is already linked"
+  code_instruction: "&aUse &e/verify <code> &ain the Minecraft server chat to link your account."
+  invalid_code: "&cInvalid code or expired"
+  invalid_format: "&cInvalid format. Code must be 6 alphanumeric characters."
+  link_failed: "&cFailed to link account. Please try again."
+  success_mc: "&aAccount linked successfully with Discord!"
 
-  command:
-    verify:
-      description: "Verify your Minecraft account"
-      usage: "/verify <code>"
-      success: "&aAccount verified successfully"
-      invalid: "&cInvalid code"
-      expired: "&cCode expired"
-      already: "&aYour account is already verified"
-      code_message: "Your code: &e{code}"
-      not_linked: "&cYou need to link your account. Use /verify"
-      success_discord: "&aYour account has been linked successfully"
-      invalid_code: "&cInvalid code or expired"
-      already_linked: "&aYour account is already linked"
-      invalid_format: "&cInvalid format. Code must be 6 digits."
-      link_failed: "&cFailed to link account. Please try again."
-      code_instruction: "&aUse &e/verify <code> &ain the Minecraft server chat to link your account."
-      success_mc: "&aAccount linked successfully with Discord!"
-      discord_linked: "✅ **{player}** has linked their Minecraft account!"
+unlink:
+  no_permission: "&cNo permission to unlink others"
+  target_not_found: "&cPlayer not found: {player}"
+  target_not_linked: "&c{player}'s account is not linked"
+  success: "&aAccount unlinked"
+  unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
+  failed: "&cFailed to unlink account"
+  not_linked: "&cYour account is not linked"
+  success_self: "&aAccount unlinked successfully!"
+  unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
 
-    unlink:
-      description: "Unlink your account"
-      success: "&aAccount unlinked"
-      not_linked: "&cYour account is not linked"
-      no_permission: "&cNo permission to unlink others"
-      unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
-      unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
-      failed: "&cFailed to unlink account"
-      target_not_found: "&cPlayer not found: {player}"
-      target_not_linked: "&c{player}'s account is not linked"
-      no_permission_self: "&cYou don't have permission to unlink your account."
-      success_self: "&aAccount unlinked successfully!"
+connector:
+  help_title: "&6=== EligiusConnector ==="
+  help_reload: "&e/connector reload &7- Reload configuration"
+  help_status: "&e/connector status &7- View plugin status"
+  no_permission_reload: "&cYou don't have permission to reload."
+  reload_success: "&aConfiguration reloaded"
+  no_permission_status: "&cYou don't have permission to view status."
+  status_title: "&6Plugin Status"
+  status_discord: "Discord: {status}"
+  status_database: "Database: {type}"
+  status_linked: "Linked accounts: {count}"
 
-    connector:
-      description: "Admin commands"
-      reload_success: "&aConfiguration reloaded"
-      status_title: "&6Plugin Status"
-      status_discord: "Discord: {status}"
-      status_database: "Database: {type}"
-      status_linked: "Linked accounts: {count}"
-      help_title: "=== EligiusConnector ==="
-      help_reload: "/connector reload - Reload configuration"
-      help_profile: "/connector profile [player] - View profile"
-      help_status: "/connector status - View plugin status"
-      help_papi: "/connector papi - View placeholders"
-      no_permission_reload: "&cYou don't have permission to reload."
-      no_permission_profile: "&cYou don't have permission to view other players' profiles."
-      no_permission_status: "&cYou don't have permission to view status."
-      no_permission_papi: "&cYou don't have permission to view placeholders."
+events:
+  disabled: "&cEvents module is disabled."
+  list_title: "&6Available Events"
+  started: "&aEvent {name} started"
+  stopped: "&cEvent {name} stopped"
+  no_events: "No active events"
+  not_found: "&cEvent not found: {name}"
+  usage_start: "&cUsage: /events start <id>"
+  usage_stop: "&cUsage: /events stop <id>"
 
-    events:
-      description: "Manage events"
-      list_title: "&6Available Events"
-      no_events: "No active events"
-      started: "&aEvent {name} started"
-      stopped: "&cEvent {name} stopped"
-      not_found: "&cEvent not found: {name}"
-      disabled: "&cEvents module is disabled."
-      usage_start: "&cUsage: /events start <id>"
-      usage_stop: "&cUsage: /events stop <id>"
+chat:
+  disabled_module: "&cChat module is disabled."
+  usage: "&cUsage: /chat <message>"
+  blocked: "&c&lChat Filter&7: &eYour message has been blocked. ({reason})"
 
-    chat:
-      description: "Toggle chat bridge"
-      enabled: "&aChat bridge enabled"
-      disabled: "&cChat bridge disabled"
-      blocked: "&c&lChat Filter&7: &eYour message has been blocked. ({reason})"
-      disabled_module: "&cChat module is disabled."
-      usage: "&cUsage: /chat <message>"
+filter:
+  spam: "spam"
+  profanity: "profanity"
+  links: "disallowed links"
+  caps: "too many caps"
 
-  discord:
-    status:
-      online_title: "🟢 Server Online"
-      online_desc: "The server is **ready** to play"
-      offline_title: "🔴 Server Offline"
-      offline_desc: "The server has been **shut down** temporarily"
-      author: "EligiusMC Status"
-      footer: "Last updated"
-      offline_footer: "We'll be back soon"
-
-    join:
-      title: "👋 Player Joined"
-      desc: "**{player}** joined the server"
-      author: "Welcome"
-      footer: "Players online"
-      first_time: "Yes"
-
-    leave:
-      title: "👋 Player Left"
-      desc: "**{player}** left the server"
-      author: "Goodbye"
-      footer: "Players online"
-
-    death:
-      title: "💀 Death"
-      desc: "**{player}** died"
-      author: "End of the Road"
-      footer: "F in the chat"
-
-    advancement:
-      title: "🏆 Advancement Completed"
-      desc: "**{player}** unlocked **{advancement}**"
-      author: "Progress"
-      footer: "Keep going!"
-
-    verify:
-      title: "🔐 Verify Your Account"
-      desc: "Link your Minecraft account to unlock all features"
-      author: "EligiusMC"
-      footer: "Follow the steps"
-      code_title: "🔐 Verification Code"
-      code_steps: "1. Join the Minecraft server\n2. Type `/verify {code}` in chat"
-      steps_label: "📋 Steps"
-
-    profile:
-      title: "👤 Profile of {player}"
-      footer: "Real-time data"
-      info_label: "📋 Information"
-      linked_label: "🔗 Link Status"
-      linked_status: "**Status:** ✅ Linked\n**Discord:** {discord}"
-      unlinked_status: "**Status:** ❌ Not linked"
-      combat_label: "☠️ Combat"
-      playtime_label: "⏱️ Playtime"
-      health_label: "❤️ Health"
-      food_label: "🍖 Food"
-      xp_label: "⭐ Experience"
-      level_label: "🎯 Level"
-      world_label: "🌍 World"
-      direction_label: "🧭 Direction"
-      coords_label: "📍 Coordinates"
-      gamemode_label: "🎮 Gamemode"
-      ping_label: "📡 Ping"
-      offline_desc: "Player not found or no data available"
-
-    inventory:
-      title: "🎒 Inventory of {player}"
-      footer: "Slots: {used}/{total}"
-      empty: "*Empty*"
-      more: "... +{count} more"
-      weapons: "⚔️ Weapons"
-      armor: "🛡️ Armor"
-      tools: "⛏️ Tools"
-      blocks: "🧱 Blocks"
-      food: "🍎 Food"
-      potions: "🧪 Potions"
-      misc: "📦 Misc"
-
-    whereami:
-      title: "📍 Location of {player}"
-      info: "Your Location"
-      world: "World"
-      x: "X"
-      y: "Y"
-      z: "Z"
-      direction: "Direction"
-      biome: "Biome"
-      block: "Block"
-      tp_footer: "/tp @s {x} {y} {z}"
-      directions:
-        n: "North"
-        ne: "Northeast"
-        e: "East"
-        se: "Southeast"
-        s: "South"
-        sw: "Southwest"
-        w: "West"
-        nw: "Northwest"
-      block_face:
-        north: "North"
-        south: "South"
-        east: "East"
-        west: "West"
-        up: "Up"
-        down: "Down"
-        side: "Side"
-
-    money:
-      title: "💰 Balance"
-      balance: "**Balance:** $"
-
-    console:
-      no_permission: "You don't have permission to execute console commands."
-      command_blacklisted: "This command is blacklisted: `{command}`"
-
-    panel:
+panel:
+  verify:
+    buttons:
       verify:
-        buttons:
-          verify:
-            label: "Verify"
-            emoji: "🔐"
+        label: "Verify"
+        emoji: "🔐"
+  profile:
+    buttons:
       profile:
-        buttons:
-          profile:
-            label: "Profile"
-            emoji: "👤"
-          inventory:
-            label: "Inventory"
-            emoji: "🎒"
-          whereami:
-            label: "Location"
-            emoji: "📍"
-          money:
-            label: "Money"
-            emoji: "💰"
+        label: "Profile"
+        emoji: "👤"
+      inventory:
+        label: "Inventory"
+        emoji: "🎒"
+      whereami:
+        label: "Location"
+        emoji: "📍"
+      money:
+        label: "Money"
+        emoji: "💰"
 
-  chat:
-    format:
-      mc_to_discord: "{player}: {message}"
-      discord_to_mc: "[DC] {player}: {message}"
+directions:
+  n: "North"
+  ne: "Northeast"
+  e: "East"
+  se: "Southeast"
+  s: "South"
+  sw: "Southwest"
+  w: "West"
+  nw: "Northwest"
 
-  filter:
-    spam: "spam"
-    profanity: "profanity"
-    links: "disallowed links"
-    caps: "too many caps"
+blocks:
+  up: "Up"
+  down: "Down"
+  north: "North"
+  south: "South"
+  east: "East"
+  west: "West"
+  side: "Side"
 
-  event:
-    boss:
-      start_title: "⚔️ Boss Spawned"
-      start_desc: "**{boss}** has appeared!"
-      end_title: "🎯 Boss Defeated"
-      end_desc: "**{boss}** defeated by **{player}**!"
-      health: "❤️ Health"
-      first_killer: "You defeated the {boss}! Receive {reward}"
-      participant: "You participated in defeating the {boss}"
-
-    pvp:
-      tournament_started: "⚔️ PvP Tournament Started"
-      round_start: "Round {round}"
-      match_start: "{player1} vs {player2}"
-      winner: "🏆 {player} won the tournament!"
-      runner_up: "🥈 Second: {player}"
-      eliminated: "❌ {player} eliminated"
-      grace_period: "Grace: {seconds}s"
-      winner_reward: "You are the champion!"
-      runner_up_reward: "Second place"
-      participation_reward: "Thanks for participating"
-
-    treasure:
-      hunt_started: "🗺️ Treasure Hunt"
-      hint: "Hint: {message}"
-      found: "💎 {player} found the treasure!"
-      finder_reward: "Treasure found!"
-      top_searcher_reward: "Good job searching"
-      proximity_warm: "Close!"
-      proximity_hot: "Very close!"
-      world_hint: "The treasure is somewhere in the world..."
-      east: "The treasure is to the EAST!"
-      west: "The treasure is to the WEST!"
-      south: "The treasure is to the SOUTH!"
-      north: "The treasure is to the NORTH!"
-      hint_broadcast: "[TREASURE] {direction} ({hints_given}/{max_hints} hints)"
+profile:
+  linked_status: "**Status:** ✅ Linked\n**Discord:** {discord}"
+  unlinked_status: "**Status:** ❌ Not linked"
+  inv_empty: "*Empty*"
+  inv_more: "...+{count} more"

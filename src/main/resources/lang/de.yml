@@ -1,110 +1,137 @@
 # ╔══════════════════════════════════════════════════╗
-# ║        EligiusConnector - Deutsch               ║
+# ║        EligiusConnector - German             ║
 # ╚══════════════════════════════════════════════════╝
 
-keys:
-  error:
-    not_linked:
-      title: "🔗 Konto nicht verknüpft"
-      description: "Verknüpfe zuerst dein Minecraft-Konto. Nutze den **Verifizieren**-Button."
-    not_online:
-      title: "🎮 Nicht online"
-      description: "Du musst mit dem Minecraft-Server verbunden sein."
-    already_linked:
-      title: "✅ Bereits verknüpft"
-      description: "Dein Konto ist bereits verknüpft."
-    no_permission:
-      title: "🚫 Keine Berechtigung"
-      description: "Du hast keine Berechtigung für diesen Befehl."
-    command_blacklisted:
-      title: "🚫 Befehl blockiert"
-      description: "Dieser Befehl ist aus Sicherheitsgründen blockiert."
-    internal_error:
-      title: "⚠️ Interner Fehler"
-      description: "Ein unerwarteter Fehler ist aufgetreten."
-    economy_disabled:
-      title: "💰 Nicht verfügbar"
-      description: "Das Wirtschaftssystem ist nicht konfiguriert."
-    unknown_action:
-      title: "❓ Unbekannte Aktion"
-      description: "Dieser Button hat keine gültige Aktion."
+error:
+  not_linked:
+    title: "🔗 Account not linked"
+    description: "You need to link your Minecraft account first. Use the **Verify** button in the panel."
+  not_online:
+    title: "🎮 Not online"
+    description: "You must be connected to the Minecraft server to use this feature."
+  already_linked:
+    title: "✅ Already linked"
+    description: "Your account is already linked. Use `/unlink` if you want to change it."
+  no_permission:
+    title: "🚫 No permission"
+    description: "You don't have permission to execute this command."
+  command_blacklisted:
+    title: "🚫 Command blacklisted"
+    description: "This command is on the security blacklist."
+  internal_error:
+    title: "⚠️ Internal error"
+    description: "An unexpected error occurred. Try again in a few seconds."
+  economy_disabled:
+    title: "💰 Not available"
+    description: "The economy system is not configured on this server."
+  unknown_action:
+    title: "❓ Unknown action"
+    description: "This button has no valid action assigned."
 
-  general:
-    prefix: "&7[&6EC&7] "
-    enabled: "Aktiviert"
-    disabled: "Deaktiviert"
-    reload: "Konfiguration neu geladen"
-    error: "Fehler"
-    no_permission: "Keine Berechtigung"
-    not_online: "Nicht online"
-    player_not_found: "Spieler nicht gefunden: {player}"
-    database_error: "Datenbankfehler"
+general:
+  no_permission: "&cYou don't have permission"
+  not_online: "&cYou are not online"
+  gamemode:
+    survival: "Survival"
+    creative: "Creative"
+    adventure: "Adventure"
+    spectator: "Spectator"
+    unknown: "Unknown"
 
-  command:
-    verify:
-      description: "Minecraft-Konto verifizieren"
-      usage: "/verify <code>"
-      success: "&aKonto erfolgreich verifiziert"
-      invalid: "&cUngültiger Code"
-      expired: "&cCode abgelaufen"
-      already: "&aIhr Konto ist bereits verifiziert"
-      code_message: "Ihr Code: &e{code}"
-      not_linked: "&cSie müssen Ihr Konto verknüpfen. Verwenden Sie /verify"
+verify:
+  already_linked: "&aYour account is already linked"
+  code_instruction: "&aUse &e/verify <code> &ain the Minecraft server chat to link your account."
+  invalid_code: "&cInvalid code or expired"
+  invalid_format: "&cInvalid format. Code must be 6 alphanumeric characters."
+  link_failed: "&cFailed to link account. Please try again."
+  success_mc: "&aAccount linked successfully with Discord!"
 
-    unlink:
-      description: "Konto lösen"
-      success: "&aKonto gelöst"
-      not_linked: "&cIhr Konto ist nicht verknüpft"
-      no_permission: "&cKeine Berechtigung zum Lösen anderer"
+unlink:
+  no_permission: "&cNo permission to unlink others"
+  target_not_found: "&cPlayer not found: {player}"
+  target_not_linked: "&c{player}'s account is not linked"
+  success: "&aAccount unlinked"
+  unlinked_by: ":x: **{target}**'s account has been unlinked by **{player}**."
+  failed: "&cFailed to unlink account"
+  not_linked: "&cYour account is not linked"
+  success_self: "&aAccount unlinked successfully!"
+  unlinked_self: ":x: **{player}** has unlinked their Minecraft account."
 
-    connector:
-      description: "Admin-Befehle"
-      reload_success: "&aKonfiguration neu geladen"
-      status_title: "&6Plugin-Status"
-      status_discord: "Discord: {status}"
-      status_database: "Datenbank: {type}"
-      status_linked: "Verknüpfte Konten: {count}"
+connector:
+  help_title: "&6=== EligiusConnector ==="
+  help_reload: "&e/connector reload &7- Reload configuration"
+  help_status: "&e/connector status &7- View plugin status"
+  no_permission_reload: "&cYou don't have permission to reload."
+  reload_success: "&aConfiguration reloaded"
+  no_permission_status: "&cYou don't have permission to view status."
+  status_title: "&6Plugin Status"
+  status_discord: "Discord: {status}"
+  status_database: "Database: {type}"
+  status_linked: "Linked accounts: {count}"
 
-    events:
-      description: "Events verwalten"
-      list_title: "&6Verfügbare Events"
-      no_events: "Keine Events konfiguriert"
-      started: "&aEvent {name} gestartet"
-      stopped: "&cEvent {name} gestoppt"
-      not_found: "&cEvent nicht gefunden: {name}"
+events:
+  disabled: "&cEvents module is disabled."
+  list_title: "&6Available Events"
+  started: "&aEvent {name} started"
+  stopped: "&cEvent {name} stopped"
+  no_events: "No active events"
+  not_found: "&cEvent not found: {name}"
+  usage_start: "&cUsage: /events start <id>"
+  usage_stop: "&cUsage: /events stop <id>"
 
-    chat:
-      description: "Chat-Bridge umschalten"
-      enabled: "&aChat-Bridge aktiviert"
-      disabled: "&cChat-Bridge deaktiviert"
+chat:
+  disabled_module: "&cChat module is disabled."
+  usage: "&cUsage: /chat <message>"
+  blocked: "&c&lChat Filter&7: &eYour message has been blocked. ({reason})"
 
-  event:
-    boss:
-      start_title: "⚔️ Boss erschienen"
-      start_desc: "**{boss}** ist erschienen!"
-      end_title: "🎯 Boss besiegt"
-      end_desc: "**{boss}** besiegt von **{player}**!"
-      health: "❤️ Gesundheit"
-      first_killer: "Sie haben den {boss} besiegt! Erhalten Sie {reward}"
-      participant: "Sie haben an der Niederlage des {boss} teilgenommen"
+filter:
+  spam: "spam"
+  profanity: "profanity"
+  links: "disallowed links"
+  caps: "too many caps"
 
-    pvp:
-      tournament_started: "⚔️ PvP-Turnier gestartet"
-      round_start: "Runde {round}"
-      match_start: "{player1} vs {player2}"
-      winner: "🏆 {player} hat das Turnier gewonnen!"
-      runner_up: "🥈 Zweiter: {player}"
-      eliminated: "❌ {player} eliminiert"
-      grace_period: "Schonfrist: {seconds}s"
-      winner_reward: "Sie sind der Champion!"
-      runner_up_reward: "Zweiter Platz"
-      participation_reward: "Danke für die Teilnahme"
+panel:
+  verify:
+    buttons:
+      verify:
+        label: "Verify"
+        emoji: "🔐"
+  profile:
+    buttons:
+      profile:
+        label: "Profile"
+        emoji: "👤"
+      inventory:
+        label: "Inventory"
+        emoji: "🎒"
+      whereami:
+        label: "Location"
+        emoji: "📍"
+      money:
+        label: "Money"
+        emoji: "💰"
 
-    treasure:
-      hunt_started: "🗺️ Schatzsuche"
-      hint: "Hinweis: {message}"
-      found: "💎 {player} hat den Schatz gefunden!"
-      finder_reward: "Schatz gefunden!"
-      top_searcher_reward: "Gute Sucharbeit"
-      proximity_warm: "Nah!"
-      proximity_hot: "Sehr nah!"
+directions:
+  n: "North"
+  ne: "Northeast"
+  e: "East"
+  se: "Southeast"
+  s: "South"
+  sw: "Southwest"
+  w: "West"
+  nw: "Northwest"
+
+blocks:
+  up: "Up"
+  down: "Down"
+  north: "North"
+  south: "South"
+  east: "East"
+  west: "West"
+  side: "Side"
+
+profile:
+  linked_status: "**Status:** ✅ Linked\n**Discord:** {discord}"
+  unlinked_status: "**Status:** ❌ Not linked"
+  inv_empty: "*Empty*"
+  inv_more: "...+{count} more"

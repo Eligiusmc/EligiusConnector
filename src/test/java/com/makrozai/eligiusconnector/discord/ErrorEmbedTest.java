@@ -62,10 +62,10 @@ class ErrorEmbedTest {
     @Test
     void langKeyPatternIsCorrect() {
         String key = "not_linked";
-        String titleKey = "keys.error." + key + ".title";
-        String descKey = "keys.error." + key + ".description";
-        assertEquals("keys.error.not_linked.title", titleKey);
-        assertEquals("keys.error.not_linked.description", descKey);
+        String titleKey = "error." + key + ".title";
+        String descKey = "error." + key + ".description";
+        assertEquals("error.not_linked.title", titleKey);
+        assertEquals("error.not_linked.description", descKey);
     }
 
     @Test
