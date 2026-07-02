@@ -178,7 +178,10 @@ public class EventManager {
 
         // Send Discord notification
         if (event.getChannel() != null && !event.getChannel().isEmpty()) {
-            plugin.getDiscordManager().sendEmbed(event.getChannel(), event.getDiscordStart(), new HashMap<>());
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("name", event.getName());
+            replacements.put("description", event.getDescription());
+            plugin.getDiscordManager().sendEmbed(event.getChannel(), event.getDiscordStart(), replacements);
         }
     }
 
@@ -195,7 +198,10 @@ public class EventManager {
 
         // Send Discord notification
         if (event.getChannel() != null && !event.getChannel().isEmpty()) {
-            plugin.getDiscordManager().sendEmbed(event.getChannel(), event.getDiscordEnd(), new HashMap<>());
+            Map<String, String> replacements = new HashMap<>();
+            replacements.put("name", event.getName());
+            replacements.put("description", event.getDescription());
+            plugin.getDiscordManager().sendEmbed(event.getChannel(), event.getDiscordEnd(), replacements);
         }
     }
 

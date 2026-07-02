@@ -537,7 +537,7 @@ public class ButtonListener extends ListenerAdapter {
     private String resolvePlaceholders(String text, Map<String, String> repl, Player player) {
         if (text == null) return "";
         for (var entry : repl.entrySet()) {
-            text = text.replace("%" + entry.getKey() + "%", entry.getValue());
+            text = text.replace("{" + entry.getKey() + "}", entry.getValue());
         }
         return plugin.applyPlaceholders(player, text);
     }

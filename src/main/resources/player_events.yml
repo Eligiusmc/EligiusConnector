@@ -1,10 +1,7 @@
 # ╔══════════════════════════════════════════════════╗
 # ║        EligiusConnector - Player Events          ║
-# ║  Placeholders: %player_name%, %player_display%   ║
-# ║    %server_online%, %server_max_players%         ║
-# ║    %player_first_join%, %player_health%          ║
-# ║    %player_food%, %player_world%                 ║
-# ║  Death: {death_message}                          ║
+# ║  Placeholders: {player}, {online}, {max}         ║
+# ║  Death: {death_message}, {health}, {food}, {world} ║
 # ║  Advancement: {advancement}                      ║
 # ╚══════════════════════════════════════════════════╝
 
@@ -13,19 +10,19 @@ join:
   channel: "1521276575889358960"
   embed:
     color: 5763719
-    author: "%player_name% joined the server"
-    author_icon: "https://minotar.net/avatar/%player_name%/128"
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "{player} joined the server"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/{player}/128"
     title: "Welcome to EligiusMC!"
-    description: "Everyone say hello to **%player_name%**!"
+    description: "Everyone say hello to **{player}**!"
     footer: "EligiusMC"
     timestamp: true
     fields:
       - name: "Online"
-        value: "**%server_online%** / **%server_max_players%**"
+        value: "**{online}** / **{max}**"
         inline: true
       - name: "First Time"
-        value: "%player_first_join%"
+        value: "{first_join}"
         inline: true
 
 leave:
@@ -33,16 +30,16 @@ leave:
   channel: "1521276575889358960"
   embed:
     color: 15548997
-    author: "%player_name% left the server"
-    author_icon: "https://minotar.net/avatar/%player_name%/128"
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "{player} left the server"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/{player}/128"
     title: "See you soon!"
-    description: "**%player_name%** has left. Come back anytime!"
+    description: "**{player}** has left. Come back anytime!"
     footer: "EligiusMC"
     timestamp: true
     fields:
       - name: "Online"
-        value: "**%server_online%** / **%server_max_players%**"
+        value: "**{online}** / **{max}**"
         inline: true
 
 death:
@@ -50,21 +47,21 @@ death:
   channel: "1521276578708066578"
   embed:
     color: 15548997
-    author: "%player_name% died"
-    author_icon: "https://minotar.net/avatar/%player_name%/128"
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author: "{player} died"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/{player}/128"
     title: "{death_message}"
     footer: "EligiusMC"
     timestamp: true
     fields:
       - name: "Health"
-        value: "❤️ %player_health% HP"
+        value: "❤️ {health} HP"
         inline: true
       - name: "Hunger"
-        value: "🍖 %player_food% / 20"
+        value: "🍖 {food} / 20"
         inline: true
       - name: "World"
-        value: "🌍 %player_world%"
+        value: "🌍 {world}"
         inline: true
 
 advancement:
@@ -73,9 +70,9 @@ advancement:
   embed:
     color: 16766720
     author: "Advancement Made!"
-    author_icon: "https://minotar.net/avatar/%player_name%/128"
-    thumbnail: "https://minotar.net/avatar/%player_name%/128"
+    author_icon: "https://minotar.net/avatar/{player}/128"
+    thumbnail: "https://minotar.net/avatar/{player}/128"
     title: "{advancement}"
-    description: "**%player_name%** has earned this advancement!"
+    description: "**{player}** has earned this advancement!"
     footer: "EligiusMC"
     timestamp: true

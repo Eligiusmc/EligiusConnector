@@ -117,6 +117,7 @@ public class BossEventHandler implements com.makrozai.eligiusconnector.events.Ev
         bossBar.setTitle(title);
 
         Map<String, String> replacements = new HashMap<>();
+        replacements.put("name", String.valueOf(event.getSpawnConfig().getOrDefault("custom_name", event.getName())));
         replacements.put("health", String.format("%.0f", currentHealth));
         replacements.put("max_health", String.format("%.0f", maxHealth));
         replacements.put("participants", String.valueOf(participants.size()));

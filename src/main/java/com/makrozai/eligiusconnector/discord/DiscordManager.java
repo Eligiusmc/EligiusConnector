@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.discord;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.StartupLogger;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -13,12 +14,15 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import com.makrozai.eligiusconnector.util.StartupLogger;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.awt.Color;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class DiscordManager {
@@ -26,6 +30,8 @@ public class DiscordManager {
     private final EligiusConnector plugin;
     private JDA jda;
     private boolean connected = false;
+    private ScheduledExecutorService statusExecutor;
+    private int statusIndex = 0;
 
     public DiscordManager(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -52,7 +58,8 @@ public class DiscordManager {
 
             List<String> statuses = plugin.getConfigAdapter().getGameStatus();
             if (statuses != null && !statuses.isEmpty()) {
-                builder.setActivity(Activity.playing(statuses.get(0)));
+                String status = resolveStatus(statuses.get(0));
+                builder.setActivity(Activity.playing(status));
             }
 
             jda = builder.build();
@@ -67,6 +74,9 @@ public class DiscordManager {
                 StartupLogger.printStep("Guild:", getGuild().getName());
             }
 
+            // Start periodic status rotation
+            startStatusRotation();
+
         } catch (InterruptedException e) {
             StartupLogger.printError("Discord connection interrupted!");
             Thread.currentThread().interrupt();
@@ -76,6 +86,9 @@ public class DiscordManager {
     }
 
     public void shutdown() {
+        if (statusExecutor != null) {
+            statusExecutor.shutdownNow();
+        }
         if (jda != null) {
             jda.shutdown();
             try {
@@ -417,5 +430,25 @@ public class DiscordManager {
                 success -> plugin.getLogger().info("[NickSync] " + member.getUser().getName() + " -> \"" + nickname + "\""),
                 error -> plugin.getLogger().warning("[NickSync] Failed for " + member.getUser().getName() + ": " + error.getMessage())
         );
+    }
+
+    // ── Bot status rotation ─────────────────────────
+
+    private void startStatusRotation() {
+        List<String> statuses = plugin.getConfigAdapter().getGameStatus();
+        if (statuses == null || statuses.size() <= 1) return;
+
+        int interval = plugin.getConfigAdapter().getStatusUpdateIntervalMinutes();
+        statusExecutor = Executors.newSingleThreadScheduledExecutor();
+        statusExecutor.scheduleAtFixedRate(() -> {
+            if (!connected || jda == null) return;
+            statusIndex = (statusIndex + 1) % statuses.size();
+            String status = resolveStatus(statuses.get(statusIndex));
+            jda.getPresence().setActivity(Activity.playing(status));
+        }, interval, interval, TimeUnit.MINUTES);
+    }
+
+    private String resolveStatus(String status) {
+        return status.replace("{online}", String.valueOf(Bukkit.getOnlinePlayers().size()));
     }
 }

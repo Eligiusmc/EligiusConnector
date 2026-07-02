@@ -118,6 +118,8 @@ public class ConfigAdapter {
         return config.getStringList("bot.game_status");
     }
 
+    public int getStatusUpdateIntervalMinutes() { return config.getInt("bot.update_interval_minutes", 15); }
+
     // ==========================================
     //  DATABASE CONFIG GETTERS
     // ==========================================
@@ -265,8 +267,8 @@ public class ConfigAdapter {
     public boolean isMcToDiscordEnabled() { return chatConfig.getBoolean("bridge.mc_to_discord", true); }
     public boolean isDiscordToMcEnabled() { return chatConfig.getBoolean("bridge.discord_to_mc", true); }
 
-    public String getChatFormatMCToDC() { return chatConfig.getString("format.mc_to_discord", "%player_name%: %player_message%"); }
-    public String getChatFormatDiscordToMC() { return chatConfig.getString("format.discord_to_mc", "[DC] %player_name%: %player_message%"); }
+    public String getChatFormatMCToDC() { return chatConfig.getString("format.mc_to_discord", "{player}: {message}"); }
+    public String getChatFormatDiscordToMC() { return chatConfig.getString("format.discord_to_mc", "[DC] {player}: {message}"); }
 
     public boolean isWebhookEnabled() { return chatConfig.getBoolean("webhook.enabled", true); }
     public String getWebhookName() { return chatConfig.getString("webhook.name", "Minecraft"); }

@@ -11,10 +11,10 @@ bridge:
   discord_to_mc: true      # Discord → Minecraft chat
 
 # Message format
-# Placeholders: %player_name%, %player_displayname%, %player_message%
+# Placeholders: {player}, {message}, {displayname}
 format:
-  mc_to_discord: "%player_name%: %player_message%"
-  discord_to_mc: "[DC] %player_name%: %player_message%"
+  mc_to_discord: "{player}: {message}"
+  discord_to_mc: "[DC] {player}: {message}"
 
 # Webhook for MC → Discord (shows player head + nickname)
 webhook:
