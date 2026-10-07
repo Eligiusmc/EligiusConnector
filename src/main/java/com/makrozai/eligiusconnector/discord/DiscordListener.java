@@ -69,15 +69,34 @@ public class DiscordListener extends ListenerAdapter {
         }
 
         if (message == null || message.isBlank()) return;
-        String command = message.split(" ")[0].toLowerCase();
         java.util.List<String> blacklist = plugin.getConfigAdapter().getConsoleCommandBlacklist();
-        if (blacklist.contains(command)) {
+        if (isBlacklisted(message, blacklist)) {
             sendErrorToChannel(event.getChannel().asTextChannel(), "command_blacklisted");
             return;
         }
 
-        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), message));
+        final String toRun = message.trim().replaceAll("\\s+", " ");
+        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), toRun));
         plugin.getDatabaseManager().logAudit("info", "console_command", event.getAuthor().getName(), "discord", message, null);
+    }
+
+    /**
+     * Resuelve el nombre efectivo del comando (strip de {@code /}, espacios extra y
+     * namespace {@code plugin:}) y lo compara contra la blacklist ignorando mayúsculas.
+     * {@link org.bukkit.Bukkit#dispatchCommand} normaliza igual, así que la validación
+     * debe mirar exactamente lo que el dispatcher va a ejecutar.
+     */
+    static boolean isBlacklisted(String message, java.util.List<String> blacklist) {
+        if (message == null || blacklist == null || blacklist.isEmpty()) return false;
+        String token = message.trim().replaceAll("\\s+", " ").split(" ")[0].toLowerCase(java.util.Locale.ROOT);
+        if (token.startsWith("/")) token = token.substring(1);
+        String bare = token.contains(":") ? token.substring(token.indexOf(':') + 1) : token;
+        for (String entry : blacklist) {
+            if (entry == null) continue;
+            String e = entry.trim().toLowerCase(java.util.Locale.ROOT);
+            if (e.equals(token) || e.equals(bare)) return true;
+        }
+        return false;
     }
 
     private void sendErrorToChannel(TextChannel channel, String errorKey) {
