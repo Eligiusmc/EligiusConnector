@@ -33,7 +33,6 @@
 - 🔧 **Modular Architecture:** Enable/disable features per module via YAML configs
 - 🚀 **Native Folia & Paper Support:** Async scheduler with automatic platform detection
 - 💾 **Smart Persistence:** SQLite and MySQL support via HikariCP
-- 📊 **bStats Integration:** Anonymous metrics to help the plugin grow
 
 ---
 
@@ -46,7 +45,7 @@
 2. Drop it into your `plugins/` folder
 3. **Recommended plugins:** PlaceholderAPI, Vault, LuckPerms, EssentialsX
 4. Start your server and configure the YAML files in `plugins/EligiusConnector/`
-5. Set your Discord bot token in `config.yml`
+5. Set `DISCORD_BOT_TOKEN` in the server environment (or configure `bot.token` in `config.yml`)
 
 ---
 

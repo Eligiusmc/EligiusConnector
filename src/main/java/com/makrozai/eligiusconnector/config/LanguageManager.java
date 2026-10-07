@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LanguageManager {
@@ -21,7 +20,6 @@ public class LanguageManager {
 
     private final EligiusConnector plugin;
     private final Map<String, FileConfiguration> languages = new ConcurrentHashMap<>();
-    private final Map<UUID, String> playerLanguages = new ConcurrentHashMap<>();
     private String defaultLanguage;
 
     public LanguageManager(EligiusConnector plugin) {
@@ -31,7 +29,6 @@ public class LanguageManager {
     public void load() {
         this.defaultLanguage = plugin.getConfigAdapter().getLanguageCode();
         loadAllLanguages();
-        loadPlayerLanguagesFromDB();
     }
 
     public void loadAllLanguages() {
@@ -59,21 +56,6 @@ public class LanguageManager {
         languages.put(langCode, langConfig);
     }
 
-    private void loadPlayerLanguagesFromDB() {
-        if (plugin.getDatabaseManager() == null) return;
-        try (var conn = plugin.getDatabaseManager().getConnection();
-             var stmt = conn.prepareStatement("SELECT minecraft_uuid, language FROM connector_player_languages");
-             var rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                UUID uuid = UUID.fromString(rs.getString("minecraft_uuid"));
-                String lang = rs.getString("language");
-                playerLanguages.put(uuid, lang);
-            }
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to load player languages from DB: " + e.getMessage());
-        }
-    }
-
     // ==========================================
     //  PUBLIC API
     // ==========================================
@@ -82,41 +64,12 @@ public class LanguageManager {
         return getMessage(defaultLanguage, key);
     }
 
-    public String get(UUID playerUuid, String key) {
-        String lang = getPlayerLanguage(playerUuid);
-        return getMessage(lang, key);
-    }
-
-    public String get(UUID playerUuid, String key, Map<String, String> replacements) {
-        String value = get(playerUuid, key);
-        for (Map.Entry<String, String> entry : replacements.entrySet()) {
-            value = value.replace("{" + entry.getKey() + "}", entry.getValue());
-        }
-        return value;
-    }
-
     public String get(String key, Map<String, String> replacements) {
         String value = get(key);
         for (Map.Entry<String, String> entry : replacements.entrySet()) {
             value = value.replace("{" + entry.getKey() + "}", entry.getValue());
         }
         return value;
-    }
-
-    public String getPlayerLanguage(UUID playerUuid) {
-        String lang = playerLanguages.get(playerUuid);
-        if (lang != null && languages.containsKey(lang)) return lang;
-        return defaultLanguage;
-    }
-
-    public void setPlayerLanguage(UUID playerUuid, String langCode) {
-        if (!AVAILABLE_LANGUAGES.contains(langCode)) return;
-        playerLanguages.put(playerUuid, langCode);
-        savePlayerLanguage(playerUuid, langCode);
-    }
-
-    public List<String> getAvailableLanguages() {
-        return AVAILABLE_LANGUAGES;
     }
 
     public void reload() {
@@ -141,19 +94,6 @@ public class LanguageManager {
             }
         }
         return value != null ? translateColorCodes(value) : key;
-    }
-
-    private void savePlayerLanguage(UUID playerUuid, String langCode) {
-        if (plugin.getDatabaseManager() == null) return;
-        String sql = "INSERT OR REPLACE INTO connector_player_languages (minecraft_uuid, language) VALUES (?, ?)";
-        try (var conn = plugin.getDatabaseManager().getConnection();
-             var stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, playerUuid.toString());
-            stmt.setString(2, langCode);
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to save player language: " + e.getMessage());
-        }
     }
 
     private String translateColorCodes(String text) {

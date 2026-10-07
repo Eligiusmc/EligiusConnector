@@ -26,32 +26,25 @@ public class NicknameSyncTask {
 
     public void syncAll() {
         if (!plugin.getDiscordManager().isConnected()) return;
-
         Guild guild = plugin.getDiscordManager().getGuild();
         if (guild == null) return;
-
         String format = plugin.getConfigAdapter().getNicknameFormat();
-
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            syncPlayer(player, guild, format);
-        }
+        Scheduler.runSync(plugin, () -> Bukkit.getOnlinePlayers().forEach(player ->
+                Scheduler.runForEntity(plugin, player, () -> syncPlayer(player, guild, format))));
     }
 
     public void syncPlayer(Player player) {
         if (!plugin.getDiscordManager().isConnected()) return;
         if (!plugin.getConfigAdapter().isNicknameSyncEnabled()) return;
 
-        Guild guild = plugin.getDiscordManager().getGuild();
-        if (guild == null) return;
-
-        String format = plugin.getConfigAdapter().getNicknameFormat();
-        syncPlayer(player, guild, format);
+        Scheduler.runForEntity(plugin, player, () -> {
+            Guild guild = plugin.getDiscordManager().getGuild();
+            if (guild == null) return;
+            syncPlayer(player, guild, plugin.getConfigAdapter().getNicknameFormat());
+        });
     }
 
     private void syncPlayer(Player player, Guild guild, String format) {
-        Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
-        if (discordId == null) return;
-
         String nickname = resolveNickname(player, format);
         if (nickname == null || nickname.isEmpty()) return;
 
@@ -60,16 +53,20 @@ public class NicknameSyncTask {
         }
 
         final String finalNickname = nickname;
-        guild.retrieveMemberById(discordId).queue(member -> {
-            if (member.isOwner()) return;
+        java.util.UUID uuid = player.getUniqueId();
+        Scheduler.runAsync(plugin, () -> {
+            Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
+            if (discordId == null) return;
+            guild.retrieveMemberById(discordId).queue(member -> {
+                if (member.isOwner()) return;
 
-            String currentNick = member.getNickname();
-            if (currentNick == null) currentNick = member.getEffectiveName();
-
-            if (Objects.equals(currentNick, finalNickname)) return;
-
-            plugin.getDiscordManager().modifyNickname(guild, member, finalNickname);
-        }, error -> plugin.getLogger().warning("[NickSync] Member not found: " + discordId));
+                String currentNick = member.getNickname();
+                if (currentNick == null) currentNick = member.getEffectiveName();
+                if (!Objects.equals(currentNick, finalNickname)) {
+                    plugin.getDiscordManager().modifyNickname(guild, member, finalNickname);
+                }
+            }, error -> plugin.getLogger().warning("[NickSync] Member not found: " + discordId));
+        });
     }
 
     private String resolveNickname(Player player, String format) {

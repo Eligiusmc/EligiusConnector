@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -14,14 +17,17 @@ import java.util.concurrent.TimeUnit;
 public class ConsoleLogReader {
 
     private final EligiusConnector plugin;
-    private final String consoleChannelId;
     private ScheduledExecutorService executor;
     private long lastReadPosition = 0;
     private File logFile;
 
     public ConsoleLogReader(EligiusConnector plugin) {
         this.plugin = plugin;
-        this.consoleChannelId = plugin.getConfigAdapter().getConsoleChannelId();
+    }
+
+    public void restart() {
+        stop();
+        start();
     }
 
     public void start() {
@@ -52,7 +58,6 @@ public class ConsoleLogReader {
 
             try (RandomAccessFile raf = new RandomAccessFile(logFile, "r")) {
                 // ponytail: detect log rotation (file truncated/rotated) → reset position.
-                // ISO-8859-1 readLine is fine for ASCII logs; fix UTF-8 if non-ASCII appears.
                 if (lastReadPosition > raf.length()) lastReadPosition = 0;
                 raf.seek(lastReadPosition);
                 String line;
@@ -60,7 +65,7 @@ public class ConsoleLogReader {
                 int lineCount = 0;
 
                 while ((line = raf.readLine()) != null) {
-                    buffer.append(line).append("\n");
+                    buffer.append(new String(line.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8)).append("\n");
                     lineCount++;
 
                     if (buffer.length() > 1800 || lineCount >= 50) {
@@ -83,27 +88,38 @@ public class ConsoleLogReader {
 
     private void sendToDiscord(String logs) {
         if (!plugin.getDiscordManager().isConnected()) return;
-        TextChannel channel = plugin.getDiscordManager().getChannel(consoleChannelId);
+        TextChannel channel = plugin.getDiscordManager().getChannel(plugin.getConfigAdapter().getConsoleChannelId());
         if (channel == null) return;
 
-        String formatted = "```ansi\n" + logs + "\n```";
-
-        if (formatted.length() > 2000) {
-            int pos = 0;
-            while (pos < formatted.length()) {
-                int end = Math.min(pos + 1900, formatted.length());
-                String chunk = formatted.substring(pos, end);
-                channel.sendMessage(chunk).queue(
-                    success -> {},
-                    error -> plugin.getLogger().warning("Failed to send console log: " + error.getMessage())
-                );
-                pos = end;
-            }
-        } else {
-            channel.sendMessage(formatted).queue(
+        splitLogMessages(logs).forEach(message -> channel.sendMessage(message).queue(
                 success -> {},
-                error -> plugin.getLogger().warning("Failed to send console log: " + error.getMessage())
-            );
+                error -> plugin.getLogger().warning("Failed to send console log: " + error.getMessage())));
+    }
+
+    static List<String> splitLogMessages(String logs) {
+        String sanitized = logs.replace("```", "` ` `");
+        List<String> chunks = new ArrayList<>();
+        StringBuilder content = new StringBuilder();
+        for (String sourceLine : sanitized.split("\n", -1)) {
+            String line = sourceLine;
+            while (line.length() > 1800) {
+                int end = 1800;
+                if (Character.isHighSurrogate(line.charAt(end - 1))) end--;
+                if (content.length() > 0) {
+                    chunks.add("```ansi\n" + content + "```");
+                    content.setLength(0);
+                }
+                chunks.add("```ansi\n" + line.substring(0, end) + "\n```");
+                line = line.substring(end);
+            }
+            if (content.length() + line.length() + 1 > 1800) {
+                chunks.add("```ansi\n" + content + "```");
+                content.setLength(0);
+            }
+            if (content.length() > 0) content.append('\n');
+            content.append(line);
         }
+        if (content.length() > 0) chunks.add("```ansi\n" + content + "\n```");
+        return chunks;
     }
 }

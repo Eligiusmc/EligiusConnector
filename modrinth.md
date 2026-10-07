@@ -9,12 +9,11 @@ The ultimate Discord-Minecraft bridge plugin for Bukkit, Spigot, Paper, Purpur &
 - 🖥️ **Console Remote:** Execute console commands from Discord.
 - 🔄 **Role Synchronization:** Bidirectional sync with LuckPerms.
 - 📊 **Player Queries:** View profiles, inventory, location from Discord.
-- 🎉 **Custom Events:** Configurable events with timer and command triggers.
+- 🎉 **Custom Events:** YAML command sequences started and stopped with `/events`.
 - 🛡️ **Chat Filters:** Escalating punishment system.
 - 📝 **Audit Logging:** Complete logging of all actions.
 - 🎯 **PlaceholderAPI:** Full integration with placeholders.
 - 🌐 **i18n:** Multi-language support (EN, ES).
-- 📊 **bStats:** Anonymous usage metrics.
 
 ## Requirements
 

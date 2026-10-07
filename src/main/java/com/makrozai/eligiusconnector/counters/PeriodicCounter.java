@@ -9,7 +9,7 @@ public class PeriodicCounter {
     private final EligiusConnector plugin;
     private final CounterConfig config;
     private BukkitTask timerTask;
-    private BukkitTask debounceTask;
+    private volatile BukkitTask debounceTask;
     private long lastUpdateMs;
 
     public PeriodicCounter(EligiusConnector plugin, CounterConfig config) {

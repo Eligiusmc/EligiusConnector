@@ -94,16 +94,6 @@ public class PanelManager {
         });
     }
 
-    public void deletePanel(String panelType) {
-        String channelId = getChannelId(panelType);
-        if (channelId.isEmpty()) return;
-
-        TextChannel channel = plugin.getDiscordManager().getChannel(channelId);
-        if (channel == null) return;
-
-        plugin.getDiscordManager().clearChannel(channelId);
-    }
-
     public void reloadPanels() {
         for (var entry : getPanelIds().entrySet()) {
             String channelId = entry.getValue();
@@ -114,15 +104,6 @@ public class PanelManager {
 
             createPanel(entry.getKey(), channel);
         }
-    }
-
-    private String getChannelId(String panelType) {
-        ConfigurationSection cfg = switch (panelType) {
-            case "verify" -> plugin.getConfigAdapter().getVerifyConfig();
-            case "profile" -> plugin.getConfigAdapter().getProfileConfig();
-            default -> null;
-        };
-        return cfg != null ? cfg.getString("channel", "") : "";
     }
 
     private ConfigurationSection getPanelSection(String panelType) {

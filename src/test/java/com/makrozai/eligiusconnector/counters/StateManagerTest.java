@@ -1,10 +1,6 @@
 package com.makrozai.eligiusconnector.counters;
 
-import be.seeseemelk.mockbukkit.MockBukkit;
-import be.seeseemelk.mockbukkit.ServerMock;
 import com.makrozai.eligiusconnector.EligiusConnector;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,24 +13,12 @@ import static org.mockito.Mockito.*;
 
 class StateManagerTest {
 
-    private static ServerMock server;
     private StateManager stateManager;
     private EligiusConnector pluginMock;
-
-    @BeforeAll
-    static void setUp() {
-        server = MockBukkit.mock();
-    }
-
-    @AfterAll
-    static void tearDown() {
-        MockBukkit.unmock();
-    }
 
     @BeforeEach
     void init() {
         pluginMock = mock(EligiusConnector.class);
-        when(pluginMock.getServer()).thenReturn(server);
         when(pluginMock.getLogger()).thenReturn(Logger.getLogger("test"));
         stateManager = new StateManager(pluginMock);
     }
@@ -42,12 +26,6 @@ class StateManagerTest {
     @Test
     void builtInServerOnlineIsSet() {
         assertEquals("online", stateManager.getState("server_online"));
-    }
-
-    @Test
-    void builtInWhitelistIsSet() {
-        String whitelist = stateManager.getState("whitelist");
-        assertNotNull(whitelist);
     }
 
     @Test
@@ -93,16 +71,6 @@ class StateManagerTest {
     }
 
     @Test
-    void toggleFlipsBoolean() {
-        stateManager.setState("whitelist", "true");
-        stateManager.toggle("whitelist");
-        assertEquals("false", stateManager.getState("whitelist"));
-
-        stateManager.toggle("whitelist");
-        assertEquals("true", stateManager.getState("whitelist"));
-    }
-
-    @Test
     void unsubscribeRemovesListener() {
         AtomicInteger callCount = new AtomicInteger(0);
         StateManager.StateListener listener = (key, old, newV) -> callCount.incrementAndGet();
@@ -133,12 +101,4 @@ class StateManagerTest {
         assertEquals(1, goodListenerCount.get(), "Second listener should fire despite first failing");
     }
 
-    @Test
-    void resetRestoresBuiltIns() {
-        stateManager.setState("custom_key", "custom_value");
-        stateManager.reset();
-
-        assertEquals("", stateManager.getState("custom_key"));
-        assertEquals("online", stateManager.getState("server_online"));
-    }
 }

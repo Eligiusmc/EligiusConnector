@@ -40,6 +40,7 @@ public class PlaceholderResolver {
             var guild = plugin.getDiscordManager().getGuild();
             return guild != null ? String.valueOf(guild.getMemberCount()) : "0";
         });
+        register("server_unique_joins", player -> String.valueOf(plugin.getStatsManager().getUniqueJoinCount()));
 
         register("player_name", player -> player != null ? player.getName() : "");
         register("player_displayname", player -> player != null ? player.getDisplayName() : "");

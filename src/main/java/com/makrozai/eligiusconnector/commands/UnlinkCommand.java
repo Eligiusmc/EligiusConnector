@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.commands;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -31,49 +32,58 @@ public class UnlinkCommand implements CommandExecutor {
             }
 
             String targetName = args[0];
-            Long targetDiscordId = plugin.getDatabaseManager().getDiscordIdByName(targetName);
-
-            if (targetDiscordId == null) {
-                player.sendMessage(ChatColor.RED + plugin.msg(player, "unlink.target_not_found").replace("{player}", targetName));
-                return true;
-            }
-
-            if (!plugin.getDatabaseManager().isLinkedByName(targetName)) {
-                player.sendMessage(ChatColor.RED + plugin.msg(player, "unlink.target_not_linked").replace("{player}", targetName));
-                return true;
-            }
-
-            if (plugin.getDatabaseManager().unlinkAccount(targetDiscordId)) {
-                player.sendMessage(ChatColor.GREEN + plugin.msg(player, "unlink.success").replace("{player}", targetName));
-                plugin.getDatabaseManager().logAudit("info", "account_unlinked", player.getName(), "minecraft", "Unlinked " + targetName, null);
-                plugin.getDiscordManager().sendMessage(
-                        plugin.getConfigAdapter().getChatChannelId(),
-                        plugin.msg("unlink.unlinked_by").replace("{target}", targetName).replace("{player}", player.getName()));
-            } else {
-                player.sendMessage(ChatColor.RED + plugin.msg(player, "unlink.failed").replace("{player}", targetName));
-            }
+            String playerName = player.getName();
+            Scheduler.runAsync(plugin, () -> {
+                Long targetDiscordId = plugin.getDatabaseManager().getDiscordIdByName(targetName);
+                String key;
+                if (targetDiscordId == null) {
+                    key = "target_not_found";
+                } else if (!plugin.getDatabaseManager().unlinkAccount(targetDiscordId)) {
+                    key = "failed";
+                } else {
+                    key = "success";
+                    plugin.getDatabaseManager().logAudit("info", "account_unlinked", playerName,
+                            "minecraft", "Unlinked " + targetName, null);
+                    plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getChatChannelId(),
+                            plugin.msg("unlink.unlinked_by").replace("{target}", targetName)
+                                    .replace("{player}", playerName));
+                }
+                sendResult(player, key, targetName, "success".equals(key));
+            });
         } else {
             if (!player.hasPermission("connector.unlink.self")) {
                 player.sendMessage(ChatColor.RED + plugin.msg(player, "unlink.no_permission"));
                 return true;
             }
 
-            if (!plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
-                player.sendMessage(ChatColor.RED + plugin.msg(player, "unlink.not_linked"));
-                return true;
-            }
-
-            if (plugin.getDatabaseManager().unlinkAccountByUUID(player.getUniqueId())) {
-                player.sendMessage(ChatColor.GREEN + plugin.msg(player, "unlink.success_self"));
-                plugin.getDatabaseManager().logAudit("info", "account_unlinked", player.getName(), "minecraft", "Self unlink", null);
-                plugin.getDiscordManager().sendMessage(
-                        plugin.getConfigAdapter().getChatChannelId(),
-                        plugin.msg("unlink.unlinked_self").replace("{player}", player.getName()));
-            } else {
-                player.sendMessage(ChatColor.RED + plugin.msg(player, "unlink.failed"));
-            }
+            java.util.UUID uuid = player.getUniqueId();
+            String playerName = player.getName();
+            Scheduler.runAsync(plugin, () -> {
+                String key;
+                if (!plugin.getDatabaseManager().isLinked(uuid)) {
+                    key = "not_linked";
+                } else if (!plugin.getDatabaseManager().unlinkAccountByUUID(uuid)) {
+                    key = "failed";
+                } else {
+                    key = "success_self";
+                    plugin.getDatabaseManager().logAudit("info", "account_unlinked", playerName,
+                            "minecraft", "Self unlink", null);
+                    plugin.getDiscordManager().sendMessage(plugin.getConfigAdapter().getChatChannelId(),
+                            plugin.msg("unlink.unlinked_self").replace("{player}", playerName));
+                }
+                sendResult(player, key, null, "success_self".equals(key));
+            });
         }
 
         return true;
+    }
+
+    private void sendResult(Player player, String key, String target, boolean success) {
+        Scheduler.runForEntity(plugin, player, () -> {
+            if (!player.isOnline()) return;
+            String message = plugin.msg(player, "unlink." + key);
+            if (target != null) message = message.replace("{player}", target);
+            player.sendMessage((success ? ChatColor.GREEN : ChatColor.RED) + message);
+        });
     }
 }

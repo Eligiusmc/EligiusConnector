@@ -28,13 +28,12 @@ public class PlayerStatsManager {
                 "deaths_mob INT DEFAULT 0, " +
                 "blocks_placed INT DEFAULT 0, " +
                 "blocks_broken INT DEFAULT 0, " +
-                "items_crafted INT DEFAULT 0, " +
-                "distance_walked BIGINT DEFAULT 0, " +
-                "jumps INT DEFAULT 0" +
+                "items_crafted INT DEFAULT 0" +
                 ")";
 
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              Statement stmt = conn.createStatement()) {
+            // Si ya existe con otro schema, no fallar: PlayerStatsManager es el owner del schema
             stmt.execute(sql);
             // Add missing columns for existing tables
             addColumnIfMissing(stmt, "connector_player_stats", "first_join", "TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
@@ -46,9 +45,7 @@ public class PlayerStatsManager {
             addColumnIfMissing(stmt, "connector_player_stats", "blocks_placed", "INT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "blocks_broken", "INT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "items_crafted", "INT DEFAULT 0");
-            addColumnIfMissing(stmt, "connector_player_stats", "distance_walked", "BIGINT DEFAULT 0");
             addColumnIfMissing(stmt, "connector_player_stats", "total_playtime", "BIGINT DEFAULT 0");
-            addColumnIfMissing(stmt, "connector_player_stats", "jumps", "INT DEFAULT 0");
         } catch (SQLException e) {
             plugin.getLogger().warning("Failed to create player_stats table: " + e.getMessage());
         }
@@ -67,9 +64,12 @@ public class PlayerStatsManager {
     }
 
     public void updateJoin(UUID uuid, String playerName) {
-        String sql = "INSERT INTO connector_player_stats (uuid, player_name, last_join) " +
-                "VALUES (?, ?, CURRENT_TIMESTAMP) " +
-                "ON CONFLICT(uuid) DO UPDATE SET last_join = CURRENT_TIMESTAMP, player_name = ?";
+        boolean mysql = "mysql".equals(plugin.getDatabaseManager().getType());
+        String sql = mysql
+                ? "INSERT INTO connector_player_stats (uuid, player_name, last_join) VALUES (?, ?, CURRENT_TIMESTAMP) " +
+                  "ON DUPLICATE KEY UPDATE last_join = CURRENT_TIMESTAMP, player_name = ?"
+                : "INSERT INTO connector_player_stats (uuid, player_name, last_join) VALUES (?, ?, CURRENT_TIMESTAMP) " +
+                  "ON CONFLICT(uuid) DO UPDATE SET last_join = CURRENT_TIMESTAMP, player_name = ?";
 
         try (Connection conn = plugin.getDatabaseManager().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -179,9 +179,7 @@ public class PlayerStatsManager {
                             rs.getInt("deaths_mob"),
                             rs.getInt("blocks_placed"),
                             rs.getInt("blocks_broken"),
-                            rs.getInt("items_crafted"),
-                            rs.getLong("distance_walked"),
-                            rs.getInt("jumps")
+                            rs.getInt("items_crafted")
                     );
                 }
             }
@@ -190,6 +188,18 @@ public class PlayerStatsManager {
         }
 
         return null;
+    }
+
+    public int getUniqueJoinCount() {
+        String sql = "SELECT COUNT(*) FROM connector_player_stats";
+        try (Connection conn = plugin.getDatabaseManager().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            return rs.next() ? rs.getInt(1) : 0;
+        } catch (SQLException e) {
+            plugin.getLogger().warning("Failed to get unique join count: " + e.getMessage());
+            return 0;
+        }
     }
 
     public static class PlayerStats {
@@ -207,13 +217,11 @@ public class PlayerStatsManager {
         private final int blocksPlaced;
         private final int blocksBroken;
         private final int itemsCrafted;
-        private final long distanceWalked;
-        private final int jumps;
 
         public PlayerStats(UUID uuid, String playerName, Timestamp firstJoin, Timestamp lastJoin,
                           long totalPlaytime, int kills, int deaths, int killsPlayer, int deathsPlayer,
                           int killsMob, int deathsMob, int blocksPlaced, int blocksBroken,
-                          int itemsCrafted, long distanceWalked, int jumps) {
+                           int itemsCrafted) {
             this.uuid = uuid;
             this.playerName = playerName;
             this.firstJoin = firstJoin;
@@ -228,8 +236,6 @@ public class PlayerStatsManager {
             this.blocksPlaced = blocksPlaced;
             this.blocksBroken = blocksBroken;
             this.itemsCrafted = itemsCrafted;
-            this.distanceWalked = distanceWalked;
-            this.jumps = jumps;
         }
 
         public UUID getUuid() { return uuid; }
@@ -246,8 +252,6 @@ public class PlayerStatsManager {
         public int getBlocksPlaced() { return blocksPlaced; }
         public int getBlocksBroken() { return blocksBroken; }
         public int getItemsCrafted() { return itemsCrafted; }
-        public long getDistanceWalked() { return distanceWalked; }
-        public int getJumps() { return jumps; }
 
         public double getKDR() {
             return deaths == 0 ? kills : (double) kills / deaths;

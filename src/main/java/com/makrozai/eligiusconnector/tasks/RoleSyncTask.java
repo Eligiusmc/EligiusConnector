@@ -55,9 +55,8 @@ public class RoleSyncTask {
         Guild guild = plugin.getDiscordManager().getGuild();
         if (guild == null) return;
 
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            syncPlayer(player, guild, mapping);
-        }
+        Scheduler.runSync(plugin, () -> Bukkit.getOnlinePlayers().forEach(player ->
+                Scheduler.runForEntity(plugin, player, () -> syncPlayer(player, guild, mapping))));
     }
 
     public void syncPlayer(Player player) {
@@ -66,44 +65,46 @@ public class RoleSyncTask {
         Map<String, String> mapping = plugin.getConfigAdapter().getRoleGroupMapping();
         if (mapping.isEmpty()) return;
 
-        Guild guild = plugin.getDiscordManager().getGuild();
-        if (guild == null) return;
-
-        syncPlayer(player, guild, mapping);
+        Scheduler.runForEntity(plugin, player, () -> {
+            Guild guild = plugin.getDiscordManager().getGuild();
+            if (guild != null) syncPlayer(player, guild, mapping);
+        });
     }
 
     private void syncPlayer(Player player, Guild guild, Map<String, String> mapping) {
-        Long discordId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
-        if (discordId == null) return;
-
-        guild.retrieveMemberById(discordId).queue(member -> {
-            Set<String> mcGroups = new HashSet<>(Arrays.asList(perms.getPlayerGroups(player)));
-            Set<String> dcRoleIds = new HashSet<>();
-            for (Role role : member.getRoles()) {
-                dcRoleIds.add(role.getId());
-            }
-
-            for (var entry : mapping.entrySet()) {
-                String mcGroup = entry.getKey();
-                String dcRoleId = entry.getValue();
-                Role role = guild.getRoleById(dcRoleId);
-                if (role == null) continue;
-
-                boolean hasInMC = mcGroups.contains(mcGroup);
-                boolean hasInDC = dcRoleIds.contains(dcRoleId);
-
-                if (hasInMC && !hasInDC) {
-                    guild.addRoleToMember(member, role).queue(
-                            s -> plugin.getLogger().info("[RoleSync] +" + mcGroup + " → " + member.getUser().getName()),
-                            e -> plugin.getLogger().warning("[RoleSync] Failed to add " + mcGroup + ": " + e.getMessage())
-                    );
-                } else if (!hasInMC && hasInDC) {
-                    guild.removeRoleFromMember(member, role).queue(
-                            s -> plugin.getLogger().info("[RoleSync] -" + mcGroup + " → " + member.getUser().getName()),
-                            e -> plugin.getLogger().warning("[RoleSync] Failed to remove " + mcGroup + ": " + e.getMessage())
-                    );
+        Set<String> mcGroups = new HashSet<>(Arrays.asList(perms.getPlayerGroups(player)));
+        java.util.UUID uuid = player.getUniqueId();
+        Scheduler.runAsync(plugin, () -> {
+            Long discordId = plugin.getDatabaseManager().getDiscordId(uuid);
+            if (discordId == null) return;
+            guild.retrieveMemberById(discordId).queue(member -> {
+                Set<String> dcRoleIds = new HashSet<>();
+                for (Role role : member.getRoles()) {
+                    dcRoleIds.add(role.getId());
                 }
-            }
-        }, error -> {}); // ponytail: member not in guild, skip silently
+
+                for (var entry : mapping.entrySet()) {
+                    String mcGroup = entry.getKey();
+                    String dcRoleId = entry.getValue();
+                    Role role = guild.getRoleById(dcRoleId);
+                    if (role == null) continue;
+
+                    boolean hasInMC = mcGroups.contains(mcGroup);
+                    boolean hasInDC = dcRoleIds.contains(dcRoleId);
+
+                    if (hasInMC && !hasInDC) {
+                        guild.addRoleToMember(member, role).queue(
+                                s -> plugin.getLogger().info("[RoleSync] +" + mcGroup + " → " + member.getUser().getName()),
+                                e -> plugin.getLogger().warning("[RoleSync] Failed to add " + mcGroup + ": " + e.getMessage())
+                        );
+                    } else if (!hasInMC && hasInDC) {
+                        guild.removeRoleFromMember(member, role).queue(
+                                s -> plugin.getLogger().info("[RoleSync] -" + mcGroup + " → " + member.getUser().getName()),
+                                e -> plugin.getLogger().warning("[RoleSync] Failed to remove " + mcGroup + ": " + e.getMessage())
+                        );
+                    }
+                }
+            }, error -> {}); // ponytail: member not in guild, skip silently
+        });
     }
 }

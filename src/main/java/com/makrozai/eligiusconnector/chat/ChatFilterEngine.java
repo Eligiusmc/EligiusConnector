@@ -2,7 +2,6 @@ package com.makrozai.eligiusconnector.chat;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
 import com.makrozai.eligiusconnector.util.Scheduler;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -37,22 +36,22 @@ public class ChatFilterEngine {
         UUID uuid = player.getUniqueId();
 
         if (plugin.getConfigAdapter().isSpamFilterEnabled() && isSpam(uuid)) {
-            String punishment = executePunishment(uuid, "spam");
+            String punishment = executePunishment(uuid, player, "spam");
             return FilterResult.blocked("spam", punishment);
         }
 
-        if (containsProfanity(message)) {
-            String punishment = executePunishment(uuid, "profanity");
+        if (plugin.getConfigAdapter().isProfanityFilterEnabled() && containsProfanity(message)) {
+            String punishment = executePunishment(uuid, player, "profanity");
             return FilterResult.blocked("profanity", punishment);
         }
 
-        if (containsBlockedLinks(message)) {
-            String punishment = executePunishment(uuid, "links");
+        if (plugin.getConfigAdapter().isLinksFilterEnabled() && containsBlockedLinks(message)) {
+            String punishment = executePunishment(uuid, player, "links");
             return FilterResult.blocked("links", punishment);
         }
 
-        if (exceedsCapsLimit(message)) {
-            String punishment = executePunishment(uuid, "caps");
+        if (plugin.getConfigAdapter().isCapsFilterEnabled() && exceedsCapsLimit(message)) {
+            String punishment = executePunishment(uuid, player, "caps");
             return FilterResult.blocked("caps", punishment);
         }
 
@@ -72,9 +71,9 @@ public class ChatFilterEngine {
     }
 
     private boolean containsProfanity(String message) {
-        String lower = message.toLowerCase();
+        String lower = message.toLowerCase(java.util.Locale.ROOT);
         for (String word : plugin.getConfigAdapter().getBlockedWords()) {
-            if (lower.contains(word.toLowerCase())) {
+            if (lower.contains(word.toLowerCase(java.util.Locale.ROOT))) {
                 return true;
             }
         }
@@ -110,12 +109,9 @@ public class ChatFilterEngine {
         return percentage > plugin.getConfigAdapter().getCapsMaxPercentage() / 100.0;
     }
 
-    private String executePunishment(UUID uuid, String filterType) {
+    private String executePunishment(UUID uuid, Player player, String filterType) {
         int warnings = violationCount.merge(uuid, 1, Integer::sum);
-        plugin.getDatabaseManager().addFilterWarning(uuid, filterType, warnings);
-
-        Player player = Bukkit.getPlayer(uuid);
-        if (player == null) return "none";
+        Scheduler.runAsync(plugin, () -> plugin.getDatabaseManager().addFilterWarning(uuid, filterType, warnings));
 
         if (plugin.getConfigAdapter().isPunishmentEnabled()) {
             java.util.Map<Integer, String> thresholds = plugin.getConfigAdapter().getPunishmentThresholds();
@@ -129,12 +125,18 @@ public class ChatFilterEngine {
             }
             if (action != null) {
                 executePunishmentAction(player, action);
+                notifyBlocked(player, filterType);
                 return action.contains(":") ? action.split(":")[0] : action;
             }
         }
 
-        player.sendMessage(plugin.msg(player, "chat.blocked", java.util.Map.of("reason", filterType)));
+        notifyBlocked(player, filterType);
         return "warn";
+    }
+
+    private void notifyBlocked(Player player, String filterType) {
+        Scheduler.runForEntity(plugin, player, () ->
+                player.sendMessage(plugin.msg(player, "chat.blocked", java.util.Map.of("reason", filterType))));
     }
 
     private void executePunishmentAction(Player player, String action) {
@@ -144,18 +146,20 @@ public class ChatFilterEngine {
         String type = parts[0];
         int duration = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
 
-        switch (type) {
-            case "mute" -> scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    "mute " + player.getName() + " " + duration + "s [ChatFilter]"));
-            case "tempban" -> scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    "tempban " + player.getName() + " " + duration + "s [ChatFilter]"));
-            case "banip" -> scheduleTask(() -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(),
-                    "banip " + player.getName() + " [ChatFilter]"));
-        }
+        String command = switch (type) {
+            case "mute" -> "mute %player% " + duration + "s [ChatFilter]";
+            case "tempban" -> "tempban %player% " + duration + "s [ChatFilter]";
+            case "banip" -> "banip %player% [ChatFilter]";
+            default -> null;
+        };
+        if (command != null) runPunishment(player, command);
     }
 
-    private void scheduleTask(Runnable task) {
-        Scheduler.runAsync(plugin, task);
+    private void runPunishment(Player player, String commandTemplate) {
+        Scheduler.runForEntity(plugin, player, () -> {
+            String command = commandTemplate.replace("%player%", player.getName());
+            Scheduler.runSync(plugin, () -> org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), command));
+        });
     }
 
     public void resetViolations(UUID uuid) {

@@ -1,8 +1,6 @@
 package com.makrozai.eligiusconnector.counters;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
-import org.bukkit.Bukkit;
-import org.bukkit.Server;
 
 import java.util.Map;
 import java.util.Objects;
@@ -21,10 +19,7 @@ public class StateManager {
     }
 
     private void registerBuiltIns() {
-        Server server = plugin.getServer();
         setState("server_online", "online");
-        setState("whitelist", String.valueOf(server.hasWhitelist()));
-        setState("maintenance", "false");
     }
 
     public void setState(String key, String value) {
@@ -36,11 +31,6 @@ public class StateManager {
 
     public String getState(String key) {
         return states.getOrDefault(key, "");
-    }
-
-    public void toggle(String key) {
-        boolean current = Boolean.parseBoolean(getState(key));
-        setState(key, String.valueOf(!current));
     }
 
     public void subscribe(String key, StateListener listener) {
@@ -62,12 +52,6 @@ public class StateManager {
                 plugin.getLogger().warning("[Counters] State listener error for " + key + ": " + e.getMessage());
             }
         }
-    }
-
-    public void reset() {
-        states.clear();
-        listeners.clear();
-        registerBuiltIns();
     }
 
     @FunctionalInterface

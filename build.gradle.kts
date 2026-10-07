@@ -35,17 +35,14 @@ dependencies {
         exclude(group = "org.spigotmc")
     }
 
-    // PacketEvents
-    compileOnly("com.github.retrooper:packetevents-spigot:2.12.2")
-
     // HikariCP
     implementation("com.zaxxer:HikariCP:5.1.0")
 
-    // Redis
-    implementation("redis.clients:jedis:5.1.0")
+    // MySQL driver for the configured MySQL backend
+    implementation("com.mysql:mysql-connector-j:8.4.0")
 
-    // bStats
-    implementation("org.bstats:bstats-bukkit:3.2.1")
+    // Used to encode Discord webhook payloads
+    implementation("org.json:json:20240303")
 
     // Kyori Adventure
     implementation("net.kyori:adventure-api:4.17.0")
@@ -57,6 +54,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
     testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation("com.github.seeseemelk:MockBukkit-v1.21:3.102.0")
+    testImplementation("org.xerial:sqlite-jdbc:3.46.1.0")
 }
 
 group = "com.makrozai"
@@ -101,9 +99,6 @@ tasks.named<Jar>("jar") {
 
 tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar") {
     archiveClassifier.set("")
-    relocate("org.bstats", "com.makrozai.eligiusconnector.libs.bstats")
-    relocate("redis.clients.jedis", "com.makrozai.eligiusconnector.libs.jedis")
-    relocate("org.apache.commons.pool2", "com.makrozai.eligiusconnector.libs.commons.pool2")
     relocate("com.zaxxer.hikari", "com.makrozai.eligiusconnector.libs.hikari")
     relocate("net.kyori", "com.makrozai.eligiusconnector.libs.kyori")
 }

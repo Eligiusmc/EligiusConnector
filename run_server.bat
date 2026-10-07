@@ -3,7 +3,9 @@ setlocal
 echo Starting EligiusConnector test server (Purpur 26.2)...
 echo.
 
-set JAVA_CMD=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe
+set JAVA_CMD=
+for /d %%J in ("C:\Program Files\Eclipse Adoptium\jdk-25*") do set JAVA_CMD=%%J\bin\java.exe
+if not defined JAVA_CMD set JAVA_CMD=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe
 if not exist "%JAVA_CMD%" set JAVA_CMD=java
 
 if not exist "server\purpur-26.2.jar" (
@@ -18,7 +20,10 @@ if not exist "server\purpur-26.2.jar" (
 
 if exist "build\libs\EligiusConnector-*.jar" (
     del /q "server\plugins\EligiusConnector-*.jar" 2>nul
-    copy "build\libs\EligiusConnector-*.jar" "server\plugins\" > nul
+    for %%f in ("build\libs\EligiusConnector-*.jar") do (
+        echo %%~nxf | findstr /i /c:"-plain.jar" >nul
+        if errorlevel 1 copy /y "%%f" "server\plugins\" > nul
+    )
     echo Plugin deployed to server/plugins/
 ) else (
     echo Plugin JAR not found. Run 'gradlew build' first.
@@ -26,7 +31,7 @@ if exist "build\libs\EligiusConnector-*.jar" (
     exit /b 1
 )
 
-echo Starting server (DISCORD_BOT_TOKEN must be set in env)...
+echo Starting server. Configure bot.token locally or set DISCORD_BOT_TOKEN.
 cd server
 "%JAVA_CMD%" -Xms1G -Xmx2G -jar purpur-26.2.jar --nogui
 pause

@@ -21,8 +21,7 @@ public class EventManager {
     public void loadEvents() {
         events.clear();
 
-        String folderName = plugin.getConfigAdapter().getEventsFolder();
-        File eventsFolder = new File(plugin.getDataFolder(), folderName);
+        File eventsFolder = new File(plugin.getDataFolder(), "events");
         if (!eventsFolder.exists()) {
             eventsFolder.mkdirs();
             // Copy default events from JAR
@@ -60,74 +59,16 @@ public class EventManager {
         String name = config.getString("name", id);
         String description = config.getString("description", "");
         boolean enabled = config.getBoolean("enabled", true);
-        String type = config.getString("type", "command_chain");
         String channel = config.getString("channel", "");
 
         List<String> startCommands = config.getStringList("start_commands");
         List<String> endCommands = config.getStringList("end_commands");
 
-        List<EventCondition> endConditions = new ArrayList<>();
-        List<?> conditionsList = config.getList("end_conditions");
-        if (conditionsList != null) {
-            for (Object obj : conditionsList) {
-                if (obj instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> map = (Map<String, Object>) obj;
-                    String condType = String.valueOf(map.getOrDefault("type", ""));
-                    String entity = String.valueOf(map.getOrDefault("entity", ""));
-
-                    int minutes = 0;
-                    if (map.containsKey("timeout")) {
-                        try { minutes = Integer.parseInt(String.valueOf(map.get("timeout"))); } catch (NumberFormatException ignored) {}
-                    } else if (map.containsKey("minutes")) {
-                        try { minutes = Integer.parseInt(String.valueOf(map.get("minutes"))); } catch (NumberFormatException ignored) {}
-                    }
-
-                    endConditions.add(new EventCondition(condType, entity, minutes));
-                }
-            }
-        }
-
-        EventRewards rewards = parseRewards(config.getConfigurationSection("rewards"));
-
         Map<String, Object> discordStart = parseDiscord(config.getConfigurationSection("discord.start"));
         Map<String, Object> discordEnd = parseDiscord(config.getConfigurationSection("discord.end"));
 
-        Map<String, Object> spawnConfig = new HashMap<>();
-        ConfigurationSection spawnSection = config.getConfigurationSection("spawn");
-        if (spawnSection != null) {
-            spawnConfig.put("mob", spawnSection.getString("mob", ""));
-            spawnConfig.put("custom_name", spawnSection.getString("custom_name", ""));
-            spawnConfig.put("health", spawnSection.getInt("health", 20));
-        }
-
-        Map<String, Object> eventConfig = new HashMap<>();
-        ConfigurationSection configSection = config.getConfigurationSection("config");
-        if (configSection != null) {
-            for (String key : configSection.getKeys(false)) {
-                eventConfig.put(key, configSection.get(key));
-            }
-        }
-
-        return new GameEvent(id, name, description, enabled, type, channel,
-                startCommands, endCommands, endConditions, rewards,
-                discordStart, discordEnd, spawnConfig, eventConfig);
-    }
-
-    private EventRewards parseRewards(ConfigurationSection section) {
-        Map<String, EventRewards.RewardGroup> groups = new HashMap<>();
-        if (section == null) return new EventRewards(groups);
-
-        for (String key : section.getKeys(false)) {
-            ConfigurationSection groupSection = section.getConfigurationSection(key);
-            if (groupSection != null) {
-                List<String> commands = groupSection.getStringList("commands");
-                String message = groupSection.getString("message", "");
-                groups.put(key, new EventRewards.RewardGroup(commands, message));
-            }
-        }
-
-        return new EventRewards(groups);
+        return new GameEvent(id, name, description, enabled, channel, startCommands, endCommands,
+                discordStart, discordEnd);
     }
 
     private Map<String, Object> parseDiscord(ConfigurationSection section) {

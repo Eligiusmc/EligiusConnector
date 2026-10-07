@@ -2,9 +2,6 @@
 # ║        EligiusConnector - Configuration          ║
 # ╚══════════════════════════════════════════════════╝
 
-# Internal config version — do not modify
-config_version: 1
-
 # ── Discord Bot ───────────────────────────────────
 bot:
   token: "${DISCORD_BOT_TOKEN}"
@@ -27,6 +24,3 @@ database:
 
 # ── Language ──────────────────────────────────────
 language: "en"
-
-# ── Debug ─────────────────────────────────────────
-debug: false

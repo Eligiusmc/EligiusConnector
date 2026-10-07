@@ -31,7 +31,7 @@ src/main/java/com/makrozai/eligiusconnector/
 ├── counters/                    # Sistema de contadores dinamicos (counters.yml)
 │   ├── CounterManager.java      # Carga y gestiona periodic + state counters
 │   ├── CounterConfig.java       # Record de config para cada counter
-│   ├── StateManager.java        # Estados observables (server_online, whitelist, etc)
+│   ├── StateManager.java        # Estado observable server_online
 │   ├── StateCounter.java        # Renombre de canal reactivo a cambios de estado
 │   └── PeriodicCounter.java     # Renombre de canal por intervalo (placeholders)
 ├── placeholders/PlaceholderResolver.java  # %placeholder% → valor (PAPI + built-ins)
@@ -39,7 +39,7 @@ src/main/java/com/makrozai/eligiusconnector/
 ├── listeners/StatsListener.java   # Stats (kills, blocks, etc)
 ├── stats/PlayerStatsManager.java  # CRUD de estadisticas en DB
 ├── events/                       # Sistema de eventos custom (bosses, torneos)
-├── commands/                     # /verify, /unlink, /connector, /events, /birthday, /chat
+├── commands/                     # /verify, /unlink, /connector, /events, /chat
 ├── tasks/NicknameSyncTask.java   # Sincroniza nicknames Minecraft ↔ Discord
 └── util/
     ├── StartupLogger.java        # Logs colorizados de arranque
@@ -52,11 +52,10 @@ src/main/resources/
 ├── chat.yml            # Config del bridge de chat
 ├── player_events.yml   # Embeds de join/leave/death/advancement
 ├── verify.yml          # Verificacion + sonidos + comandos post-verify
-├── birthday.yml        # Sistema de cumpleanos
 ├── console.yml         # Log reader
 ├── synchronization.yml # Roles y nickname sync
 ├── profile.yml         # Embeds de perfil/inventario
-├── events/*.yml        # Config de eventos (bosses, torneos)
+├── events/*.yml        # Secuencias de comandos iniciadas manualmente
 └── lang/*.yml          # en, es, de, fr, pt, ru
 ```
 
@@ -72,41 +71,27 @@ El canal `1521276573033173204` (configurado en `status.yml`) es **compartido por
 Ambos apuntan al mismo `channel:` por coincidencia de config. NO modificar uno sin revisar el otro.
 La interaccion es intencional: el counter renombre el canal, el embed publica el mensaje visual.
 
-### ⚠️ Bug conocido (fixeado Jul 2026)
+### Estado al apagar el servidor
 
-**Sintoma:** Al cerrar el servidor, el nombre del canal cambia pero el embed offline no se publica
-ni se borra el online anterior.
-
-**Causa raiz:** El metodo `sendStatusOffEmbed` (async) encadenaba `clearChannel` → `sendEmbed` via
-`.queue()`. Esto requiere 3+ round-trips REST (fetch history → delete each → send embed). Durante
-`onDisable`, `discordManager.shutdown()` se ejecuta inmediatamente despues, cancelando la cadena
-async antes del ultimo paso. El rename del canal (1 sola llamada REST) si alcanza a completarse.
-
-**Fix aplicado:** `sendStatusOffEmbedSync` (via `.complete()`) en DiscordManager.java:318:
-1. Captura los mensajes bot viejos ANTES de enviar
-2. Envia el embed offline (bloqueante, garantizado)
-3. Borra los mensajes viejos via `purgeMessages` (bulk, best-effort, no aborta si falla)
-El guard en `onDisable` ahora incluye `isConnected()` como en `onEnable`.
+El rename del contador de estado y el embed offline se completan sincrónicamente antes de cerrar JDA,
+con timeout para el rename. El borrado bulk de mensajes antiguos es best-effort.
 
 ## Deudas tecnicas conocidas
 
 | # | Archivo | Problema | Prioridad |
 |---|---------|----------|-----------|
-| 1 | `DiscordManager.clearChannel:155` | `purgeMessages` (bulk) reemplaza delete individual, pero `purgeMessages` solo funciona con mensajes < 2 semanas | Baja |
-| 2 | `ConsoleLogReader:55` | `readLine()` usa ISO-8859-1 (ASCII en la practica). Si hay texto no-ASCII en logs se corrompe | Baja |
-| 3 | `ConfigAdapter.reloadAll:50` | Solo recarga FileConfiguration, no inyecta en `CounterManager`/`DiscordManager` | Media |
-| 4 | `CounterManager.stopAll:47` | `LinkedHashMap` sin sync + clear mientras tarea async correa → race teorica | Baja |
-| 5 | `PlayerListener.getAvatarUrl:45` | `getMemberById` sin guard `isConnected()` (menor: guild != null lo protege) | Baja |
-| 6 | `PlayerListener.onPlayerJoin` | `hasPlayedBefore` se ejecuta async → race con `StatsListener` (primera vez). Actualmente la consulta usa `connector_player_stats` lo cual depende del orden de insercion | Baja |
-| 7 | Sin multi-guild | `getServerId` asume un solo guild. No hay soporte para multiples servidores Discord | Baja |
-| 8 | Sin cache de DB | Cada mensaje de chat consulta `getDiscordId` → DB query. OK hasta que sea lento | Baja |
+| 1 | `DiscordManager.clearChannel` | `purgeMessages` solo borra mensajes de menos de 2 semanas; status/paneles suelen ser recientes | Baja |
+| 2 | `PlayerListener` | Sin cache de DB para vínculos de chat; cada mensaje consulta la base de datos | Baja |
+| 3 | Configuración Discord | Un solo guild (`bot.guild_id`); multi-guild no se necesita hoy | Baja |
 
 ## Folia — Scheduler Adaptado
 
-La utilidad `Scheduler.java` detecta Folia via `Class.forName("...AsyncScheduler")` y delega
-a `Bukkit.getAsyncScheduler()` en Folia (API Paper 1.21+). En Paper/Spigot usa `Bukkit.getScheduler()`.
+La utilidad `Scheduler.java` detecta Folia por el nombre del servidor y usa los schedulers global,
+de entidad y async; en Paper/Spigot usa `Bukkit.getScheduler()`.
 
 Metodos estaticos disponibles:
+- `Scheduler.runSync(plugin, task)` → hilo global de Folia / main thread en Paper
+- `Scheduler.runForEntity(plugin, entity, task)` → scheduler de entidad en Folia / main thread en Paper
 - `Scheduler.runAsync(plugin, task)` → reemplaza `runTaskAsynchronously`
 - `Scheduler.runLaterAsync(plugin, task, delayTicks)` → reemplaza `runTaskLaterAsynchronously`
 - `Scheduler.runTimerAsync(plugin, task, delay, period)` → reemplaza `runTaskTimerAsynchronously`
@@ -124,7 +109,7 @@ para evitar dependencia compile-time.
 ### Build
 - `./gradlew build` debe pasar sin errores
 - `./gradlew shadowJar` para el JAR final
-- Dependencies: HikariCP, JDA, Adventure (MiniMessage)
+- Dependencies: HikariCP, JDA, Adventure (MiniMessage), MySQL Connector/J
 
 ## Skills Obligatorios
 
@@ -174,8 +159,7 @@ para evitar dependencia compile-time.
 5. **Zero-dependencies**: Evitar ProtocolLib si Paper API lo soporta
 6. **Folia-ready**: Usar `Scheduler.runAsync/runTimerAsync` en vez de `Bukkit.getScheduler()` directo
 7. **i18n**: Soporte multi-idioma desde el principio
-8. **bStats**: Metricas anonimas integradas
-9. **Release Please**: Automatizacion de releases con Conventional Commits
+8. **Release Please**: Automatizacion de releases con Conventional Commits
 
 ## Deploy al Servidor de Pruebas
 

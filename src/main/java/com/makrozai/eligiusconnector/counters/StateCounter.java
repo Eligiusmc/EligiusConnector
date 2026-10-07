@@ -35,6 +35,15 @@ public class StateCounter implements StateManager.StateListener {
         plugin.getDiscordManager().updateChannelName(config.channelId(), channelName);
     }
 
+    /** Issue #10: rename síncrono para shutdown (evita que shutdownNow lo cancele) */
+    public void updateSync() {
+        if (!plugin.getDiscordManager().isConnected()) return;
+        String currentState = stateManager.getState(config.stateKey());
+        String channelName = config.states().getOrDefault(currentState, config.format());
+        if (channelName.isEmpty()) return;
+        plugin.getDiscordManager().updateChannelNameSync(config.channelId(), channelName);
+    }
+
     public CounterConfig getConfig() {
         return config;
     }

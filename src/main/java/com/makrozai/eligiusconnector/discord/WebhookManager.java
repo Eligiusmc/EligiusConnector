@@ -35,6 +35,7 @@ public class WebhookManager {
                 JSONObject payload = new JSONObject();
                 payload.put("content", content);
                 payload.put("username", username);
+                payload.put("allowed_mentions", new JSONObject().put("parse", new org.json.JSONArray()));
                 if (avatarUrl != null && !avatarUrl.isEmpty()) {
                     payload.put("avatar_url", avatarUrl);
                 }
@@ -57,16 +58,19 @@ public class WebhookManager {
     }
 
     private Webhook getOrCreateWebhook(String channelId) {
-        if (cachedWebhook != null && cachedWebhook.getChannel().getId().equals(channelId)) {
+        String webhookName = plugin.getConfigAdapter().getWebhookName();
+        if (cachedWebhook != null && cachedWebhook.getChannel().getId().equals(channelId)
+                && cachedWebhook.getName().equals(webhookName)) {
             return cachedWebhook;
         }
+        cachedWebhook = null;
 
         TextChannel channel = plugin.getDiscordManager().getChannel(channelId);
         if (channel == null) return null;
 
         // Look for existing webhook
         for (Webhook webhook : channel.getGuild().retrieveWebhooks().complete()) {
-            if (webhook.getChannel().getId().equals(channelId) && webhook.getName().equals("EligiusConnector")) {
+            if (webhook.getChannel().getId().equals(channelId) && webhook.getName().equals(webhookName)) {
                 cachedWebhook = webhook;
                 return webhook;
             }
@@ -74,7 +78,7 @@ public class WebhookManager {
 
         // Create new webhook
         try {
-            cachedWebhook = channel.createWebhook("EligiusConnector").complete();
+            cachedWebhook = channel.createWebhook(webhookName).complete();
             return cachedWebhook;
         } catch (Exception e) {
             plugin.getLogger().warning("Failed to create webhook: " + e.getMessage());
@@ -86,7 +90,4 @@ public class WebhookManager {
         plugin.getDiscordManager().sendMessage(channelId, "**[" + username + "]** " + content);
     }
 
-    public void clearCache() {
-        cachedWebhook = null;
-    }
 }

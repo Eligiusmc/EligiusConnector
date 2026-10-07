@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.listeners;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -10,8 +11,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.UUID;
 
@@ -23,46 +22,44 @@ public class StatsListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        plugin.getStatsManager().updateJoin(player.getUniqueId(), player.getName());
-    }
-
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getEntity();
-        plugin.getStatsManager().addDeath(player.getUniqueId(), "player");
+        UUID victim = player.getUniqueId();
+        Scheduler.runAsync(plugin, () -> plugin.getStatsManager().addDeath(victim, "player"));
 
-        // Check if killed by another player
         if (player.getKiller() != null) {
-            plugin.getStatsManager().addKill(player.getKiller().getUniqueId(), "player");
+            UUID killer = player.getKiller().getUniqueId();
+            Scheduler.runAsync(plugin, () -> plugin.getStatsManager().addKill(killer, "player"));
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
         if (event.getEntity().getKiller() == null) return;
-        if (event.getEntity() instanceof Player) return; // Handled by onPlayerDeath
+        if (event.getEntity() instanceof Player) return;
 
-        Player killer = event.getEntity().getKiller();
-        plugin.getStatsManager().addKill(killer.getUniqueId(), "mob");
+        UUID killer = event.getEntity().getKiller().getUniqueId();
+        Scheduler.runAsync(plugin, () -> plugin.getStatsManager().addKill(killer, "mob"));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        plugin.getStatsManager().addBlockBroken(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        Scheduler.runAsync(plugin, () -> plugin.getStatsManager().addBlockBroken(uuid));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
-        plugin.getStatsManager().addBlockPlaced(event.getPlayer().getUniqueId());
+        UUID uuid = event.getPlayer().getUniqueId();
+        Scheduler.runAsync(plugin, () -> plugin.getStatsManager().addBlockPlaced(uuid));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCraft(CraftItemEvent event) {
-        if (event.getWhoClicked() instanceof Player) {
-            plugin.getStatsManager().addItemCrafted(((Player) event.getWhoClicked()).getUniqueId());
+        if (event.getWhoClicked() instanceof Player player) {
+            UUID uuid = player.getUniqueId();
+            Scheduler.runAsync(plugin, () -> plugin.getStatsManager().addItemCrafted(uuid));
         }
     }
 }

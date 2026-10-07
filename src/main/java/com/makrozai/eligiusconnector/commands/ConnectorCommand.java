@@ -54,6 +54,12 @@ public class ConnectorCommand implements CommandExecutor, TabCompleter {
 
         plugin.getConfigAdapter().reloadAll();
         plugin.getLanguageManager().reload();
+        if (plugin.getCounterManager() != null) {
+            plugin.getCounterManager().reload(plugin.getConfigAdapter().getCountersConfig());
+        }
+        if (plugin.getEventManager() != null) plugin.getEventManager().reload();
+        if (plugin.getConsoleLogReader() != null) plugin.getConsoleLogReader().restart();
+        plugin.getDiscordManager().reloadStatusRotation();
         plugin.getPanelManager().reloadPanels();
         plugin.getConfigAdapter().logModules();
         sender.sendMessage(ChatColor.GREEN + plugin.msg("connector.reload_success"));

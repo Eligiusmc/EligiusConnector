@@ -9,7 +9,7 @@
   "api-version": "1.21",
   "folia-compatible": true,
   "dependencies": {
-    "optional": ["PlaceholderAPI", "Vault", "LuckPerms", "ProtocolLib"]
+    "optional": ["PlaceholderAPI", "Vault"]
   },
-  "softdepend": ["PlaceholderAPI", "Vault", "LuckPerms"]
+  "softdepend": ["PlaceholderAPI", "Vault"]
 }

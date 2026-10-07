@@ -10,7 +10,9 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.bukkit.Bukkit;
@@ -28,7 +30,7 @@ public class DiscordManager {
 
     private final EligiusConnector plugin;
     private JDA jda;
-    private boolean connected = false;
+    private volatile boolean connected = false;
     private ScheduledExecutorService statusExecutor;
     private int statusIndex = 0;
 
@@ -61,24 +63,19 @@ public class DiscordManager {
                 builder.setActivity(Activity.playing(status));
             }
 
+            builder.addEventListeners(new DiscordListener(plugin), new ButtonListener(plugin), new ListenerAdapter() {
+                @Override
+                public void onReady(ReadyEvent event) {
+                    connected = true;
+                    StartupLogger.printStep("Discord bot connected — " + event.getJDA().getSelfUser().getName());
+                    Guild guild = getGuild();
+                    if (guild != null) StartupLogger.printStep("Guild — " + guild.getName());
+                    startStatusRotation();
+                    plugin.onDiscordReady();
+                }
+            });
             jda = builder.build();
-            jda.awaitReady();
-            connected = true;
 
-            jda.addEventListener(new DiscordListener(plugin));
-            jda.addEventListener(new ButtonListener(plugin));
-
-            StartupLogger.printStep("Discord bot connected — " + jda.getSelfUser().getName());
-            if (getGuild() != null) {
-                StartupLogger.printStep("Guild — " + getGuild().getName());
-            }
-
-            // Start periodic status rotation
-            startStatusRotation();
-
-        } catch (InterruptedException e) {
-            StartupLogger.printError("Discord connection interrupted!");
-            Thread.currentThread().interrupt();
         } catch (Exception e) {
             StartupLogger.printError("Failed to initialize Discord: " + e.getMessage());
         }
@@ -103,11 +100,25 @@ public class DiscordManager {
     }
 
     public JDA getJDA() { return jda; }
-    public boolean isConnected() { return connected && jda != null; }
+    public boolean isConnected() { return connected && jda != null && jda.getStatus() == JDA.Status.CONNECTED; }
+
+    public void reloadStatusRotation() {
+        if (statusExecutor != null) statusExecutor.shutdownNow();
+        statusExecutor = null;
+        statusIndex = 0;
+        if (isConnected()) startStatusRotation();
+    }
 
     public Guild getGuild() {
         if (!isConnected()) return null;
-        return jda.getGuildById(plugin.getConfigAdapter().getServerId());
+        String id = plugin.getConfigAdapter().getServerId();
+        if (id == null || id.isEmpty()) return null;
+        try {
+            return jda.getGuildById(id);
+        } catch (IllegalArgumentException e) {
+            // getGuildById(String) parsea snowflake y lanza con ids no numericos
+            return null;
+        }
     }
 
     public TextChannel getChannel(String channelId) {
@@ -119,23 +130,9 @@ public class DiscordManager {
     public void sendMessage(String channelId, String message) {
         TextChannel channel = getChannel(channelId);
         if (channel != null) {
-            channel.sendMessage(message).queue(
+            channel.sendMessage(message).setAllowedMentions(java.util.Collections.emptyList()).queue(
                     success -> {},
                     error -> plugin.getLogger().warning("Failed to send message: " + error.getMessage())
-            );
-        }
-    }
-
-    // Send temporary message (auto-delete after delaySeconds)
-    public void sendTempMessage(String channelId, String message, int delaySeconds) {
-        TextChannel channel = getChannel(channelId);
-        if (channel != null) {
-            channel.sendMessage(message).queue(msg ->
-                    msg.delete().queueAfter(delaySeconds, TimeUnit.SECONDS,
-                            success -> {},
-                            error -> plugin.getLogger().warning("Failed to delete temp message: " + error.getMessage())
-                    ),
-                    error -> plugin.getLogger().warning("Failed to send temp message: " + error.getMessage())
             );
         }
     }
@@ -322,6 +319,19 @@ public class DiscordManager {
         }
     }
 
+    /** Issue #10: rename síncrono para shutdown (evita que shutdownNow lo cancele) */
+    public void updateChannelNameSync(String channelId, String newName) {
+        if (newName == null || newName.isEmpty()) return;
+        TextChannel channel = getChannel(channelId);
+        if (channel != null && !channel.getName().equals(newName)) {
+            try {
+                channel.getManager().setName(newName).timeout(5, TimeUnit.SECONDS).complete();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to update channel name (sync): " + e.getMessage());
+            }
+        }
+    }
+
     // Convenience methods
     public void sendStatusEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
         String channelId = plugin.getConfigAdapter().getStatusChannelId();
@@ -362,7 +372,7 @@ public class DiscordManager {
     }
 
     public void sendJoinEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
-        sendEmbed(plugin.getConfigAdapter().getJoinsChannelId(), plugin.getConfigAdapter().getJoinEmbed(), replacements, player);
+        sendEmbed(plugin.getConfigAdapter().getJoinChannelId(), plugin.getConfigAdapter().getJoinEmbed(), replacements, player);
     }
 
     public void sendLeaveEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
@@ -370,11 +380,11 @@ public class DiscordManager {
     }
 
     public void sendDeathEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
-        sendEmbed(plugin.getConfigAdapter().getDeathsChannelId(), plugin.getConfigAdapter().getDeathEmbed(), replacements, player);
+        sendEmbed(plugin.getConfigAdapter().getDeathChannelId(), plugin.getConfigAdapter().getDeathEmbed(), replacements, player);
     }
 
     public void sendAdvancementEmbed(Map<String, String> replacements, org.bukkit.entity.Player player) {
-        sendEmbed(plugin.getConfigAdapter().getMissionsChannelId(), plugin.getConfigAdapter().getAdvancementEmbed(), replacements, player);
+        sendEmbed(plugin.getConfigAdapter().getAdvancementChannelId(), plugin.getConfigAdapter().getAdvancementEmbed(), replacements, player);
     }
 
     public void sendErrorEmbed(InteractionHook hook, String errorKey) {
@@ -392,9 +402,7 @@ public class DiscordManager {
 
     private int getErrorColor(String key) {
         return switch (key) {
-            case "no_permission", "command_blacklisted", "internal_error",
-                 "unknown_action", "panel_not_found", "channel_not_found",
-                 "database_error", "config_missing" -> 0xED4245;
+            case "no_permission", "command_blacklisted", "internal_error", "unknown_action" -> 0xED4245;
             default -> 0xFEE75C;
         };
     }
@@ -408,7 +416,11 @@ public class DiscordManager {
         } else {
             TextChannel channel = getChannel(channelId);
             if (channel != null) {
-                channel.sendMessage("**" + playerName + "**: " + message).queue();
+                String content = plugin.getConfigAdapter().getChatFormatMCToDC()
+                        .replace("{player}", playerName).replace("{message}", message);
+                channel.sendMessage(content)
+                        .setAllowedMentions(java.util.Collections.emptyList())
+                        .queue();
             }
         }
     }
@@ -443,10 +455,13 @@ public class DiscordManager {
         int interval = plugin.getConfigAdapter().getStatusUpdateIntervalMinutes();
         statusExecutor = Executors.newSingleThreadScheduledExecutor();
         statusExecutor.scheduleAtFixedRate(() -> {
-            if (!connected || jda == null) return;
-            statusIndex = (statusIndex + 1) % statuses.size();
-            String status = resolveStatus(statuses.get(statusIndex));
-            jda.getPresence().setActivity(Activity.playing(status));
+            if (!isConnected()) return;
+            com.makrozai.eligiusconnector.util.Scheduler.runSync(plugin, () -> {
+                if (!isConnected()) return;
+                statusIndex = (statusIndex + 1) % statuses.size();
+                String status = resolveStatus(statuses.get(statusIndex));
+                jda.getPresence().setActivity(Activity.playing(status));
+            });
         }, interval, interval, TimeUnit.MINUTES);
     }
 

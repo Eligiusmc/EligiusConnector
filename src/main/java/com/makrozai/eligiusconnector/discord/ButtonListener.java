@@ -2,6 +2,7 @@ package com.makrozai.eligiusconnector.discord;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
 import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -9,7 +10,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -80,172 +81,193 @@ public class ButtonListener extends ListenerAdapter {
     private void handleWhereAmI(ButtonInteractionEvent event) {
         event.deferReply(true).queue();
         long discordId = Long.parseLong(event.getUser().getId());
-        UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
-
-        if (uuid == null) {
-            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
-            return;
-        }
-
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            try {
-                Player player = Bukkit.getPlayer(uuid);
-                if (player == null || !player.isOnline()) {
-                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
-                    return;
-                }
-
-                ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
-                        .getConfigurationSection("whereami");
-                Map<String, String> data = computePlayerData(player, null);
-                data.put("player_biome", player.getLocation().getBlock().getBiome().name()
-                        .toLowerCase().replace("_", " "));
-                data.put("player_block", getBlockFaceName(player.getLocation()));
-
-                MessageEmbed embed = buildEmbedFromTemplate(player,
-                        cfg.getConfigurationSection("embed"), data,
-                        new Color(0x2ECC71));
-                event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
-            } catch (Exception e) {
-                plugin.getLogger().warning("WhereAmI button error: " + e.getMessage());
-                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+        findLinkedUuid(event, uuid -> Scheduler.runSync(plugin, () -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null || !player.isOnline()) {
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
+                return;
             }
-        });
+            Scheduler.runForEntity(plugin, player, () -> {
+                try {
+                    ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
+                            .getConfigurationSection("whereami");
+                    if (cfg == null) {
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        return;
+                    }
+                    Map<String, String> data = computePlayerData(player, null, discordId);
+                    data.put("player_biome", player.getLocation().getBlock().getBiome().name()
+                            .toLowerCase().replace("_", " "));
+                    data.put("player_block", getBlockFaceName(player));
+
+                    MessageEmbed embed = buildEmbedFromTemplate(player,
+                            cfg.getConfigurationSection("embed"), data, new Color(0x2ECC71));
+                    if (embed == null) {
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        return;
+                    }
+                    event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
+                } catch (Exception e) {
+                    plugin.getLogger().warning("WhereAmI button error: " + e.getMessage());
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                }
+            });
+        }));
     }
 
     private void handleInventory(ButtonInteractionEvent event) {
         event.deferReply(true).queue();
-        long discordId = Long.parseLong(event.getUser().getId());
-        UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
-
-        if (uuid == null) {
-            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
-            return;
-        }
-
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            try {
-                Player player = Bukkit.getPlayer(uuid);
-                if (player == null || !player.isOnline()) {
-                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
-                    return;
-                }
-
-                ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
-                        .getConfigurationSection("inventory");
-                ConfigurationSection opts = cfg != null ? cfg.getConfigurationSection("options") : null;
-                Map<String, String> data = computeInventoryData(player, opts);
-                MessageEmbed embed = buildEmbedFromTemplate(player,
-                        cfg.getConfigurationSection("embed"), data,
-                        new Color(0xF39C12));
-                event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
-            } catch (Exception e) {
-                plugin.getLogger().warning("Inventory button error: " + e.getMessage());
-                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+        findLinkedUuid(event, uuid -> Scheduler.runSync(plugin, () -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player == null || !player.isOnline()) {
+                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
+                return;
             }
-        });
+            Scheduler.runForEntity(plugin, player, () -> {
+                try {
+                    ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
+                            .getConfigurationSection("inventory");
+                    if (cfg == null) {
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        return;
+                    }
+                    ConfigurationSection opts = cfg.getConfigurationSection("options");
+                    Map<String, String> data = computeInventoryData(player, opts);
+                    MessageEmbed embed = buildEmbedFromTemplate(player,
+                            cfg.getConfigurationSection("embed"), data, new Color(0xF39C12));
+                    if (embed == null) {
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        return;
+                    }
+                    event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Inventory button error: " + e.getMessage());
+                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                }
+            });
+        }));
     }
 
     private void handleProfile(ButtonInteractionEvent event) {
         event.deferReply(true).queue();
         long discordId = Long.parseLong(event.getUser().getId());
-        UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
-
-        if (uuid == null) {
-            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
-            return;
-        }
-
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            try {
-                ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
-                        .getConfigurationSection("profile");
-                Player player = Bukkit.getPlayer(uuid);
-                PlayerStatsManager.PlayerStats stats = plugin.getStatsManager().getStats(uuid);
-
-                if (player != null && player.isOnline()) {
-                    Map<String, String> data = computePlayerData(player, stats);
-                    MessageEmbed embed = buildEmbedFromTemplate(player,
-                            cfg.getConfigurationSection("embed"), data,
-                            new Color(0x5865F2));
-                    event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
-                } else {
-                    ConfigurationSection offlineCfg = cfg.getConfigurationSection("offline");
-                    if (offlineCfg != null) {
-                        Map<String, String> data;
-                        if (stats != null) {
-                            data = computeOfflineData(stats);
-                        } else {
-                            String name = plugin.getDatabaseManager().getMinecraftName(discordId);
-                            data = new HashMap<>();
-                            data.put("player_name", name != null ? name : "Unknown");
-                            data.put("player_uuid", uuid.toString());
-                            data.put("player_kills", "0");
-                            data.put("player_deaths", "0");
-                            data.put("player_kd", "0.00");
-                            data.put("player_playtime", "0h 0m");
-                            data.put("player_first_join", "");
-                        }
-                        MessageEmbed embed = buildEmbedFromTemplate(null,
-                                offlineCfg, data, Color.GRAY);
-                        event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
-                    } else {
-                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
+        findLinkedUuid(event, uuid -> CompletableFuture.supplyAsync(() -> new ProfileData(
+                plugin.getStatsManager().getStats(uuid),
+                plugin.getDatabaseManager().getMinecraftName(discordId)))
+                .whenComplete((profileData, error) -> {
+                    if (error != null) {
+                        plugin.getLogger().warning("Failed to load profile data: " + error.getMessage());
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        return;
                     }
-                }
-            } catch (Exception e) {
-                plugin.getLogger().warning("Profile button error: " + e.getMessage());
-                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
-            }
-        });
+                    Scheduler.runSync(plugin, () -> {
+                        ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
+                                .getConfigurationSection("profile");
+                        if (cfg == null) {
+                            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                            return;
+                        }
+                        Player player = Bukkit.getPlayer(uuid);
+
+                        if (player != null && player.isOnline()) {
+                            Scheduler.runForEntity(plugin, player, () -> {
+                                Map<String, String> data = computePlayerData(player, profileData.stats(), discordId);
+                                MessageEmbed embed = buildEmbedFromTemplate(player,
+                                        cfg.getConfigurationSection("embed"), data, new Color(0x5865F2));
+                                if (embed != null) event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
+                                else plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                            });
+                        } else {
+                            ConfigurationSection offlineCfg = cfg.getConfigurationSection("offline");
+                            if (offlineCfg == null) {
+                                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_online");
+                                return;
+                            }
+                            Map<String, String> data;
+                            if (profileData.stats() != null) {
+                                data = computeOfflineData(profileData.stats());
+                            } else {
+                                data = new HashMap<>();
+                                data.put("player_name", profileData.name() != null ? profileData.name() : "Unknown");
+                                data.put("player_uuid", uuid.toString());
+                                data.put("player_kills", "0");
+                                data.put("player_deaths", "0");
+                                data.put("player_kd", "0.00");
+                                data.put("player_playtime", "0h 0m");
+                                data.put("player_first_join", "");
+                            }
+                            MessageEmbed embed = buildEmbedFromTemplate(null, offlineCfg, data, Color.GRAY);
+                            if (embed != null) event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
+                            else plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        }
+                    });
+                }));
     }
 
     private void handleMoney(ButtonInteractionEvent event) {
         event.deferReply(true).queue();
-        CompletableFuture.runAsync(() -> {
-            try {
-                long discordId = Long.parseLong(event.getUser().getId());
-                UUID uuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
-
-                if (uuid == null) {
-                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
-                    return;
-                }
-
-                try {
-                    Class.forName("net.milkbowl.vault.economy.Economy");
-                    var rsp = plugin.getServer().getServicesManager().getRegistration(
-                            net.milkbowl.vault.economy.Economy.class);
-                    if (rsp != null) {
-                        net.milkbowl.vault.economy.Economy econ = rsp.getProvider();
-                        Player player = Bukkit.getPlayer(uuid);
-                        String name = plugin.getDatabaseManager().getMinecraftName(discordId);
-                        if (name == null && player != null) name = player.getName();
-                        if (name == null) name = "Unknown";
-
-                        double balance = econ.getBalance(Bukkit.getOfflinePlayer(uuid));
-                        HashMap<String, String> data = new HashMap<>();
-                        data.put("player_name", name);
-                        data.put("balance", String.format("%.2f", balance));
-
-                        ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
-                                .getConfigurationSection("money.embed");
-                        MessageEmbed embed = buildEmbedFromTemplate(player, cfg, data, new Color(0xF1C40F));
-                        if (embed != null) {
-                            event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
-                        }
-                    } else {
-                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");
+        long discordId = Long.parseLong(event.getUser().getId());
+        findLinkedUuid(event, uuid -> CompletableFuture.supplyAsync(() ->
+                plugin.getDatabaseManager().getMinecraftName(discordId))
+                .whenComplete((name, error) -> {
+                    if (error != null) {
+                        plugin.getLogger().warning("Money button DB error: " + error.getMessage());
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                        return;
                     }
-                } catch (ClassNotFoundException e) {
-                    plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");
-                }
-            } catch (Exception e) {
-                plugin.getLogger().warning("Money button error: " + e.getMessage());
-                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
-            }
-        });
+                    try {
+                        Class.forName("net.milkbowl.vault.economy.Economy");
+                    } catch (ClassNotFoundException e) {
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");
+                        return;
+                    }
+                    Scheduler.runSync(plugin, () -> {
+                        var rsp = plugin.getServer().getServicesManager().getRegistration(
+                                net.milkbowl.vault.economy.Economy.class);
+                        if (rsp == null) {
+                            plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "economy_disabled");
+                            return;
+                        }
+                        Player player = Bukkit.getPlayer(uuid);
+                        Runnable sendBalance = () -> {
+                            try {
+                                String playerName = name != null ? name : player != null ? player.getName() : "Unknown";
+                                double balance = rsp.getProvider().getBalance(Bukkit.getOfflinePlayer(uuid));
+                                Map<String, String> data = new HashMap<>();
+                                data.put("player_name", playerName);
+                                data.put("balance", String.format("%.2f", balance));
+                                ConfigurationSection cfg = plugin.getConfigAdapter().getProfileConfig()
+                                        .getConfigurationSection("money.embed");
+                                MessageEmbed embed = buildEmbedFromTemplate(player, cfg, data, new Color(0xF1C40F));
+                                if (embed != null) event.getHook().sendMessageEmbeds(embed).setEphemeral(true).queue();
+                                else plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                            } catch (Exception e) {
+                                plugin.getLogger().warning("Money button error: " + e.getMessage());
+                                plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                            }
+                        };
+                        if (player == null) sendBalance.run();
+                        else Scheduler.runForEntity(plugin, player, sendBalance);
+                    });
+                }));
     }
+
+    private void findLinkedUuid(ButtonInteractionEvent event, Consumer<UUID> action) {
+        long discordId = Long.parseLong(event.getUser().getId());
+        CompletableFuture.supplyAsync(() -> plugin.getDatabaseManager().getMinecraftUuid(discordId))
+                .whenComplete((uuid, error) -> {
+                    if (error != null) {
+                        plugin.getLogger().warning("Failed to load linked account: " + error.getMessage());
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "internal_error");
+                    } else if (uuid == null) {
+                        plugin.getDiscordManager().sendErrorEmbed(event.getHook(), "not_linked");
+                    } else {
+                        action.accept(uuid);
+                    }
+                });
+    }
+
+    private record ProfileData(PlayerStatsManager.PlayerStats stats, String name) {}
 
     // ===================== Helper Methods =====================
 
@@ -330,8 +352,9 @@ public class ButtonListener extends ListenerAdapter {
         return plugin.msg("directions." + dir.toLowerCase());
     }
 
-    private String getBlockFaceName(Location loc) {
-        BlockFace face = loc.getBlock().getFace(loc.getBlock());
+    private String getBlockFaceName(Player player) {
+        // Issue #14: usar getFacing() del jugador, no getFace del bloque consigo mismo
+        BlockFace face = player.getFacing();
         return switch (face) {
             case UP -> plugin.msg("blocks.up");
             case DOWN -> plugin.msg("blocks.down");
@@ -359,44 +382,11 @@ public class ButtonListener extends ListenerAdapter {
         return hours + "h " + minutes + "m";
     }
 
-    private String capitalizeWords(String input) {
-        StringBuilder sb = new StringBuilder();
-        for (String word : input.split(" ")) {
-            if (!sb.isEmpty()) sb.append(" ");
-            if (!word.isEmpty()) {
-                sb.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
-            }
-        }
-        return sb.toString();
-    }
-
-    private String getStringOrDefault(Map<String, Object> map, String key, String defaultValue) {
-        if (map == null) return defaultValue;
-        Object value = map.get(key);
-        if (value == null) return defaultValue;
-        String str = String.valueOf(value);
-        return str.isEmpty() ? defaultValue : str;
-    }
-
-    private int getColorOrDefault(Map<String, Object> map, int defaultColor) {
-        Object value = map.get("color");
-        if (value instanceof Number num) return num.intValue();
-        return defaultColor;
-    }
-
-    private Map<String, String> getCategoryLabels(Map<String, Object> config) {
-        Map<String, String> labels = new HashMap<>();
-        if (config.containsKey("categories") && config.get("categories") instanceof Map<?, ?> catMap) {
-            catMap.forEach((k, v) -> labels.put(String.valueOf(k), String.valueOf(v)));
-        }
-        return labels;
-    }
-
     // ═══════════════════════════════════════════════════════
     //  Template-based embed builders (customizable via YAML)
     // ═══════════════════════════════════════════════════════
 
-    private Map<String, String> computePlayerData(Player player, PlayerStatsManager.PlayerStats stats) {
+    private Map<String, String> computePlayerData(Player player, PlayerStatsManager.PlayerStats stats, Long linkedId) {
         Map<String, String> data = new HashMap<>();
         data.put("player_name", player.getName());
         data.put("player_uuid", player.getUniqueId().toString());
@@ -438,7 +428,6 @@ public class ButtonListener extends ListenerAdapter {
             data.put("player_first_join", "");
         }
 
-        Long linkedId = plugin.getDatabaseManager().getDiscordId(player.getUniqueId());
         if (linkedId != null) {
             data.put("player_linked_status", plugin.msg("profile.linked_status")
                     .replace("{discord}", "<@" + linkedId + ">"));

@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class DiscordListener extends ListenerAdapter {
 
@@ -31,7 +32,7 @@ public class DiscordListener extends ListenerAdapter {
         }
 
         String channelId = plugin.getConfigAdapter().getChatChannelId();
-        if (event.getChannel().getId().equals(channelId)) {
+        if (event.getChannel().getId().equals(channelId) && plugin.getConfigAdapter().isDiscordToMcEnabled()) {
             handleChatBridge(event);
         }
     }
@@ -39,23 +40,22 @@ public class DiscordListener extends ListenerAdapter {
     private void handleChatBridge(MessageReceivedEvent event) {
         String message = event.getMessage().getContentRaw();
         String discordName = event.getAuthor().getName();
+        long discordId = event.getAuthor().getIdLong();
 
-        UUID minecraftUuid = plugin.getDatabaseManager().getMinecraftUuid(event.getAuthor().getIdLong());
-        String prefix = discordName;
-
-        if (minecraftUuid != null) {
-            String minecraftName = plugin.getDatabaseManager().getMinecraftName(event.getAuthor().getIdLong());
-            if (minecraftName != null) prefix = minecraftName;
-        }
-
-        String format = plugin.getConfigAdapter().getChatFormatDiscordToMC();
-        String formattedMessage = format.replace("{player}", prefix).replace("{message}", message);
-
-        final String finalMessage = formattedMessage;
-        Bukkit.getScheduler().runTask(plugin, () -> {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                player.sendMessage(finalMessage);
-            }
+        CompletableFuture.supplyAsync(() -> {
+            UUID minecraftUuid = plugin.getDatabaseManager().getMinecraftUuid(discordId);
+            if (minecraftUuid == null) return discordName;
+            String minecraftName = plugin.getDatabaseManager().getMinecraftName(discordId);
+            return minecraftName != null ? minecraftName : discordName;
+        }).thenAccept(prefix -> {
+            String formattedMessage = plugin.getConfigAdapter().getChatFormatDiscordToMC()
+                    .replace("{player}", prefix).replace("{message}", message);
+            com.makrozai.eligiusconnector.util.Scheduler.runSync(plugin, () -> {
+                for (Player player : Bukkit.getOnlinePlayers()) {
+                    com.makrozai.eligiusconnector.util.Scheduler.runForEntity(plugin, player,
+                            () -> player.sendMessage(formattedMessage));
+                }
+            });
         });
     }
 
@@ -76,8 +76,10 @@ public class DiscordListener extends ListenerAdapter {
         }
 
         final String toRun = message.trim().replaceAll("\\s+", " ");
-        Bukkit.getScheduler().runTask(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), toRun));
-        plugin.getDatabaseManager().logAudit("info", "console_command", event.getAuthor().getName(), "discord", message, null);
+        com.makrozai.eligiusconnector.util.Scheduler.runSync(plugin, () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), toRun));
+        String author = event.getAuthor().getName();
+        com.makrozai.eligiusconnector.util.Scheduler.runAsync(plugin, () ->
+                plugin.getDatabaseManager().logAudit("info", "console_command", author, "discord", message, null));
     }
 
     /**

@@ -72,6 +72,8 @@ public class DatabaseManager {
     }
 
     private void createTables() {
+        String autoInc = isMySQL() ? "BIGINT AUTO_INCREMENT PRIMARY KEY" : "INTEGER PRIMARY KEY AUTOINCREMENT";
+
         String accountTable = "CREATE TABLE IF NOT EXISTS connector_accounts (" +
                 "discord_id BIGINT PRIMARY KEY," +
                 "minecraft_uuid VARCHAR(36) UNIQUE," +
@@ -81,7 +83,7 @@ public class DatabaseManager {
                 ")";
 
         String auditTable = "CREATE TABLE IF NOT EXISTS connector_audit_log (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "id " + autoInc + "," +
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
                 "level VARCHAR(10)," +
                 "action VARCHAR(50)," +
@@ -92,35 +94,11 @@ public class DatabaseManager {
                 ")";
 
         String filterTable = "CREATE TABLE IF NOT EXISTS connector_filter_warnings (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "id " + autoInc + "," +
                 "uuid VARCHAR(36)," +
                 "filter_type VARCHAR(50)," +
                 "level INT," +
                 "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                ")";
-
-        String statsTable = "CREATE TABLE IF NOT EXISTS connector_player_stats (" +
-                "uuid VARCHAR(36) PRIMARY KEY," +
-                "player_name VARCHAR(16)," +
-                "kills INT DEFAULT 0," +
-                "deaths INT DEFAULT 0," +
-                "playtime BIGINT DEFAULT 0," +
-                "blocks_broken INT DEFAULT 0," +
-                "blocks_placed INT DEFAULT 0," +
-                "items_crafted INT DEFAULT 0," +
-                "last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "first_joined TIMESTAMP DEFAULT CURRENT_TIMESTAMP" +
-                ")";
-
-        String eventsLogTable = "CREATE TABLE IF NOT EXISTS connector_events_log (" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "event_id VARCHAR(50)," +
-                "event_name VARCHAR(100)," +
-                "started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-                "ended_at TIMESTAMP," +
-                "started_by VARCHAR(16)," +
-                "winner VARCHAR(16)," +
-                "status VARCHAR(20)" +
                 ")";
 
         try (Connection conn = getConnection();
@@ -128,12 +106,12 @@ public class DatabaseManager {
             stmt.executeUpdate(accountTable);
             stmt.executeUpdate(auditTable);
             stmt.executeUpdate(filterTable);
-            stmt.executeUpdate(statsTable);
-            stmt.executeUpdate(eventsLogTable);
         } catch (SQLException e) {
             plugin.getLogger().log(Level.SEVERE, "Failed to create tables", e);
         }
     }
+
+    private boolean isMySQL() { return "mysql".equals(databaseType); }
 
     public Connection getConnection() throws SQLException {
         if (dataSource == null || dataSource.isClosed()) {
@@ -154,7 +132,9 @@ public class DatabaseManager {
 
     // Account methods
     public boolean linkAccount(long discordId, UUID minecraftUuid, String minecraftName, String linkedBy) {
-        String sql = "INSERT OR REPLACE INTO connector_accounts (discord_id, minecraft_uuid, minecraft_name, linked_at, linked_by) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)";
+        String sql = isMySQL()
+                ? "REPLACE INTO connector_accounts (discord_id, minecraft_uuid, minecraft_name, linked_at, linked_by) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)"
+                : "INSERT OR REPLACE INTO connector_accounts (discord_id, minecraft_uuid, minecraft_name, linked_at, linked_by) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)";
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setLong(1, discordId);
@@ -265,10 +245,6 @@ public class DatabaseManager {
 
     public boolean isLinked(UUID minecraftUuid) {
         return getDiscordId(minecraftUuid) != null;
-    }
-
-    public boolean isLinkedByDiscord(long discordId) {
-        return getMinecraftUuid(discordId) != null;
     }
 
     public int getLinkedCount() {

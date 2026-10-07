@@ -79,6 +79,16 @@ class ChatFilterEngineTest {
     }
 
     @Test
+    void disabledProfanityFilterDoesNotBlockConfiguredWords() {
+        PlayerMock player = server.addPlayer();
+        when(configMock.isFilterEnabled()).thenReturn(true);
+        when(configMock.isProfanityFilterEnabled()).thenReturn(false);
+        when(configMock.getBlockedWords()).thenReturn(List.of("badword"));
+
+        assertFalse(engine.filter("badword", player).blocked());
+    }
+
+    @Test
     void filterBlocksProfanity() {
         PlayerMock player = server.addPlayer();
         when(configMock.isFilterEnabled()).thenReturn(true);

@@ -1,43 +1,27 @@
 package com.makrozai.eligiusconnector.config;
 
 import org.junit.jupiter.api.Test;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConfigManagerTest {
 
     @Test
-    void testDatabaseTypeDefault() {
-        String defaultType = "sqlite";
-        assertEquals("sqlite", defaultType);
-    }
+    void defaultConfigDefinesSupportedDatabaseAndLanguage() throws Exception {
+        try (InputStream stream = getClass().getClassLoader().getResourceAsStream("config.yml")) {
+            assertNotNull(stream);
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(stream, StandardCharsets.UTF_8));
 
-    @Test
-    void testMySQLPortDefault() {
-        int defaultPort = 3306;
-        assertEquals(3306, defaultPort);
-    }
-
-    @Test
-    void testRedisPortDefault() {
-        int defaultPort = 6379;
-        assertEquals(6379, defaultPort);
-    }
-
-    @Test
-    void testCacheTimeDefault() {
-        int defaultTime = 30;
-        assertEquals(30, defaultTime);
-    }
-
-    @Test
-    void testLanguageDefault() {
-        String defaultLang = "EN";
-        assertEquals("EN", defaultLang);
-    }
-
-    @Test
-    void testTimestampFormatDefault() {
-        String defaultFormat = "dd/MM/yyyy HH:mm:ss";
-        assertEquals("dd/MM/yyyy HH:mm:ss", defaultFormat);
+            assertEquals("sqlite", config.getString("database.type"));
+            assertEquals(3306, config.getInt("database.mysql.port"));
+            assertEquals("en", config.getString("language"));
+            assertEquals("${DISCORD_BOT_TOKEN}", config.getString("bot.token"));
+        }
     }
 }

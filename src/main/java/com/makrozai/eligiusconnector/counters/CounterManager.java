@@ -5,17 +5,15 @@ import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CounterManager {
 
     private final EligiusConnector plugin;
     private final StateManager stateManager;
-    private final Map<String, PeriodicCounter> periodicCounters = new LinkedHashMap<>();
-    private final Map<String, StateCounter> stateCounters = new LinkedHashMap<>();
-    private volatile boolean stopping;
+    private final Map<String, PeriodicCounter> periodicCounters = new ConcurrentHashMap<>();
+    private final Map<String, StateCounter> stateCounters = new ConcurrentHashMap<>();
 
     public CounterManager(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -47,7 +45,6 @@ public class CounterManager {
     }
 
     public void stopAll() {
-        stopping = true;
         periodicCounters.values().forEach(PeriodicCounter::stop);
         stateCounters.values().forEach(StateCounter::stop);
         periodicCounters.clear();
@@ -62,6 +59,8 @@ public class CounterManager {
 
     public void onServerStop() {
         stateManager.setState("server_online", "offline");
+        // Issue #10: rename sincrono para que shutdownNow no lo cancele
+        stateCounters.values().forEach(StateCounter::updateSync);
     }
 
     public void updateOnlineNow() {
@@ -70,15 +69,15 @@ public class CounterManager {
                 .forEach(PeriodicCounter::update);
     }
 
-    public StateManager getStateManager() {
-        return stateManager;
+    public void updateDiscordCounters() {
+        periodicCounters.values().forEach(PeriodicCounter::update);
+        stateCounters.values().forEach(StateCounter::update);
     }
 
-    public Collection<PeriodicCounter> getPeriodicCounters() {
-        return periodicCounters.values();
+    public void reload(FileConfiguration config) {
+        stopAll();
+        loadAll(config);
+        startAll();
     }
 
-    public Collection<StateCounter> getStateCounters() {
-        return stateCounters.values();
-    }
 }

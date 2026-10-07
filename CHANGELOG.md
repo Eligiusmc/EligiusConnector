@@ -18,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chat filters with escalation
 - Audit logging
 - PlaceholderAPI integration
-- bStats integration
 
 ### Changed
 - N/A
@@ -48,7 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chat filters with escalating punishment
 - Audit logging to database
 - PlaceholderAPI expansion
-- SQLite, MySQL, and Redis support
-- bStats anonymous metrics
+- SQLite and MySQL support
 - Full i18n support
 - Wiki documentation (EN, ES)

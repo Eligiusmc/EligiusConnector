@@ -4,6 +4,7 @@ import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import com.makrozai.eligiusconnector.EligiusConnector;
 import com.makrozai.eligiusconnector.discord.DiscordManager;
+import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
 import net.dv8tion.jda.api.entities.Guild;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -36,6 +37,9 @@ class PlaceholderResolverTest {
         discordManagerMock = mock(DiscordManager.class);
         when(pluginMock.getStartTime()).thenReturn(System.currentTimeMillis());
         when(pluginMock.getDiscordManager()).thenReturn(discordManagerMock);
+        PlayerStatsManager statsManager = mock(PlayerStatsManager.class);
+        when(pluginMock.getStatsManager()).thenReturn(statsManager);
+        when(statsManager.getUniqueJoinCount()).thenReturn(42);
         when(discordManagerMock.getGuild()).thenReturn(null); // no guild in test
 
         resolver = new PlaceholderResolver(pluginMock);
@@ -101,6 +105,11 @@ class PlaceholderResolverTest {
     void resolveMembersFallsBackToZeroWithoutGuild() {
         String result = resolver.resolve("%server_members%");
         assertEquals("0", result);
+    }
+
+    @Test
+    void resolvesUniqueJoinsFromStats() {
+        assertEquals("42", resolver.resolve("%server_unique_joins%"));
     }
 
     @Test

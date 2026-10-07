@@ -12,6 +12,7 @@ import com.makrozai.eligiusconnector.listeners.PlayerListener;
 import com.makrozai.eligiusconnector.listeners.StatsListener;
 import com.makrozai.eligiusconnector.stats.PlayerStatsManager;
 import com.makrozai.eligiusconnector.counters.CounterManager;
+import com.makrozai.eligiusconnector.chat.ChatFilterEngine;
 import com.makrozai.eligiusconnector.placeholders.PlaceholderResolver;
 import com.makrozai.eligiusconnector.tasks.NicknameSyncTask;
 import com.makrozai.eligiusconnector.tasks.RoleSyncTask;
@@ -21,6 +22,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -37,12 +39,14 @@ public final class EligiusConnector extends JavaPlugin {
     private EventManager eventManager;
     private PlayerStatsManager statsManager;
     private CounterManager counterManager;
+    private ChatFilterEngine chatFilterEngine;
     private PlaceholderResolver placeholderResolver;
     private NicknameSyncTask nicknameSyncTask;
     private RoleSyncTask roleSyncTask;
 
     private final Map<Long, String> verifyCodes = new ConcurrentHashMap<>();
     private final Map<Long, Long> verifyExpiry = new ConcurrentHashMap<>();
+    private final Set<Long> verifyInProgress = ConcurrentHashMap.newKeySet();
 
     private long startTime;
 
@@ -68,6 +72,7 @@ public final class EligiusConnector extends JavaPlugin {
 
         statsManager = new PlayerStatsManager(this);
         statsManager.createTable();
+        chatFilterEngine = new ChatFilterEngine(this);
 
         StartupLogger.printStep("Connecting to Discord...");
         discordManager = new DiscordManager(this);
@@ -77,8 +82,6 @@ public final class EligiusConnector extends JavaPlugin {
         webhookManager = new WebhookManager(this);
 
         panelManager = new PanelManager(this);
-        panelManager.initializePanels();
-
         if (configAdapter.isRoleSyncEnabled()) {
             // Vault es softdepend: no tocar sus clases si el plugin no esta (NoClassDefFoundError en RoleSyncTask.start)
             if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -119,10 +122,6 @@ public final class EligiusConnector extends JavaPlugin {
         }
 
         if (counterManager != null) counterManager.onServerStart();
-        if (configAdapter.isStatusEnabled() && discordManager != null && discordManager.isConnected()) {
-            discordManager.sendStatusEmbed(new java.util.HashMap<>(), null);
-        }
-
         long elapsed = System.currentTimeMillis() - startTime;
         StartupLogger.printSuccess(elapsed);
     }
@@ -146,6 +145,16 @@ public final class EligiusConnector extends JavaPlugin {
 
     public void syncRolesForPlayer(Player player) {
         if (roleSyncTask != null) roleSyncTask.syncPlayer(player);
+    }
+
+    public void onDiscordReady() {
+        if (!isEnabled()) return;
+        com.makrozai.eligiusconnector.util.Scheduler.runSync(this, () -> {
+            if (!isEnabled()) return;
+            if (panelManager != null) panelManager.initializePanels();
+            if (counterManager != null) counterManager.updateDiscordCounters();
+            if (configAdapter.isStatusEnabled()) discordManager.sendStatusEmbed(new java.util.HashMap<>(), null);
+        });
     }
 
     public String generateVerifyCode(long discordId) {
@@ -172,12 +181,26 @@ public final class EligiusConnector extends JavaPlugin {
 
     public boolean verifyPlayer(long discordId, String code) {
         String storedCode = getVerifyCode(discordId);
-        if (storedCode != null && storedCode.equals(code)) {
-            verifyCodes.remove(discordId);
-            verifyExpiry.remove(discordId);
+        // Issue #14: comparar case-insensitive
+        if (storedCode != null && storedCode.equalsIgnoreCase(code)) {
+            // Issue #14: NO consumir el código aquí; solo se consume tras linkAccount exitoso
             return true;
         }
         return false;
+    }
+
+    public void consumeVerifyCode(long discordId) {
+        verifyCodes.remove(discordId);
+        verifyExpiry.remove(discordId);
+        verifyInProgress.remove(discordId);
+    }
+
+    public boolean claimVerifyCode(long discordId, String code) {
+        return verifyPlayer(discordId, code) && verifyInProgress.add(discordId);
+    }
+
+    public void releaseVerifyCode(long discordId) {
+        verifyInProgress.remove(discordId);
     }
 
     // Getters
@@ -188,11 +211,13 @@ public final class EligiusConnector extends JavaPlugin {
     public DiscordManager getDiscordManager() { return discordManager; }
     public WebhookManager getWebhookManager() { return webhookManager; }
     public PanelManager getPanelManager() { return panelManager; }
+    public ConsoleLogReader getConsoleLogReader() { return consoleLogReader; }
     public EventManager getEventManager() { return eventManager; }
     public PlayerStatsManager getStatsManager() { return statsManager; }
     public Map<Long, String> getVerifyCodes() { return verifyCodes; }
     public NicknameSyncTask getNicknameSyncTask() { return nicknameSyncTask; }
     public CounterManager getCounterManager() { return counterManager; }
+    public ChatFilterEngine getChatFilterEngine() { return chatFilterEngine; }
     public PlaceholderResolver getPlaceholderResolver() { return placeholderResolver; }
     public long getStartTime() { return startTime; }
 
@@ -202,8 +227,7 @@ public final class EligiusConnector extends JavaPlugin {
     }
 
     public String msg(org.bukkit.entity.Player player, String key) {
-        if (player == null) return languageManager.get(key);
-        return languageManager.get(player.getUniqueId(), key);
+        return languageManager.get(key);
     }
 
     public String msg(String key, java.util.Map<String, String> replacements) {
@@ -211,8 +235,7 @@ public final class EligiusConnector extends JavaPlugin {
     }
 
     public String msg(org.bukkit.entity.Player player, String key, java.util.Map<String, String> replacements) {
-        if (player == null) return languageManager.get(key, replacements);
-        return languageManager.get(player.getUniqueId(), key, replacements);
+        return languageManager.get(key, replacements);
     }
 
     public String applyPlaceholders(Player player, String text) {

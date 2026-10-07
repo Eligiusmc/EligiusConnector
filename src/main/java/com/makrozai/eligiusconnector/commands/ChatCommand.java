@@ -17,7 +17,7 @@ public class ChatCommand implements CommandExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!plugin.getConfigAdapter().isChatEnabled()) {
+        if (!plugin.getConfigAdapter().isChatEnabled() || !plugin.getConfigAdapter().isMcToDiscordEnabled()) {
             sender.sendMessage(plugin.msg(null, "chat.disabled_module"));
             return true;
         }
@@ -40,6 +40,7 @@ public class ChatCommand implements CommandExecutor {
         }
 
         String message = String.join(" ", args);
+        if (plugin.getChatFilterEngine().filter(message, player).blocked()) return true;
         String avatarUrl = plugin.applyPlaceholders(player,
                 plugin.getConfigAdapter().getWebhookAvatar()
                         .replace("{player}", player.getName())

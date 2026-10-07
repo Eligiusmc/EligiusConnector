@@ -1,6 +1,7 @@
 package com.makrozai.eligiusconnector.commands;
 
 import com.makrozai.eligiusconnector.EligiusConnector;
+import com.makrozai.eligiusconnector.util.Scheduler;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -32,18 +33,13 @@ public class VerifyCommand implements CommandExecutor {
             return true;
         }
 
-        if (plugin.getDatabaseManager().isLinked(player.getUniqueId())) {
-            player.sendMessage(plugin.msg(player, "verify.already_linked"));
-            playSound(player, false);
-            return true;
-        }
-
         if (args.length < 1) {
             player.sendMessage(plugin.msg(player, "verify.code_instruction"));
             return true;
         }
 
-        String code = args[0];
+        // Issue #14: aceptar minúsculas, los jugadores las escriben naturalmente
+        String code = args[0].toUpperCase(java.util.Locale.ROOT);
 
         if (code.length() != 6 || !code.matches("[A-Z0-9]+")) {
             player.sendMessage(plugin.msg(player, "verify.invalid_format"));
@@ -51,38 +47,38 @@ public class VerifyCommand implements CommandExecutor {
             return true;
         }
 
-        Long discordId = findDiscordIdByCode(code);
-        if (discordId == null) {
-            player.sendMessage(plugin.msg(player, "verify.invalid_code"));
-            playSound(player, false);
-            return true;
-        }
+        java.util.UUID uuid = player.getUniqueId();
+        String playerName = player.getName();
+        Scheduler.runAsync(plugin, () -> {
+            String result;
+            Long discordId = findDiscordIdByCode(code);
+            if (plugin.getDatabaseManager().isLinked(uuid)) {
+                result = "already_linked";
+            } else if (discordId == null || !plugin.claimVerifyCode(discordId, code)) {
+                result = "invalid_code";
+            } else if (plugin.getDatabaseManager().linkAccount(discordId, uuid, playerName, playerName)) {
+                plugin.consumeVerifyCode(discordId);
+                plugin.getDatabaseManager().logAudit("info", "account_linked", playerName, "minecraft",
+                        "Discord ID: " + discordId, null);
+                plugin.getDiscordManager().sendDmEmbed(discordId,
+                        plugin.getConfigAdapter().getVerifyDmEmbed(), java.util.Map.of("player", playerName));
+                result = "success_mc";
+            } else {
+                plugin.releaseVerifyCode(discordId);
+                result = "link_failed";
+            }
 
-        if (!plugin.verifyPlayer(discordId, code)) {
-            player.sendMessage(plugin.msg(player, "verify.invalid_code"));
-            playSound(player, false);
-            return true;
-        }
-
-        if (plugin.getDatabaseManager().linkAccount(discordId, player.getUniqueId(), player.getName(), player.getName())) {
-            player.sendMessage(plugin.msg(player, "verify.success_mc"));
-            playSound(player, true);
-
-            plugin.getDatabaseManager().logAudit("info", "account_linked", player.getName(), "minecraft", "Discord ID: " + discordId, null);
-
-            plugin.getDiscordManager().sendDmEmbed(discordId,
-                    plugin.getConfigAdapter().getVerifyDmEmbed(),
-                    java.util.Map.of("player", player.getName()));
-
-            // Trigger immediate role sync
-            plugin.syncRolesForPlayer(player);
-
-            // Execute post-verify commands
-            executePostVerifyCommands(player);
-        } else {
-            player.sendMessage(plugin.msg(player, "verify.link_failed"));
-            playSound(player, false);
-        }
+            String messageKey = result;
+            Scheduler.runForEntity(plugin, player, () -> {
+                if (!player.isOnline()) return;
+                player.sendMessage(plugin.msg(player, "verify." + messageKey));
+                playSound(player, "success_mc".equals(messageKey));
+                if ("success_mc".equals(messageKey)) {
+                    plugin.syncRolesForPlayer(player);
+                    executePostVerifyCommands(player);
+                }
+            });
+        });
 
         return true;
     }
@@ -116,7 +112,8 @@ public class VerifyCommand implements CommandExecutor {
             String resolved = plugin.applyPlaceholders(player,
                     cmd.replace("{player}", player.getName())
                             .replace("{uuid}", player.getUniqueId().toString()));
-            plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), resolved);
+            Scheduler.runSync(plugin, () ->
+                    plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), resolved));
         }
     }
 

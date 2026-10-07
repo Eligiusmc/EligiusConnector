@@ -28,7 +28,6 @@ public class ConfigAdapter {
     private FileConfiguration synchronizationConfig;
     private FileConfiguration countersConfig;
     private FileConfiguration profileConfig;
-    private FileConfiguration language;
 
     public ConfigAdapter(EligiusConnector plugin) {
         this.plugin = plugin;
@@ -44,7 +43,6 @@ public class ConfigAdapter {
         synchronizationConfig = loadConfig("synchronization.yml");
         countersConfig = loadConfig("counters.yml");
         profileConfig = loadConfig("profile.yml");
-        loadLanguage();
     }
 
     public void reloadAll() {
@@ -57,7 +55,6 @@ public class ConfigAdapter {
         synchronizationConfig = reloadConfig("synchronization.yml");
         countersConfig = reloadConfig("counters.yml");
         profileConfig = reloadConfig("profile.yml");
-        loadLanguage();
     }
 
     private FileConfiguration loadConfig(String fileName) {
@@ -81,15 +78,6 @@ public class ConfigAdapter {
         return YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), fileName));
     }
 
-    private void loadLanguage() {
-        String lang = config.getString("language", "es");
-        File langFile = new File(plugin.getDataFolder(), "lang/" + lang + ".yml");
-        if (!langFile.exists()) {
-            plugin.saveResource("lang/" + lang + ".yml", false);
-        }
-        language = YamlConfiguration.loadConfiguration(langFile);
-    }
-
     // ==========================================
     //  CORE CONFIG GETTERS
     // ==========================================
@@ -103,7 +91,7 @@ public class ConfigAdapter {
             if (end > start) {
                 String envVar = token.substring(start, end);
                 String envValue = System.getenv(envVar);
-                return envValue != null ? envValue : token;
+                return envValue != null ? envValue : "";
             }
         }
         return token;
@@ -111,7 +99,6 @@ public class ConfigAdapter {
 
     public String getServerId() { return config.getString("bot.guild_id", ""); }
     public String getLanguageCode() { return config.getString("language", "en"); }
-    public boolean isDebug() { return config.getBoolean("debug", false); }
 
     public List<String> getGameStatus() {
         return config.getStringList("bot.game_status");
@@ -156,10 +143,6 @@ public class ConfigAdapter {
     }
 
     public boolean isStatusEnabled() {
-        return true;
-    }
-
-    public boolean isJoinLeaveEnabled() {
         return true;
     }
 
@@ -224,10 +207,6 @@ public class ConfigAdapter {
         return hasEntries;
     }
 
-    public boolean isProfileEnabled() {
-        return true;
-    }
-
     public boolean isEventsEnabled() {
         File eventsDir = new File(plugin.getDataFolder(), "events");
         if (!eventsDir.exists() || !eventsDir.isDirectory()) {
@@ -243,7 +222,7 @@ public class ConfigAdapter {
         StartupLogger.printStep("<gold>Module Status</gold>");
         log("Chat", isChatEnabled(), null);
         log("Status", isStatusEnabled(), null);
-        log("Player Events", isJoinLeaveEnabled(), null);
+        log("Player Events", true, null);
         log("  - Join", isJoinEnabled(), null);
         log("  - Leave", isLeaveEnabled(), null);
         log("  - Deaths", isDeathsEnabled(), null);
@@ -252,7 +231,7 @@ public class ConfigAdapter {
         log("Console relay", isConsoleEnabled(), null);
         log("Synchronization", isSynchronizationEnabled(), null);
         log("Counters", isCountersEnabled(), null);
-        log("Profile panels", isProfileEnabled(), null);
+        log("Profile panels", true, null);
         log("Events", isEventsEnabled(), null);
     }
 
@@ -260,7 +239,6 @@ public class ConfigAdapter {
     //  CHAT CONFIG GETTERS
     // ==========================================
 
-    public FileConfiguration getChatConfig() { return chatConfig; }
     public String getChatChannelId() { return chatConfig.getString("channel", ""); }
 
     public boolean isMcToDiscordEnabled() { return chatConfig.getBoolean("bridge.mc_to_discord", true); }
@@ -318,7 +296,6 @@ public class ConfigAdapter {
     //  STATUS CONFIG GETTERS
     // ==========================================
 
-    public FileConfiguration getStatusConfig() { return statusConfig; }
     public String getStatusChannelId() { return statusConfig.getString("channel", ""); }
     public Map<String, Object> getStatusOnEmbed() { return getEmbedFromConfig(statusConfig, "online"); }
     public Map<String, Object> getStatusOffEmbed() { return getEmbedFromConfig(statusConfig, "offline"); }
@@ -326,8 +303,6 @@ public class ConfigAdapter {
     // ==========================================
     //  PLAYER EVENTS CONFIG GETTERS
     // ==========================================
-
-    public FileConfiguration getPlayerEventsConfig() { return playerEventsConfig; }
 
     public String getJoinChannelId() { return playerEventsConfig.getString("join.channel", ""); }
     public Map<String, Object> getJoinEmbed() { return getEmbedFromConfig(playerEventsConfig, "join.embed"); }
@@ -341,17 +316,11 @@ public class ConfigAdapter {
     public String getAdvancementChannelId() { return playerEventsConfig.getString("advancement.channel", ""); }
     public Map<String, Object> getAdvancementEmbed() { return getEmbedFromConfig(playerEventsConfig, "advancement.embed"); }
 
-    // Aliases for callers using old names
-    public String getJoinsChannelId() { return getJoinChannelId(); }
-    public String getDeathsChannelId() { return getDeathChannelId(); }
-    public String getMissionsChannelId() { return getAdvancementChannelId(); }
-
     // ==========================================
     //  VERIFY CONFIG GETTERS
     // ==========================================
 
     public FileConfiguration getVerifyConfig() { return verifyConfig; }
-    public String getVerifyChannelId() { return verifyConfig.getString("channel", ""); }
     public int getCodeExpiryMinutes() { return verifyConfig.getInt("code.expiry", 5); }
     public Map<String, Object> getVerifyCodeEmbed() { return getEmbedFromConfig(verifyConfig, "code_embed"); }
     public Map<String, Object> getVerifyDmEmbed() { return getEmbedFromConfig(verifyConfig, "dm_embed"); }
@@ -372,7 +341,6 @@ public class ConfigAdapter {
     //  CONSOLE CONFIG GETTERS
     // ==========================================
 
-    public FileConfiguration getConsoleConfig() { return consoleConfig; }
     public String getConsoleChannelId() { return consoleConfig.getString("channel", ""); }
     public int getConsolePollInterval() { return consoleConfig.getInt("poll_interval", 2); }
     public List<String> getConsoleCommandBlacklist() { return consoleConfig.getStringList("command_blacklist"); }
@@ -404,15 +372,6 @@ public class ConfigAdapter {
         return mapping;
     }
 
-    public void setRoleMappingEntry(String name, String roleId) {
-        synchronizationConfig.set("roles.mapping." + name, roleId);
-        try {
-            synchronizationConfig.save(new File(plugin.getDataFolder(), "synchronization.yml"));
-        } catch (Exception e) {
-            plugin.getLogger().warning("Failed to save role mapping: " + e.getMessage());
-        }
-    }
-
     public boolean isNicknameSyncEnabled() { return synchronizationConfig.getBoolean("nickname.enabled", true); }
     public int getNicknameInterval() { return synchronizationConfig.getInt("nickname.interval", 30); }
     public String getNicknameFormat() { return synchronizationConfig.getString("nickname.format", "%player_name%"); }
@@ -422,31 +381,6 @@ public class ConfigAdapter {
     // ==========================================
 
     public FileConfiguration getProfileConfig() { return profileConfig; }
-    public Map<String, Object> getProfileEmbed() { return getEmbedFromConfig(profileConfig, "profile.embed"); }
-    public Map<String, Object> getInventoryEmbed() { return getEmbedFromConfig(profileConfig, "inventory.embed"); }
-    public Map<String, Object> getWhereamiEmbed() { return getEmbedFromConfig(profileConfig, "whereami.embed"); }
-    public Map<String, Object> getMoneyEmbed() { return getEmbedFromConfig(profileConfig, "money.embed"); }
-
-    // ==========================================
-    //  EVENTS CONFIG
-    // ==========================================
-
-    public String getEventsFolder() { return "events"; }
-
-    // ==========================================
-    //  LANGUAGE
-    // ==========================================
-
-    public String getLang(String key) {
-        return language != null ? language.getString(key, key) : key;
-    }
-
-    // ==========================================
-    //  RAW CONFIG ACCESS (for backward compat)
-    // ==========================================
-
-    public FileConfiguration getConfig() { return config; }
-
     // ==========================================
     //  INTERNAL HELPERS
     // ==========================================
