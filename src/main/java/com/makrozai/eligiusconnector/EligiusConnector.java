@@ -16,7 +16,6 @@ import com.makrozai.eligiusconnector.placeholders.PlaceholderResolver;
 import com.makrozai.eligiusconnector.tasks.NicknameSyncTask;
 import com.makrozai.eligiusconnector.tasks.RoleSyncTask;
 import com.makrozai.eligiusconnector.util.StartupLogger;
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -81,8 +80,13 @@ public final class EligiusConnector extends JavaPlugin {
         panelManager.initializePanels();
 
         if (configAdapter.isRoleSyncEnabled()) {
-            roleSyncTask = new RoleSyncTask(this);
-            roleSyncTask.start();
+            // Vault es softdepend: no tocar sus clases si el plugin no esta (NoClassDefFoundError en RoleSyncTask.start)
+            if (getServer().getPluginManager().getPlugin("Vault") != null) {
+                roleSyncTask = new RoleSyncTask(this);
+                roleSyncTask.start();
+            } else {
+                getLogger().warning("Vault not installed, role sync disabled");
+            }
         }
 
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
