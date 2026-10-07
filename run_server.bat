@@ -1,40 +1,32 @@
 @echo off
-echo Starting EligiusConnector test server...
+setlocal
+echo Starting EligiusConnector test server (Purpur 26.2)...
 echo.
 
-REM Check if Java 21 is installed
-java -version 2>&1 | findstr /i "21" > nul
-if errorlevel 1 (
-    echo Warning: Java 21 not detected. Please install Java 21 LTS.
-    echo.
-)
+set JAVA_CMD=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot\bin\java.exe
+if not exist "%JAVA_CMD%" set JAVA_CMD=java
 
-REM Create run directory if it doesn't exist
-if not exist "run" mkdir run
-
-REM Download Paper if not present
-if not exist "run/paper.jar" (
-    echo Downloading Paper 1.21.1...
-    curl -L -o run/paper.jar "https://api.papermc.io/v2/projects/paper/versions/1.21.1/builds/132/downloads/paper-1.21.1-132.jar"
+if not exist "server\purpur-26.2.jar" (
+    echo Downloading Purpur 26.2...
+    curl -L -o server\purpur-26.2.jar "https://api.purpurmc.org/v2/purpur/26.2/latest/download"
     if errorlevel 1 (
-        echo Failed to download Paper. Please download manually.
+        echo Failed to download Purpur.
         pause
         exit /b 1
     )
 )
 
-REM Copy plugin to run directory
-if exist "build/libs/EligiusConnector-*.jar" (
-    copy "build\libs\EligiusConnector-*.jar" "run\plugins\" > nul
-    echo Plugin copied to run/plugins/
+if exist "build\libs\EligiusConnector-*.jar" (
+    del /q "server\plugins\EligiusConnector-*.jar" 2>nul
+    copy "build\libs\EligiusConnector-*.jar" "server\plugins\" > nul
+    echo Plugin deployed to server/plugins/
 ) else (
     echo Plugin JAR not found. Run 'gradlew build' first.
     pause
     exit /b 1
 )
 
-REM Start server
-echo Starting server...
-cd run
-java -Xms1G -Xmx2G -jar paper.jar --nogui
+echo Starting server (DISCORD_BOT_TOKEN must be set in env)...
+cd server
+"%JAVA_CMD%" -Xms1G -Xmx2G -jar purpur-26.2.jar --nogui
 pause
